@@ -114,13 +114,13 @@ export function BibleReader({
 
   return (
     <div className={`shell ${selected ? "shell--intel" : ""}`}>
-      <header className="topbar">
-        <div className="brand-lockup">
+      <aside className="sidebar" aria-label="Passage navigation">
+        <div className="sidebar__brand">
           <p className="brand">Living Word</p>
           <p className="brand-sub">Holy Bible · {versionMeta.label}</p>
         </div>
 
-        <nav className="nav-controls" aria-label="Passage navigation">
+        <div className="sidebar__section">
           <label className="field">
             <span>Version</span>
             <select
@@ -152,45 +152,54 @@ export function BibleReader({
               ))}
             </select>
           </label>
+        </div>
 
-          <label className="field field--narrow">
-            <span>Chapter</span>
-            <select
-              value={chapter}
-              onChange={(e) =>
-                goTo({ chapter: Number(e.target.value), verse: null })
-              }
+        <div className="sidebar__section">
+          <p className="sidebar__label">Chapter</p>
+          <div className="picker-grid" role="listbox" aria-label="Chapter">
+            {chapters.map((n) => (
+              <button
+                key={n}
+                type="button"
+                role="option"
+                aria-selected={n === chapter}
+                className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
+                onClick={() => goTo({ chapter: n, verse: null })}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="sidebar__section">
+          <p className="sidebar__label">Verse</p>
+          <div className="picker-grid" role="listbox" aria-label="Verse">
+            <button
+              type="button"
+              role="option"
+              aria-selected={focusVerse == null}
+              className={`picker-grid__item picker-grid__item--wide ${focusVerse == null ? "is-active" : ""}`}
+              onClick={() => chooseVerse(null)}
             >
-              {chapters.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
+              All
+            </button>
+            {verses.map((v) => (
+              <button
+                key={v.verse}
+                type="button"
+                role="option"
+                aria-selected={focusVerse === v.verse}
+                className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""}`}
+                onClick={() => chooseVerse(v.verse)}
+              >
+                {v.verse}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          <label className="field field--narrow">
-            <span>Verse</span>
-            <select
-              value={focusVerse ?? ""}
-              onChange={(e) => {
-                const raw = e.target.value;
-                if (!raw) {
-                  chooseVerse(null);
-                  return;
-                }
-                chooseVerse(Number(raw));
-              }}
-            >
-              <option value="">All</option>
-              {verses.map((v) => (
-                <option key={v.verse} value={v.verse}>
-                  {v.verse}
-                </option>
-              ))}
-            </select>
-          </label>
-
+        <div className="sidebar__footer">
           <div className="layout-toggle" role="group" aria-label="Layout">
             <span>Layout</span>
             <div className="layout-toggle__btns">
@@ -210,8 +219,8 @@ export function BibleReader({
               </button>
             </div>
           </div>
-        </nav>
-      </header>
+        </div>
+      </aside>
 
       <main className="reader">
         <div className={`reader__stage reader__stage--${layout}`}>
