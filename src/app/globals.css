@@ -169,7 +169,7 @@ a {
   min-height: 0;
 }
 
-/* Center column: single ≈ 40% of the reading surface; dual wider */
+/* Center column stays fixed; commentary panel overlays and does not shrink text */
 .reader__stage {
   padding: 2.25rem 1.5rem 4.5rem;
   width: 40%;
@@ -179,25 +179,12 @@ a {
   animation: rise 520ms ease-out both;
   transition:
     width 220ms ease,
-    max-width 220ms ease,
-    padding-right 280ms ease;
+    max-width 220ms ease;
 }
 
 .reader__stage--dual {
   width: min(78%, 58rem);
   max-width: 58rem;
-}
-
-.shell--intel .reader__stage {
-  padding-right: min(440px, 42vw);
-}
-
-.shell--intel .reader__stage--single {
-  width: min(40%, calc(100% - min(440px, 42vw)));
-}
-
-.shell--intel .reader__stage--dual {
-  width: min(78%, calc(100% - min(440px, 42vw) + 8rem));
 }
 
 .reader__heading h1 {
@@ -283,8 +270,8 @@ a {
 
 .intel-panel {
   border-left: 1px solid var(--line);
-  background: var(--bg-panel);
-  box-shadow: -16px 0 40px rgba(28, 32, 38, 0.05);
+  background: #ffffff;
+  box-shadow: -16px 0 40px rgba(28, 32, 38, 0.08);
   transform: translateX(100%);
   opacity: 0;
   pointer-events: none;
@@ -516,13 +503,10 @@ a {
 
 @media (max-width: 900px) {
   .reader__stage,
-  .reader__stage--dual,
-  .shell--intel .reader__stage--single,
-  .shell--intel .reader__stage--dual {
+  .reader__stage--dual {
     width: 100%;
     max-width: none;
     min-width: 0;
-    padding-right: 1.5rem;
   }
 
   .verse-stream--dual {
