@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type {
   BibleBook,
+  BibleVersion,
   Catalog,
   CommentaryBundle,
   CommentaryEntry,
@@ -19,8 +20,18 @@ export function getCatalog(): Catalog {
   return readJson<Catalog>(path.join(PROCESSED, "catalog.json"));
 }
 
-export function getBibleBook(slug: string): BibleBook {
-  return readJson<BibleBook>(path.join(PROCESSED, "bible", `${slug}.json`));
+export function getVersions(): BibleVersion[] {
+  return getCatalog().versions;
+}
+
+export function isValidVersion(version: string): boolean {
+  return getVersions().some((v) => v.id === version);
+}
+
+export function getBibleBook(version: string, slug: string): BibleBook {
+  return readJson<BibleBook>(
+    path.join(PROCESSED, "bible", version, `${slug}.json`),
+  );
 }
 
 export function getCommentaryBundle(slug: string): CommentaryBundle {
@@ -29,19 +40,27 @@ export function getCommentaryBundle(slug: string): CommentaryBundle {
   );
 }
 
-export function getChapter(slug: string, chapter: number) {
-  const book = getBibleBook(slug);
+export function getChapter(version: string, slug: string, chapter: number) {
+  const book = getBibleBook(version, slug);
   const ch = book.chapters.find((c) => c.chapter === chapter);
   if (!ch) return null;
-  return { book: book.book, slug: book.slug, chapter: ch };
+  return {
+    book: book.book,
+    slug: book.slug,
+    version: book.version,
+    chapter: ch,
+  };
 }
 
 export function verseKey(book: string, chapter: number, verse: number) {
   return `${book}.${chapter}.${verse}`;
 }
 
-export function getIntel(ref: VerseRef): IntelPayload | null {
-  const bible = getBibleBook(ref.slug);
+export function getIntel(
+  ref: VerseRef,
+  version: string,
+): IntelPayload | null {
+  const bible = getBibleBook(version, ref.slug);
   const chapter = bible.chapters.find((c) => c.chapter === ref.chapter);
   const verse = chapter?.verses.find((v) => v.verse === ref.verse);
   if (!chapter || !verse) return null;
@@ -50,7 +69,6 @@ export function getIntel(ref: VerseRef): IntelPayload | null {
   const key = verseKey(bible.book, ref.chapter, ref.verse);
   const ids = commentary.byVerse[key] ?? [];
 
-  // Prefer verse-range notes before chapter intros in display order.
   const entries = ids
     .map((id) => commentary.entries[id])
     .filter(Boolean)
@@ -58,7 +76,7 @@ export function getIntel(ref: VerseRef): IntelPayload | null {
       const aIntro = a.verseRange === "intro" ? 1 : 0;
       const bIntro = b.verseRange === "intro" ? 1 : 0;
       if (aIntro !== bIntro) return aIntro - bIntro;
-      return a.verses[0] - b.verses[0];
+      return (a.verses[0] ?? 0) - (b.verses[0] ?? 0);
     }) as CommentaryEntry[];
 
   const bookIntro = commentary.bookIntroId
@@ -80,6 +98,5 @@ export function getIntel(ref: VerseRef): IntelPayload | null {
 }
 
 export function slugFromBookName(book: string): string | null {
-  const catalog = getCatalog();
-  return catalog.books.find((b) => b.book === book)?.slug ?? null;
+  return getCatalog().books.find((b) => b.book === book)?.slug ?? null;
 }

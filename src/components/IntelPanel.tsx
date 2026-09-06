@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CommentaryEntry, IntelPayload, VerseRef } from "@/lib/types";
 
 type Props = {
+  version: string;
   selected: VerseRef | null;
   onClose: () => void;
 };
@@ -40,7 +41,7 @@ function EntryBlock({ entry }: { entry: CommentaryEntry }) {
   );
 }
 
-export function IntelPanel({ selected, onClose }: Props) {
+export function IntelPanel({ version, selected, onClose }: Props) {
   const [data, setData] = useState<IntelPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(Boolean(selected));
@@ -50,6 +51,7 @@ export function IntelPanel({ selected, onClose }: Props) {
 
     const controller = new AbortController();
     const params = new URLSearchParams({
+      version,
       slug: selected.slug,
       book: selected.book,
       chapter: String(selected.chapter),
@@ -72,7 +74,7 @@ export function IntelPanel({ selected, onClose }: Props) {
       });
 
     return () => controller.abort();
-  }, [selected]);
+  }, [selected, version]);
 
   const open = Boolean(selected);
 

@@ -1,3 +1,9 @@
+export type BibleVersion = {
+  id: string;
+  label: string;
+  name: string;
+};
+
 export type CatalogBook = {
   book: string;
   slug: string;
@@ -9,6 +15,7 @@ export type CatalogBook = {
 };
 
 export type Catalog = {
+  versions: BibleVersion[];
   books: CatalogBook[];
   generatedAt: string;
 };
@@ -26,6 +33,7 @@ export type BibleChapter = {
 export type BibleBook = {
   book: string;
   slug: string;
+  version: string;
   chapters: BibleChapter[];
 };
 
@@ -72,3 +80,5 @@ export type IntelPayload = {
   entries: CommentaryEntry[];
   bookIntro: CommentaryEntry | null;
 };
+
+export type LayoutMode = "single" | "dual";

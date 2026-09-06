@@ -3,9 +3,10 @@
  * Ingest public-domain Bible text + commentary, then tag commentary
  * sections to concrete verse keys.
  *
- * Sources (CC0 / public domain only — do not point this at copyrighted sites):
- * - KJV: aruljohn/Bible-kjv
- * - Commentary: OpenChristianData matthew-henry (CC0)
+ * Bible versions (public domain only):
+ * - kjv: aruljohn/Bible-kjv
+ * - asv / web: midvash/bible-data
+ * Commentary: OpenChristianData matthew-henry (CC0)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -15,6 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const RAW_BIBLE = path.join(ROOT, "data/raw/bible");
 const RAW_COMMENTARY = path.join(ROOT, "data/raw/commentary/matthew-henry");
+// OpenChristianData files use lowercase book filenames.
 const OUT = path.join(ROOT, "data/processed");
 
 const BOOK_SLUGS = {
@@ -22,6 +24,12 @@ const BOOK_SLUGS = {
   Psalms: "psalms",
   John: "john",
 };
+
+const VERSIONS = [
+  { id: "kjv", label: "KJV", name: "King James Version" },
+  { id: "asv", label: "ASV", name: "American Standard Version" },
+  { id: "web", label: "WEB", name: "World English Bible" },
+];
 
 /** Expand "1-3", "5", "1-2,5" into verse numbers. "intro" → []. */
 export function expandVerseRange(range) {
@@ -51,16 +59,26 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-function loadBibleBook(book) {
-  const file = path.join(RAW_BIBLE, `${book}.json`);
+function writeJson(file, data) {
+  ensureDir(path.dirname(file));
+  fs.writeFileSync(file, JSON.stringify(data));
+}
+
+function loadBibleBook(versionId, book) {
+  const file = path.join(RAW_BIBLE, versionId, `${book}.json`);
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
+  const bookName = raw.englishName || raw.book;
+  if (!BOOK_SLUGS[bookName]) {
+    throw new Error(`Unknown book name in ${file}: ${bookName}`);
+  }
   return {
-    book: raw.book,
-    slug: BOOK_SLUGS[raw.book],
+    book: bookName,
+    slug: BOOK_SLUGS[bookName],
+    version: versionId,
     chapters: raw.chapters.map((ch) => ({
       chapter: Number(ch.chapter),
       verses: ch.verses.map((v) => ({
-        verse: Number(v.verse),
+        verse: Number(v.verse ?? v.number),
         text: v.text,
       })),
     })),
@@ -101,7 +119,10 @@ function loadCommentaryBook(slug, bookName, bible) {
       crossReferences: item.cross_references ?? [],
       wordCount: item.word_count ?? null,
       text: item.commentary_text ?? "",
-      excerpt: (item.commentary_text ?? "").slice(0, 280).replace(/\s+/g, " ").trim(),
+      excerpt: (item.commentary_text ?? "")
+        .slice(0, 280)
+        .replace(/\s+/g, " ")
+        .trim(),
     };
     entries.push(entry);
 
@@ -112,7 +133,6 @@ function loadCommentaryBook(slug, bookName, bible) {
     if (range === "intro" && chapter > 0) {
       byChapterIntro[chapter] ??= [];
       byChapterIntro[chapter].push(entry.id);
-      // Surface chapter intros when any verse in the chapter is selected.
       for (const v of chapterVerseCounts[chapter] ?? []) {
         const key = verseKey(bookName, chapter, v);
         byVerse[key] ??= [];
@@ -131,26 +151,18 @@ function loadCommentaryBook(slug, bookName, bible) {
   return { meta, entries, byVerse, byChapterIntro, bookIntro };
 }
 
-function writeJson(file, data) {
-  ensureDir(path.dirname(file));
-  fs.writeFileSync(file, JSON.stringify(data));
-}
-
 function main() {
   ensureDir(OUT);
   ensureDir(path.join(OUT, "bible"));
   ensureDir(path.join(OUT, "commentary"));
 
-  const catalog = [];
+  const books = [];
 
+  // Commentary is version-agnostic — ingest once from KJV structure.
   for (const [book, slug] of Object.entries(BOOK_SLUGS)) {
-    console.log(`Ingesting ${book}...`);
-    const bible = loadBibleBook(book);
-    const commentary = loadCommentaryBook(slug, book, bible);
-
-    writeJson(path.join(OUT, "bible", `${slug}.json`), bible);
-
-    // Compact runtime payload: entries keyed by id + verse index
+    console.log(`Ingesting commentary tags for ${book}...`);
+    const kjv = loadBibleBook("kjv", book);
+    const commentary = loadCommentaryBook(slug, book, kjv);
     const runtime = {
       book,
       slug,
@@ -178,24 +190,36 @@ function main() {
     };
     writeJson(path.join(OUT, "commentary", `${slug}.json`), runtime);
 
-    const taggedVerses = Object.keys(commentary.byVerse).length;
-    catalog.push({
+    books.push({
       book,
       slug,
-      chapters: bible.chapters.length,
+      chapters: kjv.chapters.length,
       commentaryEntries: commentary.entries.length,
-      taggedVerses,
+      taggedVerses: Object.keys(commentary.byVerse).length,
       license: commentary.meta.license,
       author: commentary.meta.author,
     });
     console.log(
-      `  ${bible.chapters.length} chapters, ${commentary.entries.length} commentary entries, ${taggedVerses} verse tags`,
+      `  ${commentary.entries.length} commentary entries, ${Object.keys(commentary.byVerse).length} verse tags`,
     );
   }
 
-  writeJson(path.join(OUT, "catalog.json"), { books: catalog, generatedAt: new Date().toISOString() });
+  for (const version of VERSIONS) {
+    console.log(`Ingesting Bible text: ${version.id}...`);
+    ensureDir(path.join(OUT, "bible", version.id));
+    for (const [book, slug] of Object.entries(BOOK_SLUGS)) {
+      const bible = loadBibleBook(version.id, book);
+      writeJson(path.join(OUT, "bible", version.id, `${slug}.json`), bible);
+      console.log(`  ${version.id}/${slug}: ${bible.chapters.length} chapters`);
+    }
+  }
 
-  // Tiny unit check for the tagger
+  writeJson(path.join(OUT, "catalog.json"), {
+    versions: VERSIONS,
+    books,
+    generatedAt: new Date().toISOString(),
+  });
+
   const samples = [
     ["1-3", [1, 2, 3]],
     ["5", [5]],
@@ -205,10 +229,16 @@ function main() {
   for (const [input, expected] of samples) {
     const got = expandVerseRange(input);
     if (JSON.stringify(got) !== JSON.stringify(expected)) {
-      throw new Error(`expandVerseRange(${input}) => ${got}, expected ${expected}`);
+      throw new Error(
+        `expandVerseRange(${input}) => ${got}, expected ${expected}`,
+      );
     }
   }
-  console.log("Done. Catalog:", catalog.map((b) => b.slug).join(", "));
+  console.log(
+    "Done.",
+    VERSIONS.map((v) => v.id).join("/"),
+    books.map((b) => b.slug).join(", "),
+  );
 }
 
 main();

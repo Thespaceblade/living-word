@@ -59,18 +59,20 @@ a {
   flex-direction: column;
 }
 
+
 .topbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 20;
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -86,6 +88,7 @@ a {
 .eyebrow,
 .muted,
 .field span,
+.layout-toggle > span,
 .source-line {
   color: var(--muted);
   font-size: 0.78rem;
@@ -99,8 +102,9 @@ a {
 
 .nav-controls {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.65rem;
   flex-wrap: wrap;
+  align-items: end;
 }
 
 .field {
@@ -109,14 +113,18 @@ a {
   gap: 0.25rem;
 }
 
+.field--narrow select {
+  min-width: 4.5rem;
+}
+
 .field select {
   appearance: none;
   background: var(--bg-elevated);
   color: var(--text);
   border: 1px solid var(--line-strong);
   border-radius: 6px;
-  padding: 0.5rem 0.8rem;
-  min-width: 8rem;
+  padding: 0.5rem 0.75rem;
+  min-width: 7.5rem;
   font: inherit;
   box-shadow: 0 1px 2px rgba(28, 32, 38, 0.04);
 }
@@ -126,23 +134,70 @@ a {
   outline-offset: 1px;
 }
 
+.layout-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.layout-toggle__btns {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.layout-toggle__btns button {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.48rem 0.75rem;
+  cursor: pointer;
+}
+
+.layout-toggle__btns button.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
 .reader {
   display: block;
   flex: 1;
   min-height: 0;
 }
 
+/* Center column: single ≈ 40% of the reading surface; dual wider */
 .reader__stage {
   padding: 2.25rem 1.5rem 4.5rem;
-  max-width: 42rem;
-  width: 100%;
+  width: 40%;
+  min-width: min(100%, 22rem);
+  max-width: 40rem;
   margin: 0 auto;
   animation: rise 520ms ease-out both;
-  transition: padding-right 280ms ease;
+  transition:
+    width 220ms ease,
+    max-width 220ms ease,
+    padding-right 280ms ease;
+}
+
+.reader__stage--dual {
+  width: min(78%, 58rem);
+  max-width: 58rem;
 }
 
 .shell--intel .reader__stage {
   padding-right: min(440px, 42vw);
+}
+
+.shell--intel .reader__stage--single {
+  width: min(40%, calc(100% - min(440px, 42vw)));
+}
+
+.shell--intel .reader__stage--dual {
+  width: min(78%, calc(100% - min(440px, 42vw) + 8rem));
 }
 
 .reader__heading h1 {
@@ -159,6 +214,24 @@ a {
   flex-direction: column;
   gap: 0.2rem;
   margin-top: 1.75rem;
+}
+
+.verse-stream--dual {
+  display: block;
+  column-count: 2;
+  column-gap: 2rem;
+}
+
+.verse-stream--dual .verse {
+  break-inside: avoid;
+  width: 100%;
+  margin-bottom: 0.15rem;
+}
+
+.verse {
+  break-inside: avoid;
+  width: 100%;
+  margin-bottom: 0.15rem;
 }
 
 .verse {
@@ -442,16 +515,22 @@ a {
 }
 
 @media (max-width: 900px) {
-  .shell--intel .reader__stage {
+  .reader__stage,
+  .reader__stage--dual,
+  .shell--intel .reader__stage--single,
+  .shell--intel .reader__stage--dual {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
     padding-right: 1.5rem;
   }
 
-  .intel-panel {
-    width: 100%;
+  .verse-stream--dual {
+    column-count: 1;
   }
 
   .topbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 }
