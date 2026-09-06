@@ -169,12 +169,11 @@ a {
   min-height: 0;
 }
 
-/* Center column stays fixed; commentary panel overlays and does not shrink text */
+/* Wide, comfortable scripture column — panel overlays and never shrinks this */
 .reader__stage {
-  padding: 2.25rem 1.5rem 4.5rem;
-  width: 40%;
-  min-width: min(100%, 22rem);
-  max-width: 40rem;
+  padding: 2.5rem clamp(1.25rem, 3vw, 2.5rem) 5rem;
+  width: min(72vw, 52rem);
+  max-width: 52rem;
   margin: 0 auto;
   animation: rise 520ms ease-out both;
   transition:
@@ -183,8 +182,8 @@ a {
 }
 
 .reader__stage--dual {
-  width: min(78%, 58rem);
-  max-width: 58rem;
+  width: min(94vw, 80rem);
+  max-width: 80rem;
 }
 
 .reader__heading h1 {
@@ -199,41 +198,36 @@ a {
 .verse-stream {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.35rem;
   margin-top: 1.75rem;
 }
 
 .verse-stream--dual {
   display: block;
   column-count: 2;
-  column-gap: 2rem;
+  column-gap: 3rem;
 }
 
 .verse-stream--dual .verse {
   break-inside: avoid;
   width: 100%;
-  margin-bottom: 0.15rem;
-}
-
-.verse {
-  break-inside: avoid;
-  width: 100%;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.2rem;
 }
 
 .verse {
   display: grid;
-  grid-template-columns: 2.1rem 1fr;
-  gap: 0.7rem;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.85rem;
   text-align: left;
   width: 100%;
   border: 1px solid transparent;
   background: transparent;
   color: inherit;
   font: inherit;
-  padding: 0.65rem 0.7rem;
+  padding: 0.7rem 0.85rem;
   border-radius: 8px;
   cursor: pointer;
+  break-inside: avoid;
   transition:
     background 180ms ease,
     border-color 180ms ease,
@@ -263,8 +257,8 @@ a {
 
 .verse__t {
   font-family: var(--font-serif);
-  line-height: 1.85;
-  font-size: 1.14rem;
+  line-height: 1.9;
+  font-size: clamp(1.15rem, 1.05rem + 0.35vw, 1.35rem);
   color: #22262d;
 }
 
@@ -506,7 +500,6 @@ a {
   .reader__stage--dual {
     width: 100%;
     max-width: none;
-    min-width: 0;
   }
 
   .verse-stream--dual {
