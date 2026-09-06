@@ -8,11 +8,11 @@ export default function HomePage() {
   return (
     <div className="landing">
       <section className="landing__frame">
-        <p className="eyebrow">Private study surface</p>
+        <p className="eyebrow">Holy Bible</p>
         <h1 className="landing__brand">Living Word</h1>
         <p className="landing__lede">
-          A stripped scripture desk: click a verse, open the intel panel, read
-          commentary already tagged to that exact reference.
+          A clean place to read Scripture. Open a chapter, click a verse, and
+          see commentary already tagged to that exact reference.
         </p>
         <div className="cta-row">
           <Link className="cta" href={`/read/${first?.slug ?? "john"}/1`}>

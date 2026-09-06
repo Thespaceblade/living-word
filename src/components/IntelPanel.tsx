@@ -67,7 +67,7 @@ export function IntelPanel({ selected, onClose }: Props) {
       })
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
-        setError("Could not load intel for this verse.");
+        setError("Could not load commentary for this verse.");
         setLoading(false);
       });
 
@@ -84,7 +84,7 @@ export function IntelPanel({ selected, onClose }: Props) {
       <div className="intel-panel__inner">
         <header className="intel-panel__header">
           <div>
-            <p className="eyebrow">Verse intel</p>
+            <p className="eyebrow">Commentary</p>
             <h2>
               {selected
                 ? `${selected.book} ${selected.chapter}:${selected.verse}`

@@ -35,7 +35,7 @@ export function BibleReader({
       <header className="topbar">
         <div className="brand-lockup">
           <p className="brand">Living Word</p>
-          <p className="brand-sub">Scripture intel · KJV</p>
+          <p className="brand-sub">Holy Bible · KJV</p>
         </div>
         <nav className="nav-controls" aria-label="Passage navigation">
           <label className="field">
@@ -78,7 +78,7 @@ export function BibleReader({
               {book} {chapter}
             </h1>
             <p className="muted">
-              Click any verse to open tagged commentary and cross-references.
+              Tap a verse to read commentary and cross-references.
             </p>
           </div>
 

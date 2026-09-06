@@ -1,30 +1,30 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-plex-sans",
+const sourceSans = Source_Sans_3({
+  variable: "--font-source-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: "Living Word",
   description:
-    "Private scripture intel surface — KJV with verse-tagged public-domain commentary.",
+    "A clean KJV Bible reader with verse-tagged public-domain commentary.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${sourceSans.variable} ${sourceSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

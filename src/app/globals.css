@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0b0e12;
-  --bg-elevated: #12171f;
-  --bg-panel: #0f141c;
-  --line: rgba(214, 224, 236, 0.12);
-  --line-strong: rgba(214, 224, 236, 0.22);
-  --text: #e7eef7;
-  --muted: #8b98a8;
-  --accent: #7eb8c9;
-  --accent-soft: rgba(126, 184, 201, 0.14);
-  --warn: #d4a27f;
-  --grid: rgba(126, 184, 201, 0.045);
-  --font-sans: var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
-  --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+  --bg: #fbfbfc;
+  --bg-elevated: #ffffff;
+  --bg-panel: #ffffff;
+  --line: rgba(28, 32, 38, 0.08);
+  --line-strong: rgba(28, 32, 38, 0.14);
+  --text: #1c2026;
+  --muted: #6a7380;
+  --accent: #2f5f8f;
+  --accent-soft: rgba(47, 95, 143, 0.08);
+  --warn: #9a4f2e;
+  --shadow: 0 12px 40px rgba(28, 32, 38, 0.06);
+  --font-sans: var(--font-source-sans), "Source Sans 3", sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", serif;
 }
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
 }
 
 * {
@@ -36,25 +36,10 @@ body {
   margin: 0;
   color: var(--text);
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(126, 184, 201, 0.12), transparent 55%),
-    radial-gradient(900px 500px at 90% 0%, rgba(212, 162, 127, 0.08), transparent 50%),
-    linear-gradient(180deg, #0d1218 0%, var(--bg) 40%, #090c10 100%);
+    radial-gradient(900px 420px at 12% -8%, rgba(47, 95, 143, 0.06), transparent 55%),
+    radial-gradient(700px 380px at 92% 0%, rgba(28, 32, 38, 0.03), transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #f4f6f8 100%);
   font-family: var(--font-sans);
-  letter-spacing: 0.01em;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at center, black 35%, transparent 80%);
-  opacity: 0.9;
-  z-index: 0;
 }
 
 a {
@@ -79,10 +64,10 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1.1rem 1.5rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(10px);
-  background: rgba(11, 14, 18, 0.72);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -90,10 +75,11 @@ a {
 
 .brand {
   margin: 0;
-  font-size: clamp(1.35rem, 2vw, 1.7rem);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
 
 .brand-sub,
@@ -102,14 +88,13 @@ a {
 .field span,
 .source-line {
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .brand-sub {
-  margin: 0.2rem 0 0;
+  margin: 0.15rem 0 0;
 }
 
 .nav-controls {
@@ -129,10 +114,16 @@ a {
   background: var(--bg-elevated);
   color: var(--text);
   border: 1px solid var(--line-strong);
-  border-radius: 2px;
-  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
   min-width: 8rem;
   font: inherit;
+  box-shadow: 0 1px 2px rgba(28, 32, 38, 0.04);
+}
+
+.field select:focus {
+  outline: 2px solid rgba(47, 95, 143, 0.25);
+  outline-offset: 1px;
 }
 
 .reader {
@@ -142,8 +133,8 @@ a {
 }
 
 .reader__stage {
-  padding: 2rem 1.5rem 4rem;
-  max-width: 52rem;
+  padding: 2.25rem 1.5rem 4.5rem;
+  max-width: 42rem;
   width: 100%;
   margin: 0 auto;
   animation: rise 520ms ease-out both;
@@ -156,35 +147,37 @@ a {
 
 .reader__heading h1 {
   margin: 0.35rem 0 0.5rem;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 450;
-  letter-spacing: -0.02em;
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 4.4vw, 3.1rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text);
 }
 
 .verse-stream {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.2rem;
   margin-top: 1.75rem;
 }
 
 .verse {
   display: grid;
-  grid-template-columns: 2.2rem 1fr;
-  gap: 0.65rem;
+  grid-template-columns: 2.1rem 1fr;
+  gap: 0.7rem;
   text-align: left;
   width: 100%;
   border: 1px solid transparent;
   background: transparent;
   color: inherit;
   font: inherit;
-  padding: 0.55rem 0.65rem;
-  border-radius: 2px;
+  padding: 0.65rem 0.7rem;
+  border-radius: 8px;
   cursor: pointer;
   transition:
     background 180ms ease,
     border-color 180ms ease,
-    transform 180ms ease;
+    box-shadow 180ms ease;
 }
 
 .verse:hover {
@@ -193,26 +186,32 @@ a {
 }
 
 .verse--active {
-  background: var(--accent-soft);
-  border-color: rgba(126, 184, 201, 0.45);
-  box-shadow: inset 2px 0 0 var(--accent);
+  background: #fff;
+  border-color: rgba(47, 95, 143, 0.28);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    var(--shadow);
 }
 
 .verse__n {
   color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1.7;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.85;
 }
 
 .verse__t {
-  line-height: 1.7;
-  font-size: 1.05rem;
+  font-family: var(--font-serif);
+  line-height: 1.85;
+  font-size: 1.14rem;
+  color: #22262d;
 }
 
 .intel-panel {
   border-left: 1px solid var(--line);
-  background: rgba(15, 20, 28, 0.96);
+  background: var(--bg-panel);
+  box-shadow: -16px 0 40px rgba(28, 32, 38, 0.05);
   transform: translateX(100%);
   opacity: 0;
   pointer-events: none;
@@ -234,7 +233,7 @@ a {
 }
 
 .intel-panel__inner {
-  padding: 1.25rem 1.25rem 3rem;
+  padding: 1.35rem 1.35rem 3rem;
 }
 
 .intel-panel__header {
@@ -247,18 +246,20 @@ a {
 
 .intel-panel__header h2 {
   margin: 0.3rem 0 0;
-  font-size: 1.35rem;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .ghost-btn {
   border: 1px solid var(--line-strong);
-  background: transparent;
+  background: #fff;
   color: var(--text);
   font: inherit;
-  font-size: 0.8rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 2px;
+  font-size: 0.82rem;
+  padding: 0.42rem 0.75rem;
+  border-radius: 6px;
   cursor: pointer;
 }
 
@@ -269,16 +270,17 @@ a {
 
 .verse-quote {
   margin: 0 0 1rem;
-  padding: 0.9rem 1rem;
-  border-left: 2px solid var(--accent);
-  background: rgba(126, 184, 201, 0.06);
-  color: #d7e4ef;
-  font-size: 0.98rem;
-  line-height: 1.6;
+  padding: 0.95rem 1rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  color: #2a3038;
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  line-height: 1.65;
 }
 
 .intel-entry {
-  padding: 1rem 0;
+  padding: 1.05rem 0;
   border-top: 1px solid var(--line);
   animation: rise 420ms ease both;
 }
@@ -292,36 +294,36 @@ a {
 
 .intel-entry__label {
   color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .intel-entry__meta {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
 }
 
 .intel-entry__body {
   margin: 0;
   white-space: pre-wrap;
-  line-height: 1.65;
-  font-size: 0.95rem;
-  color: #d5dee8;
+  line-height: 1.7;
+  font-size: 0.98rem;
+  color: #2d333b;
+  font-family: var(--font-serif);
 }
 
 .intel-xrefs {
-  margin-top: 0.9rem;
+  margin-top: 0.95rem;
 }
 
 .intel-xrefs__title {
   display: block;
   margin-bottom: 0.4rem;
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -336,9 +338,10 @@ a {
 
 .intel-xrefs li {
   border: 1px solid var(--line);
-  padding: 0.15rem 0.4rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  background: #fff;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
   color: var(--muted);
 }
 
@@ -358,29 +361,33 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.75rem, 4vw, 3.25rem);
   border: 1px solid var(--line);
+  border-radius: 18px;
   background:
-    linear-gradient(180deg, transparent 10%, rgba(11, 14, 18, 0.55) 55%, rgba(11, 14, 18, 0.92) 100%),
-    radial-gradient(circle at 70% 20%, rgba(126, 184, 201, 0.18), transparent 40%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.92) 58%, #fff 100%),
+    radial-gradient(circle at 78% 18%, rgba(47, 95, 143, 0.12), transparent 42%),
+    linear-gradient(145deg, #f8fafc, #eef2f6);
+  box-shadow: var(--shadow);
   animation: rise 700ms ease both;
 }
 
 .landing__brand {
   margin: 0;
-  font-size: clamp(3rem, 10vw, 6.5rem);
+  font-family: var(--font-serif);
+  font-size: clamp(3.1rem, 10vw, 6.2rem);
   line-height: 0.95;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-weight: 500;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .landing__lede {
   max-width: 34rem;
   margin: 1rem 0 1.75rem;
-  color: #b7c3d0;
-  font-size: 1.05rem;
-  line-height: 1.6;
+  color: #4b5563;
+  font-size: 1.08rem;
+  line-height: 1.65;
 }
 
 .cta-row {
@@ -393,24 +400,25 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.1rem;
+  padding: 0.8rem 1.15rem;
   border: 1px solid var(--accent);
+  border-radius: 8px;
   background: var(--accent);
-  color: #071016;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  transition: transform 180ms ease, background 180ms ease;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 0.9rem;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 
 .cta:hover {
   transform: translateY(-1px);
-  background: #97c9d6;
+  background: #264e76;
+  box-shadow: 0 8px 20px rgba(47, 95, 143, 0.2);
 }
 
 .cta--ghost {
-  background: transparent;
+  background: #fff;
   color: var(--text);
   border-color: var(--line-strong);
 }
@@ -418,7 +426,8 @@ a {
 .cta--ghost:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: transparent;
+  background: #fff;
+  box-shadow: none;
 }
 
 @keyframes rise {
