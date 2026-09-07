@@ -2,13 +2,23 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  HIGHLIGHT_COLORS,
+  getMark,
+  getMarksSnapshot,
+  getServerMarksSnapshot,
+  setHighlight,
+  subscribeMarks,
+  toggleBookmark,
+  type HighlightColor,
+} from "@/lib/marks";
 import type {
   BibleVerse,
   BibleVersion,
   LayoutMode,
   VerseRef,
 } from "@/lib/types";
-import { IntelPanel } from "./IntelPanel";
+import { IntelPanel, preferStudyTab, type StudyTabId } from "./IntelPanel";
 
 type Props = {
   version: string;
@@ -61,17 +71,26 @@ export function BibleReader({
     getLayoutSnapshot,
     getServerLayoutSnapshot,
   );
+  const marks = useSyncExternalStore(
+    subscribeMarks,
+    getMarksSnapshot,
+    getServerMarksSnapshot,
+  );
   const [focusVerse, setFocusVerse] = useState<number | null>(initialVerse);
   const [selected, setSelected] = useState<VerseRef | null>(() =>
     initialVerse
       ? { book, slug, chapter, verse: initialVerse }
       : null,
   );
+  const [panelOpen, setPanelOpen] = useState(Boolean(initialVerse));
+  const [toolbarOpen, setToolbarOpen] = useState(false);
 
   const chapters = useMemo(
     () => Array.from({ length: chapterCount }, (_, i) => i + 1),
     [chapterCount],
   );
+
+  const availableSlugs = useMemo(() => books.map((b) => b.slug), [books]);
 
   const versionMeta =
     versions.find((v) => v.id === version) ??
@@ -80,6 +99,20 @@ export function BibleReader({
       label: version.toUpperCase(),
       name: version,
     } satisfies BibleVersion);
+
+  const selectedVerseText = useMemo(() => {
+    if (!selected || selected.slug !== slug || selected.chapter !== chapter) {
+      return null;
+    }
+    return verses.find((v) => v.verse === selected.verse)?.text ?? null;
+  }, [selected, slug, chapter, verses]);
+
+  const selectedMark =
+    selected && selected.slug === slug && selected.chapter === chapter
+      ? getMark(marks, selected.slug, selected.chapter, selected.verse)
+      : selected
+        ? getMark(marks, selected.slug, selected.chapter, selected.verse)
+        : null;
 
   useEffect(() => {
     if (!focusVerse) return;
@@ -105,15 +138,44 @@ export function BibleReader({
     else router.push(href);
   }
 
-  function chooseVerse(verseNum: number | null) {
+  function chooseVerse(verseNum: number | null, opts?: { openPanel?: boolean }) {
     setFocusVerse(verseNum);
-    if (verseNum == null) setSelected(null);
-    else setSelected({ book, slug, chapter, verse: verseNum });
+    if (verseNum == null) {
+      setSelected(null);
+      setPanelOpen(false);
+      setToolbarOpen(false);
+    } else {
+      setSelected({ book, slug, chapter, verse: verseNum });
+      setToolbarOpen(true);
+      setPanelOpen(opts?.openPanel !== false);
+    }
     goTo({ verse: verseNum, replace: true });
   }
 
+  function openStudy(tab?: StudyTabId) {
+    if (!selected) return;
+    if (tab) preferStudyTab(tab);
+    setPanelOpen(true);
+    setToolbarOpen(false);
+  }
+
+  function markInputFor(verseNum: number) {
+    return { slug, book, chapter, verse: verseNum };
+  }
+
+  function copySelected() {
+    if (!selected || !selectedVerseText) return;
+    const citation = `${selected.book} ${selected.chapter}:${selected.verse} ${version.toUpperCase()}\n${selectedVerseText}`;
+    void navigator.clipboard.writeText(citation);
+  }
+
+  function quickHighlight(color: HighlightColor) {
+    if (!selected) return;
+    setHighlight(markInputFor(selected.verse), color);
+  }
+
   return (
-    <div className={`shell ${selected ? "shell--intel" : ""}`}>
+    <div className={`shell ${panelOpen && selected ? "shell--intel" : ""}`}>
       <aside className="sidebar" aria-label="Passage navigation">
         <div className="sidebar__brand">
           <p className="brand">Living Word</p>
@@ -184,18 +246,21 @@ export function BibleReader({
             >
               All
             </button>
-            {verses.map((v) => (
-              <button
-                key={v.verse}
-                type="button"
-                role="option"
-                aria-selected={focusVerse === v.verse}
-                className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""}`}
-                onClick={() => chooseVerse(v.verse)}
-              >
-                {v.verse}
-              </button>
-            ))}
+            {verses.map((v) => {
+              const mark = getMark(marks, slug, chapter, v.verse);
+              return (
+                <button
+                  key={v.verse}
+                  type="button"
+                  role="option"
+                  aria-selected={focusVerse === v.verse}
+                  className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""} ${mark?.bookmarked ? "is-bookmarked" : ""}`}
+                  onClick={() => chooseVerse(v.verse)}
+                >
+                  {v.verse}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -229,7 +294,7 @@ export function BibleReader({
               {book} {chapter}
             </h1>
             <p className="muted">
-              {versionMeta.name} · tap a verse for commentary
+              {versionMeta.name} · tap a verse to mark or study
             </p>
           </div>
 
@@ -239,21 +304,74 @@ export function BibleReader({
                 selected?.chapter === chapter &&
                 selected?.verse === v.verse &&
                 selected?.slug === slug;
+              const mark = getMark(marks, slug, chapter, v.verse);
+              const hlClass = mark?.highlight
+                ? `verse--hl-${mark.highlight}`
+                : "";
               return (
                 <button
                   key={v.verse}
                   id={`verse-${v.verse}`}
                   type="button"
-                  className={`verse ${active ? "verse--active" : ""}`}
+                  className={`verse ${active ? "verse--active" : ""} ${hlClass} ${mark?.bookmarked ? "verse--bookmarked" : ""}`}
                   onClick={() => chooseVerse(v.verse)}
                 >
-                  <sup className="verse__n">{v.verse}</sup>
+                  <sup className="verse__n">
+                    {v.verse}
+                    {mark?.bookmarked ? (
+                      <span className="verse__mark" aria-hidden>
+                        ·
+                      </span>
+                    ) : null}
+                  </sup>
                   <span className="verse__t">{v.text}</span>
                 </button>
               );
             })}
           </div>
         </div>
+
+        {toolbarOpen && selected && selected.slug === slug ? (
+          <div className="verse-toolbar" role="toolbar" aria-label="Verse tools">
+            <div className="verse-toolbar__swatches">
+              {HIGHLIGHT_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`swatch swatch--${color} ${selectedMark?.highlight === color ? "is-active" : ""}`}
+                  aria-label={`Highlight ${color}`}
+                  onClick={() => quickHighlight(color)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              className="ghost-btn"
+              onClick={() => {
+                toggleBookmark(markInputFor(selected.verse));
+              }}
+            >
+              {selectedMark?.bookmarked ? "Unbookmark" : "Bookmark"}
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
+              onClick={() => openStudy("notes")}
+            >
+              Note
+            </button>
+            <button type="button" className="ghost-btn" onClick={copySelected}>
+              Copy
+            </button>
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={() => openStudy()}
+            >
+              Study
+            </button>
+          </div>
+        ) : null}
 
         <IntelPanel
           key={
@@ -262,8 +380,14 @@ export function BibleReader({
               : "closed"
           }
           version={version}
-          selected={selected}
-          onClose={() => chooseVerse(null)}
+          selected={panelOpen ? selected : null}
+          verseText={selectedVerseText}
+          mark={selectedMark}
+          availableSlugs={availableSlugs}
+          onClose={() => {
+            setPanelOpen(false);
+            setToolbarOpen(Boolean(selected));
+          }}
         />
       </main>
     </div>
