@@ -9,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { LivingWordLogo } from "@/components/LivingWordLogo";
 import {
   getMark,
   getMarksSnapshot,
@@ -338,8 +339,8 @@ export function BibleReader({
     <div className={`shell shell--biblecom shell--font-${fontScale}`}>
       <header className="reader-bar" ref={navRef}>
         <div className="reader-bar__inner">
-          <Link href="/" className="reader-bar__brand">
-            Living Word
+          <Link href="/" className="reader-bar__brand" aria-label="Living Word home">
+            <LivingWordLogo size="sm" />
           </Link>
 
           <div className="reader-bar__pills">
