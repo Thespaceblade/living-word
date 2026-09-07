@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   HIGHLIGHT_COLORS,
   getMark,
@@ -41,6 +47,8 @@ type Props = {
   initialVerse?: number | null;
 };
 
+type NavLayer = "place" | "chapter" | "verse" | null;
+
 const LAYOUT_KEY = "lw-layout";
 const layoutListeners = new Set<() => void>();
 
@@ -50,7 +58,6 @@ function getLayoutSnapshot(): LayoutMode {
 }
 
 const SERVER_LAYOUT: LayoutMode = "single";
-
 
 function getServerLayoutSnapshot(): LayoutMode {
   return SERVER_LAYOUT;
@@ -78,6 +85,7 @@ export function BibleReader({
   initialVerse = null,
 }: Props) {
   const router = useRouter();
+  const navRef = useRef<HTMLDivElement>(null);
   const layout = useSyncExternalStore(
     subscribeLayout,
     getLayoutSnapshot,
@@ -102,6 +110,8 @@ export function BibleReader({
   );
   const [panelOpen, setPanelOpen] = useState(Boolean(initialVerse));
   const [toolbarOpen, setToolbarOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [navLayer, setNavLayer] = useState<NavLayer>(null);
 
   const chapters = useMemo(
     () => Array.from({ length: chapterCount }, (_, i) => i + 1),
@@ -137,6 +147,31 @@ export function BibleReader({
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [focusVerse, chapter, slug, version]);
 
+  useEffect(() => {
+    if (!navOpen) return;
+
+    function onPointerDown(event: MouseEvent) {
+      if (!navRef.current?.contains(event.target as Node)) {
+        setNavOpen(false);
+        setNavLayer(null);
+      }
+    }
+
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setNavOpen(false);
+        setNavLayer(null);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [navOpen]);
+
   function goTo(next: {
     version?: string;
     slug?: string;
@@ -164,6 +199,8 @@ export function BibleReader({
       setSelected({ book, slug, chapter, verse: verseNum });
       setToolbarOpen(true);
       setPanelOpen(opts?.openPanel !== false);
+      setNavOpen(false);
+      setNavLayer(null);
     }
     goTo({ verse: verseNum, replace: true });
   }
@@ -216,15 +253,114 @@ export function BibleReader({
     );
   }
 
+  function toggleNav() {
+    setNavOpen((open) => {
+      if (open) setNavLayer(null);
+      return !open;
+    });
+  }
+
+  function toggleLayer(layer: NavLayer) {
+    setNavLayer((current) => (current === layer ? null : layer));
+  }
+
   return (
     <div className={`shell ${panelOpen && selected ? "shell--intel" : ""}`}>
-      <aside className="sidebar" aria-label="Passage navigation">
-        <div className="sidebar__brand">
-          <p className="brand">Living Word</p>
-          <p className="brand-sub">Holy Bible · {versionMeta.label}</p>
+      <div
+        className={`nav-dock ${navOpen ? "is-open" : ""}`}
+        ref={navRef}
+      >
+        <button
+          type="button"
+          className="nav-dock__trigger"
+          aria-expanded={navOpen}
+          aria-controls="nav-dock-panel"
+          onClick={toggleNav}
+        >
+          <span className="nav-dock__brand">Living Word</span>
+          <span className="nav-dock__here">
+            {book} {chapter}
+            {focusVerse ? `:${focusVerse}` : ""} · {versionMeta.label}
+          </span>
+          <span className="nav-dock__chev" aria-hidden>
+            {navOpen ? "▴" : "▾"}
+          </span>
+        </button>
+
+        <div
+          id="nav-dock-panel"
+          className={`nav-float ${navOpen ? "is-open" : ""}`}
+          aria-hidden={!navOpen}
+        >
+          <div className="nav-float__stack">
+            <button
+              type="button"
+              className={`nav-tile ${navLayer === "place" ? "is-active" : ""}`}
+              onClick={() => toggleLayer("place")}
+            >
+              <span className="nav-tile__label">Place</span>
+              <span className="nav-tile__value">
+                {versionMeta.label} · {book}
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`nav-tile ${navLayer === "chapter" ? "is-active" : ""}`}
+              onClick={() => toggleLayer("chapter")}
+            >
+              <span className="nav-tile__label">Chapter</span>
+              <span className="nav-tile__value">{chapter}</span>
+            </button>
+            <button
+              type="button"
+              className={`nav-tile ${navLayer === "verse" ? "is-active" : ""}`}
+              onClick={() => toggleLayer("verse")}
+            >
+              <span className="nav-tile__label">Verse</span>
+              <span className="nav-tile__value">
+                {focusVerse ?? "All"}
+              </span>
+            </button>
+          </div>
+
+          <div className="nav-float__footer">
+            <div className="layout-toggle" role="group" aria-label="Layout">
+              <span>Layout</span>
+              <div className="layout-toggle__btns">
+                <button
+                  type="button"
+                  className={layout === "single" ? "is-active" : ""}
+                  onClick={() => writeLayout("single")}
+                >
+                  Single
+                </button>
+                <button
+                  type="button"
+                  className={layout === "dual" ? "is-active" : ""}
+                  onClick={() => writeLayout("dual")}
+                >
+                  Dual
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="ghost-btn"
+              onClick={() => {
+                setNavOpen(false);
+                setNavLayer(null);
+              }}
+            >
+              Done
+            </button>
+          </div>
         </div>
 
-        <div className="sidebar__section">
+        <div
+          className={`nav-popout ${navOpen && navLayer === "place" ? "is-open" : ""}`}
+          aria-hidden={!(navOpen && navLayer === "place")}
+        >
+          <p className="nav-popout__title">Version & book</p>
           <label className="field">
             <span>Version</span>
             <select
@@ -240,14 +376,14 @@ export function BibleReader({
               ))}
             </select>
           </label>
-
           <label className="field">
             <span>Book</span>
             <select
               value={slug}
-              onChange={(e) =>
-                goTo({ slug: e.target.value, chapter: 1, verse: null })
-              }
+              onChange={(e) => {
+                goTo({ slug: e.target.value, chapter: 1, verse: null });
+                setNavLayer("chapter");
+              }}
             >
               {books.map((b) => (
                 <option key={b.slug} value={b.slug}>
@@ -258,8 +394,11 @@ export function BibleReader({
           </label>
         </div>
 
-        <div className="sidebar__section">
-          <p className="sidebar__label">Chapter</p>
+        <div
+          className={`nav-popout ${navOpen && navLayer === "chapter" ? "is-open" : ""}`}
+          aria-hidden={!(navOpen && navLayer === "chapter")}
+        >
+          <p className="nav-popout__title">Chapter</p>
           <div className="picker-grid" role="listbox" aria-label="Chapter">
             {chapters.map((n) => (
               <button
@@ -268,7 +407,10 @@ export function BibleReader({
                 role="option"
                 aria-selected={n === chapter}
                 className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
-                onClick={() => goTo({ chapter: n, verse: null })}
+                onClick={() => {
+                  goTo({ chapter: n, verse: null });
+                  setNavLayer("verse");
+                }}
               >
                 {n}
               </button>
@@ -276,8 +418,11 @@ export function BibleReader({
           </div>
         </div>
 
-        <div className="sidebar__section">
-          <p className="sidebar__label">Verse</p>
+        <div
+          className={`nav-popout ${navOpen && navLayer === "verse" ? "is-open" : ""}`}
+          aria-hidden={!(navOpen && navLayer === "verse")}
+        >
+          <p className="nav-popout__title">Verse</p>
           <div className="picker-grid" role="listbox" aria-label="Verse">
             <button
               type="button"
@@ -305,29 +450,7 @@ export function BibleReader({
             })}
           </div>
         </div>
-
-        <div className="sidebar__footer">
-          <div className="layout-toggle" role="group" aria-label="Layout">
-            <span>Layout</span>
-            <div className="layout-toggle__btns">
-              <button
-                type="button"
-                className={layout === "single" ? "is-active" : ""}
-                onClick={() => writeLayout("single")}
-              >
-                Single
-              </button>
-              <button
-                type="button"
-                className={layout === "dual" ? "is-active" : ""}
-                onClick={() => writeLayout("dual")}
-              >
-                Dual
-              </button>
-            </div>
-          </div>
-        </div>
-      </aside>
+      </div>
 
       <main className="reader">
         <div className={`reader__stage reader__stage--${layout}`}>
