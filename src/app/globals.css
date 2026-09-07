@@ -221,7 +221,7 @@ a {
 .nav-popout.is-open {
   display: flex;
   flex-direction: column;
-  animation: pop-down var(--dur-pop) var(--ease-pop) both;
+  animation: pop-down 520ms var(--ease-pop) both;
 }
 
 .nav-float {
@@ -255,24 +255,25 @@ a {
 }
 
 .nav-float.is-open .nav-tile {
-  animation: tile-pop var(--dur-pop) var(--ease-pop) both;
+  opacity: 0;
+  animation: tile-pop 480ms var(--ease-pop) both;
 }
 
 .nav-float.is-open .nav-tile:nth-child(1) {
-  animation-delay: 40ms;
+  animation-delay: 70ms;
 }
 
 .nav-float.is-open .nav-tile:nth-child(2) {
-  animation-delay: 90ms;
+  animation-delay: 140ms;
 }
 
 .nav-float.is-open .nav-tile:nth-child(3) {
-  animation-delay: 140ms;
+  animation-delay: 210ms;
 }
 
 .nav-float.is-open .nav-float__footer {
   opacity: 0;
-  animation: tile-pop 360ms var(--ease-pop) 180ms both;
+  animation: tile-pop 420ms var(--ease-pop) 280ms both;
 }
 
 .nav-tile:hover {
@@ -322,26 +323,26 @@ a {
 }
 
 .nav-popout.is-open {
-  animation: pop-down var(--dur-pop) var(--ease-pop) both;
+  animation: pop-down 520ms var(--ease-pop) both;
 }
 
 .nav-popout.is-open .picker-grid__item {
   opacity: 0;
-  animation: tile-pop 380ms var(--ease-pop) both;
-  animation-delay: calc(28ms + (14ms * var(--i, 0)));
+  animation: tile-pop 460ms var(--ease-pop) both;
+  animation-delay: calc(60ms + (22ms * min(var(--i, 0), 20)));
 }
 
 .nav-popout.is-open .field {
   opacity: 0;
-  animation: tile-pop 360ms var(--ease-pop) both;
+  animation: tile-pop 440ms var(--ease-pop) both;
 }
 
 .nav-popout.is-open .field:nth-of-type(1) {
-  animation-delay: 50ms;
+  animation-delay: 90ms;
 }
 
 .nav-popout.is-open .field:nth-of-type(2) {
-  animation-delay: 110ms;
+  animation-delay: 170ms;
 }
 
 .nav-popout__title {
@@ -1339,11 +1340,11 @@ a.xref-card:hover {
 @keyframes pop-down {
   0% {
     opacity: 0;
-    transform: translateY(-14px) scale(0.94);
+    transform: translateY(-22px) scale(0.9);
   }
-  70% {
+  62% {
     opacity: 1;
-    transform: translateY(2px) scale(1.02);
+    transform: translateY(4px) scale(1.035);
   }
   100% {
     opacity: 1;
@@ -1354,11 +1355,11 @@ a.xref-card:hover {
 @keyframes tile-pop {
   0% {
     opacity: 0;
-    transform: translateY(-8px) scale(0.96);
+    transform: translateY(-14px) scale(0.9);
   }
-  70% {
+  58% {
     opacity: 1;
-    transform: translateY(1px) scale(1.02);
+    transform: translateY(3px) scale(1.05);
   }
   100% {
     opacity: 1;
@@ -1368,10 +1369,10 @@ a.xref-card:hover {
 
 @keyframes chip-pulse {
   0% {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
-  60% {
-    transform: scale(1.015);
+  55% {
+    transform: scale(1.025);
   }
   100% {
     transform: scale(1);

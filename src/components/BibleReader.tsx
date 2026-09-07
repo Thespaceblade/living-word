@@ -359,6 +359,7 @@ export function BibleReader({
         <div
           className={`nav-popout ${navOpen && navLayer === "place" ? "is-open" : ""}`}
           aria-hidden={!(navOpen && navLayer === "place")}
+          key={navOpen && navLayer === "place" ? "place-open" : "place"}
         >
           <p className="nav-popout__title">Version & book</p>
           <label className="field">
