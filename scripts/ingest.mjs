@@ -3,9 +3,10 @@
  * Ingest public-domain Bible text + commentary, then tag commentary
  * sections to concrete verse keys.
  *
- * Bible versions (public domain only):
+ * Bible versions (public domain / free only):
  * - kjv: aruljohn/Bible-kjv
  * - asv / web: midvash/bible-data
+ * - bsb / bbe / nheb: scrollmapper/bible_databases (via scripts/fetch-free-bibles.mjs)
  * Commentary: OpenChristianData matthew-henry (CC0)
  */
 import fs from "node:fs";
@@ -29,6 +30,9 @@ const VERSIONS = [
   { id: "kjv", label: "KJV", name: "King James Version" },
   { id: "asv", label: "ASV", name: "American Standard Version" },
   { id: "web", label: "WEB", name: "World English Bible" },
+  { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
+  { id: "bbe", label: "BBE", name: "Bible in Basic English" },
+  { id: "nheb", label: "NHEB", name: "New Heart English Bible" },
 ];
 
 /** Expand "1-3", "5", "1-2,5" into verse numbers. "intro" → []. */
