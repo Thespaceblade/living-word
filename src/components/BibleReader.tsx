@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   useEffect,
@@ -9,14 +10,10 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
-  HIGHLIGHT_COLORS,
   getMark,
   getMarksSnapshot,
   getServerMarksSnapshot,
-  setHighlight,
   subscribeMarks,
-  toggleBookmark,
-  type HighlightColor,
 } from "@/lib/marks";
 import {
   clearTrail,
@@ -33,7 +30,7 @@ import type {
   LayoutMode,
   VerseRef,
 } from "@/lib/types";
-import { IntelPanel, preferStudyTab, type StudyTabId } from "./IntelPanel";
+import { VerseModule } from "./VerseModule";
 
 type Props = {
   version: string;
@@ -48,9 +45,12 @@ type Props = {
 };
 
 type NavLayer = "place" | "chapter" | "verse" | null;
+type FontScale = "sm" | "md" | "lg";
 
 const LAYOUT_KEY = "lw-layout";
+const FONT_KEY = "lw-font-scale";
 const layoutListeners = new Set<() => void>();
+const fontListeners = new Set<() => void>();
 
 function getLayoutSnapshot(): LayoutMode {
   const saved = window.localStorage.getItem(LAYOUT_KEY);
@@ -73,6 +73,25 @@ function writeLayout(mode: LayoutMode) {
   layoutListeners.forEach((listener) => listener());
 }
 
+function getFontSnapshot(): FontScale {
+  const saved = window.localStorage.getItem(FONT_KEY);
+  return saved === "sm" || saved === "lg" ? saved : "md";
+}
+
+function getServerFontSnapshot(): FontScale {
+  return "md";
+}
+
+function subscribeFont(onStoreChange: () => void) {
+  fontListeners.add(onStoreChange);
+  return () => fontListeners.delete(onStoreChange);
+}
+
+function writeFont(scale: FontScale) {
+  window.localStorage.setItem(FONT_KEY, scale);
+  fontListeners.forEach((listener) => listener());
+}
+
 export function BibleReader({
   version,
   versions,
@@ -91,6 +110,11 @@ export function BibleReader({
     getLayoutSnapshot,
     getServerLayoutSnapshot,
   );
+  const fontScale = useSyncExternalStore(
+    subscribeFont,
+    getFontSnapshot,
+    getServerFontSnapshot,
+  );
   const marks = useSyncExternalStore(
     subscribeMarks,
     getMarksSnapshot,
@@ -108,10 +132,9 @@ export function BibleReader({
       ? { book, slug, chapter, verse: initialVerse }
       : null,
   );
-  const [panelOpen, setPanelOpen] = useState(Boolean(initialVerse));
-  const [toolbarOpen, setToolbarOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [navLayer, setNavLayer] = useState<NavLayer>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const chapters = useMemo(
     () => Array.from({ length: chapterCount }, (_, i) => i + 1),
@@ -125,6 +148,11 @@ export function BibleReader({
       label: version.toUpperCase(),
       name: version,
     } satisfies BibleVersion);
+
+  const bookIndex = books.findIndex((b) => b.slug === slug);
+  const canGoPrev = chapter > 1 || bookIndex > 0;
+  const canGoNext =
+    chapter < chapterCount || (bookIndex >= 0 && bookIndex < books.length - 1);
 
   const selectedVerseText = useMemo(() => {
     if (!selected || selected.slug !== slug || selected.chapter !== chapter) {
@@ -142,35 +170,70 @@ export function BibleReader({
 
   useEffect(() => {
     if (!focusVerse) return;
-    document
-      .getElementById(`verse-${focusVerse}`)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const el = document.getElementById(`verse-${focusVerse}`);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const topSafe = 72;
+    const bottomSafe = window.innerHeight - 24;
+    const inView = rect.top >= topSafe && rect.bottom <= bottomSafe;
+    if (!inView) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }, [focusVerse, chapter, slug, version]);
 
   useEffect(() => {
-    if (!navOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (navOpen || settingsOpen) {
+        setNavOpen(false);
+        setNavLayer(null);
+        setSettingsOpen(false);
+        return;
+      }
+      if (selected) {
+        setSelected(null);
+        setFocusVerse(null);
+        router.replace(`/read/${version}/${slug}/${chapter}`);
+      }
+    }
+
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navOpen, settingsOpen, selected, version, slug, chapter, router]);
+
+  useEffect(() => {
+    if (!navOpen && !settingsOpen) return;
 
     function onPointerDown(event: MouseEvent) {
       if (!navRef.current?.contains(event.target as Node)) {
         setNavOpen(false);
         setNavLayer(null);
-      }
-    }
-
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setNavOpen(false);
-        setNavLayer(null);
+        setSettingsOpen(false);
       }
     }
 
     document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [navOpen]);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [navOpen, settingsOpen]);
+
+  useEffect(() => {
+    if (!selected) return;
+
+    function onPointerDown(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest(".verse-module")) return;
+      if (target.closest(".verse")) return;
+      if (target.closest(".reader-bar")) return;
+      if (target.closest(".chapter-arrow")) return;
+      setSelected(null);
+      setFocusVerse(null);
+      router.replace(`/read/${version}/${slug}/${chapter}`);
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [selected, version, slug, chapter, router]);
 
   function goTo(next: {
     version?: string;
@@ -189,42 +252,31 @@ export function BibleReader({
     else router.push(href);
   }
 
-  function chooseVerse(verseNum: number | null, opts?: { openPanel?: boolean }) {
+  function chooseVerse(verseNum: number | null) {
+    // Toggle off when clicking the same verse again
+    if (
+      verseNum != null &&
+      selected &&
+      selected.slug === slug &&
+      selected.chapter === chapter &&
+      selected.verse === verseNum
+    ) {
+      setFocusVerse(null);
+      setSelected(null);
+      goTo({ verse: null, replace: true });
+      return;
+    }
+
     setFocusVerse(verseNum);
     if (verseNum == null) {
       setSelected(null);
-      setPanelOpen(false);
-      setToolbarOpen(false);
     } else {
       setSelected({ book, slug, chapter, verse: verseNum });
-      setToolbarOpen(true);
-      setPanelOpen(opts?.openPanel !== false);
       setNavOpen(false);
       setNavLayer(null);
+      setSettingsOpen(false);
     }
     goTo({ verse: verseNum, replace: true });
-  }
-
-  function openStudy(tab?: StudyTabId) {
-    if (!selected) return;
-    if (tab) preferStudyTab(tab);
-    setPanelOpen(true);
-    setToolbarOpen(false);
-  }
-
-  function markInputFor(verseNum: number) {
-    return { slug, book, chapter, verse: verseNum };
-  }
-
-  function copySelected() {
-    if (!selected || !selectedVerseText) return;
-    const citation = `${selected.book} ${selected.chapter}:${selected.verse} ${version.toUpperCase()}\n${selectedVerseText}`;
-    void navigator.clipboard.writeText(citation);
-  }
-
-  function quickHighlight(color: HighlightColor) {
-    if (!selected) return;
-    setHighlight(markInputFor(selected.verse), color);
   }
 
   function handleXrefNavigate() {
@@ -246,209 +298,276 @@ export function BibleReader({
   function goBackOnTrail() {
     const place = popTrail();
     if (!place) return;
-    setPanelOpen(true);
-    setToolbarOpen(false);
     router.push(
       `/read/${place.version}/${place.slug}/${place.chapter}?verse=${place.verse}`,
     );
   }
 
-  function toggleNav() {
-    setNavOpen((open) => {
-      if (open) setNavLayer(null);
-      return !open;
-    });
+  function openLayer(layer: NavLayer) {
+    setSettingsOpen(false);
+    setNavOpen(true);
+    setNavLayer(layer);
   }
 
-  function toggleLayer(layer: NavLayer) {
-    setNavLayer((current) => (current === layer ? null : layer));
+  function goChapter(delta: -1 | 1) {
+    const nextChapter = chapter + delta;
+    if (nextChapter >= 1 && nextChapter <= chapterCount) {
+      setFocusVerse(null);
+      setSelected(null);
+      goTo({ chapter: nextChapter, verse: null });
+      return;
+    }
+
+    if (delta < 0 && bookIndex > 0) {
+      const prev = books[bookIndex - 1];
+      setFocusVerse(null);
+      setSelected(null);
+      goTo({ slug: prev.slug, chapter: prev.chapters, verse: null });
+      return;
+    }
+
+    if (delta > 0 && bookIndex >= 0 && bookIndex < books.length - 1) {
+      const next = books[bookIndex + 1];
+      setFocusVerse(null);
+      setSelected(null);
+      goTo({ slug: next.slug, chapter: 1, verse: null });
+    }
   }
 
   return (
-    <div className={`shell ${panelOpen && selected ? "shell--intel" : ""}`}>
-      <div
-        className={`nav-dock ${navOpen ? "is-open" : ""}`}
-        ref={navRef}
-      >
-        <button
-          type="button"
-          className="nav-dock__trigger"
-          aria-expanded={navOpen}
-          aria-controls="nav-dock-panel"
-          onClick={toggleNav}
-        >
-          <span className="nav-dock__brand">Living Word</span>
-          <span className="nav-dock__here">
-            {book} {chapter}
-            {focusVerse ? `:${focusVerse}` : ""} · {versionMeta.label}
-          </span>
-          <span className={`nav-dock__chev ${navOpen ? "is-open" : ""}`} aria-hidden>
-            <span className="nav-dock__chev-mark" />
-          </span>
-        </button>
+    <div className={`shell shell--biblecom shell--font-${fontScale}`}>
+      <header className="reader-bar" ref={navRef}>
+        <div className="reader-bar__inner">
+          <Link href="/" className="reader-bar__brand">
+            Living Word
+          </Link>
+
+          <div className="reader-bar__pills">
+            <button
+              type="button"
+              className={`reader-bar__pill ${navOpen && (navLayer === "place" || navLayer === "chapter" || navLayer === "verse" || navLayer == null) ? "is-open" : ""}`}
+              aria-expanded={navOpen}
+              onClick={() => openLayer("chapter")}
+            >
+              <span>
+                {book} {chapter}
+              </span>
+              <span className="reader-bar__caret" aria-hidden />
+            </button>
+            <button
+              type="button"
+              className={`reader-bar__pill ${navOpen && navLayer === "place" ? "is-open" : ""}`}
+              aria-expanded={navOpen && navLayer === "place"}
+              onClick={() => openLayer("place")}
+            >
+              <span>{versionMeta.label}</span>
+              <span className="reader-bar__caret" aria-hidden />
+            </button>
+          </div>
+
+          <div className="reader-bar__tools">
+            <button
+              type="button"
+              className={`reader-bar__icon ${layout === "dual" ? "is-active" : ""}`}
+              aria-label="Dual-column layout"
+              title="Dual columns"
+              aria-pressed={layout === "dual"}
+              onClick={() =>
+                writeLayout(layout === "dual" ? "single" : "dual")
+              }
+            >
+              <span className="reader-bar__parallel" aria-hidden />
+            </button>
+            <button
+              type="button"
+              className={`reader-bar__icon ${settingsOpen ? "is-active" : ""}`}
+              aria-label="Text settings"
+              aria-expanded={settingsOpen}
+              onClick={() => {
+                setNavOpen(false);
+                setNavLayer(null);
+                setSettingsOpen((open) => !open);
+              }}
+            >
+              AA
+            </button>
+          </div>
+        </div>
 
         {navOpen ? (
-          <div id="nav-dock-panel" className="nav-float">
-            <div className="nav-float__stack">
+          <div className="reader-menu">
+            <div className="reader-menu__tabs" role="tablist" aria-label="Navigate">
               <button
                 type="button"
-                className={`nav-tile ${navLayer === "place" ? "is-active" : ""}`}
-                onClick={() => toggleLayer("place")}
+                role="tab"
+                aria-selected={navLayer === "place" || navLayer == null}
+                className={navLayer === "place" || navLayer == null ? "is-active" : ""}
+                onClick={() => setNavLayer("place")}
               >
-                <span className="nav-tile__label">Place</span>
-                <span className="nav-tile__value">
-                  {versionMeta.label} · {book}
-                </span>
+                Book
               </button>
               <button
                 type="button"
-                className={`nav-tile ${navLayer === "chapter" ? "is-active" : ""}`}
-                onClick={() => toggleLayer("chapter")}
+                role="tab"
+                aria-selected={navLayer === "chapter"}
+                className={navLayer === "chapter" ? "is-active" : ""}
+                onClick={() => setNavLayer("chapter")}
               >
-                <span className="nav-tile__label">Chapter</span>
-                <span className="nav-tile__value">{chapter}</span>
+                Chapter
               </button>
               <button
                 type="button"
-                className={`nav-tile ${navLayer === "verse" ? "is-active" : ""}`}
-                onClick={() => toggleLayer("verse")}
+                role="tab"
+                aria-selected={navLayer === "verse"}
+                className={navLayer === "verse" ? "is-active" : ""}
+                onClick={() => setNavLayer("verse")}
               >
-                <span className="nav-tile__label">Verse</span>
-                <span className="nav-tile__value">
-                  {focusVerse ?? "All"}
-                </span>
+                Verse
               </button>
             </div>
 
-            <div className="nav-float__footer">
-              <div className="layout-toggle" role="group" aria-label="Layout">
-                <span>Layout</span>
-                <div className="layout-toggle__btns">
-                  <button
-                    type="button"
-                    className={layout === "single" ? "is-active" : ""}
-                    onClick={() => writeLayout("single")}
+            {(navLayer === "place" || navLayer == null) && (
+              <div className="reader-menu__panel">
+                <label className="field">
+                  <span>Version</span>
+                  <select
+                    value={version}
+                    onChange={(e) =>
+                      goTo({ version: e.target.value, verse: focusVerse })
+                    }
                   >
-                    Single
-                  </button>
-                  <button
-                    type="button"
-                    className={layout === "dual" ? "is-active" : ""}
-                    onClick={() => writeLayout("dual")}
+                    {versions.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.label} — {v.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>Book</span>
+                  <select
+                    value={slug}
+                    onChange={(e) => {
+                      goTo({ slug: e.target.value, chapter: 1, verse: null });
+                      setNavLayer("chapter");
+                    }}
                   >
-                    Dual
-                  </button>
+                    {books.map((b) => (
+                      <option key={b.slug} value={b.slug}>
+                        {b.book}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
+
+            {navLayer === "chapter" && (
+              <div className="reader-menu__panel">
+                <div className="picker-grid" role="listbox" aria-label="Chapter">
+                  {chapters.map((n, i) => (
+                    <button
+                      key={n}
+                      type="button"
+                      role="option"
+                      aria-selected={n === chapter}
+                      className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
+                      style={{ ["--i" as string]: i }}
+                      onClick={() => {
+                        goTo({ chapter: n, verse: null });
+                        setNavLayer("verse");
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <button
-                type="button"
-                className="ghost-btn"
-                onClick={() => {
-                  setNavOpen(false);
-                  setNavLayer(null);
-                }}
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        ) : null}
+            )}
 
-        {navOpen && navLayer === "place" ? (
-          <div className="nav-popout">
-            <p className="nav-popout__title">Version & book</p>
-            <label className="field">
-              <span>Version</span>
-              <select
-                value={version}
-                onChange={(e) =>
-                  goTo({ version: e.target.value, verse: focusVerse })
-                }
-              >
-                {versions.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.label} — {v.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>Book</span>
-              <select
-                value={slug}
-                onChange={(e) => {
-                  goTo({ slug: e.target.value, chapter: 1, verse: null });
-                  setNavLayer("chapter");
-                }}
-              >
-                {books.map((b) => (
-                  <option key={b.slug} value={b.slug}>
-                    {b.book}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        ) : null}
-
-        {navOpen && navLayer === "chapter" ? (
-          <div className="nav-popout">
-            <p className="nav-popout__title">Chapter</p>
-            <div className="picker-grid" role="listbox" aria-label="Chapter">
-              {chapters.map((n, i) => (
-                <button
-                  key={n}
-                  type="button"
-                  role="option"
-                  aria-selected={n === chapter}
-                  className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
-                  style={{ ["--i" as string]: i }}
-                  onClick={() => {
-                    goTo({ chapter: n, verse: null });
-                    setNavLayer("verse");
-                  }}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {navOpen && navLayer === "verse" ? (
-          <div className="nav-popout">
-            <p className="nav-popout__title">Verse</p>
-            <div className="picker-grid" role="listbox" aria-label="Verse">
-              <button
-                type="button"
-                role="option"
-                aria-selected={focusVerse == null}
-                className={`picker-grid__item picker-grid__item--wide ${focusVerse == null ? "is-active" : ""}`}
-                style={{ ["--i" as string]: 0 }}
-                onClick={() => chooseVerse(null)}
-              >
-                All
-              </button>
-              {verses.map((v, i) => {
-                const mark = getMark(marks, slug, chapter, v.verse);
-                return (
+            {navLayer === "verse" && (
+              <div className="reader-menu__panel">
+                <div className="picker-grid" role="listbox" aria-label="Verse">
                   <button
-                    key={v.verse}
                     type="button"
                     role="option"
-                    aria-selected={focusVerse === v.verse}
-                    className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""} ${mark?.bookmarked ? "is-bookmarked" : ""}`}
-                    style={{ ["--i" as string]: i + 1 }}
-                    onClick={() => chooseVerse(v.verse)}
+                    aria-selected={focusVerse == null}
+                    className={`picker-grid__item picker-grid__item--wide ${focusVerse == null ? "is-active" : ""}`}
+                    style={{ ["--i" as string]: 0 }}
+                    onClick={() => chooseVerse(null)}
                   >
-                    {v.verse}
+                    All
                   </button>
-                );
-              })}
+                  {verses.map((v, i) => {
+                    const mark = getMark(marks, slug, chapter, v.verse);
+                    return (
+                      <button
+                        key={v.verse}
+                        type="button"
+                        role="option"
+                        aria-selected={focusVerse === v.verse}
+                        className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""} ${mark?.bookmarked ? "is-bookmarked" : ""}`}
+                        style={{ ["--i" as string]: i + 1 }}
+                        onClick={() => chooseVerse(v.verse)}
+                      >
+                        {v.verse}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {settingsOpen ? (
+          <div className="reader-settings" role="dialog" aria-label="Text settings">
+            <p className="reader-settings__label">Font size</p>
+            <div className="reader-settings__sizes" role="group" aria-label="Font size">
+              <button
+                type="button"
+                className={`reader-settings__size reader-settings__size--sm ${fontScale === "sm" ? "is-active" : ""}`}
+                onClick={() => writeFont("sm")}
+              >
+                AA
+              </button>
+              <button
+                type="button"
+                className={`reader-settings__size reader-settings__size--md ${fontScale === "md" ? "is-active" : ""}`}
+                onClick={() => writeFont("md")}
+              >
+                AA
+              </button>
+              <button
+                type="button"
+                className={`reader-settings__size reader-settings__size--lg ${fontScale === "lg" ? "is-active" : ""}`}
+                onClick={() => writeFont("lg")}
+              >
+                AA
+              </button>
             </div>
           </div>
         ) : null}
-      </div>
+      </header>
+
+      <button
+        type="button"
+        className="chapter-arrow chapter-arrow--prev"
+        aria-label="Previous chapter"
+        disabled={!canGoPrev}
+        onClick={() => goChapter(-1)}
+      >
+        <span aria-hidden>‹</span>
+      </button>
+      <button
+        type="button"
+        className="chapter-arrow chapter-arrow--next"
+        aria-label="Next chapter"
+        disabled={!canGoNext}
+        onClick={() => goChapter(1)}
+      >
+        <span aria-hidden>›</span>
+      </button>
 
       <main className="reader">
         <div className={`reader__stage reader__stage--${layout}`}>
@@ -478,9 +597,7 @@ export function BibleReader({
             <h1>
               {book} {chapter}
             </h1>
-            <p className="muted">
-              {versionMeta.name} · tap a verse to mark or study
-            </p>
+            <p className="reader__meta">{versionMeta.name}</p>
           </div>
 
           <div className={`verse-stream verse-stream--${layout}`}>
@@ -516,64 +633,20 @@ export function BibleReader({
           </div>
         </div>
 
-        {toolbarOpen && selected && selected.slug === slug ? (
-          <div className="verse-toolbar" role="toolbar" aria-label="Verse tools">
-            <div className="verse-toolbar__swatches">
-              {HIGHLIGHT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`swatch swatch--${color} ${selectedMark?.highlight === color ? "is-active" : ""}`}
-                  aria-label={`Highlight ${color}`}
-                  onClick={() => quickHighlight(color)}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              className="ghost-btn"
-              onClick={() => {
-                toggleBookmark(markInputFor(selected.verse));
-              }}
-            >
-              {selectedMark?.bookmarked ? "Unbookmark" : "Bookmark"}
-            </button>
-            <button
-              type="button"
-              className="ghost-btn"
-              onClick={() => openStudy("notes")}
-            >
-              Note
-            </button>
-            <button type="button" className="ghost-btn" onClick={copySelected}>
-              Copy
-            </button>
-            <button
-              type="button"
-              className="primary-btn"
-              onClick={() => openStudy()}
-            >
-              Study
-            </button>
-          </div>
+        {selected && selected.slug === slug && selected.chapter === chapter ? (
+          <VerseModule
+            version={version}
+            selected={selected}
+            verseText={selectedVerseText}
+            mark={selectedMark}
+            onXrefNavigate={handleXrefNavigate}
+            onClose={() => {
+              setSelected(null);
+              setFocusVerse(null);
+              router.replace(`/read/${version}/${slug}/${chapter}`);
+            }}
+          />
         ) : null}
-
-        <IntelPanel
-          key={
-            selected
-              ? `${version}-${selected.slug}-${selected.chapter}-${selected.verse}`
-              : "closed"
-          }
-          version={version}
-          selected={panelOpen ? selected : null}
-          verseText={selectedVerseText}
-          mark={selectedMark}
-          onXrefNavigate={handleXrefNavigate}
-          onClose={() => {
-            setPanelOpen(false);
-            setToolbarOpen(Boolean(selected));
-          }}
-        />
       </main>
     </div>
   );
