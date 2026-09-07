@@ -41,6 +41,15 @@ node scripts/fetch-sources.mjs romans matthew   # pull more PD books
 
 After fetching new books, add them to `BOOK_SLUGS` in `scripts/ingest.mjs`, then re-run ingest.
 
-## How tagging works
+## Audio
+
+Listen streams public-domain chapter MP3s from the Internet Archive:
+
+- **KJV** (and ASV fallback): AudioTreasure Ultra Light pack (`kingjamesversionaudio`)
+- **WEB**: David Williams narration mirror (`legacy-web-audio`)
+
+Verse highlight is approximate, based on relative word counts within the chapter (these packs do not ship verse timings).
+
+
 
 Commentary entries ship with ranges like `1-3` or `intro`. `scripts/ingest.mjs` expands ranges into concrete keys (`John.3.16`) and builds an inverted index used by `/api/intel`.
