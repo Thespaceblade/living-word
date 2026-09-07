@@ -865,14 +865,19 @@ a.xref-card:hover {
 }
 
 .word-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.08rem;
   border: 1px solid transparent;
   background: rgba(47, 95, 143, 0.05);
   color: var(--text);
   font: inherit;
-  padding: 0.28rem 0.45rem;
+  padding: 0.28rem 0.42rem 0.32rem;
   border-radius: 5px;
   cursor: pointer;
-  line-height: 1.2;
+  line-height: 1.15;
+  max-width: 6.75rem;
 }
 
 .word-chip:hover {
@@ -891,6 +896,19 @@ a.xref-card:hover {
   font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+.word-chip__literal {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .word-detail {

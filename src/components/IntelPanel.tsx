@@ -552,6 +552,18 @@ export function IntelPanel({
   );
 }
 
+function shortLiteral(gloss: string) {
+  const clean = gloss
+    .replace(/[<>[\]]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return "";
+  // Prefer the first sense before semicolon / slash clutter
+  const first = clean.split(/[;|/»]/)[0]?.trim() ?? clean;
+  if (first.length <= 18) return first.toLowerCase();
+  return `${first.slice(0, 16).replace(/\s+\S*$/, "").toLowerCase()}…`;
+}
+
 function WordsTab({
   loading,
   error,
@@ -572,23 +584,29 @@ function WordsTab({
   return (
     <>
       <p className="muted source-line">
-        {data.lang === "hebrew" ? "Hebrew" : "Greek"} · tap a word for detail
+        {data.lang === "hebrew" ? "Hebrew" : "Greek"} · tap for Strong’s
       </p>
       <div className="word-flow" role="list">
-        {data.tokens.map((token) => (
-          <button
-            key={`${token.i}-${token.strongs}-${token.tlit}`}
-            type="button"
-            role="listitem"
-            className={`word-chip ${active === token.i ? "is-active" : ""}`}
-            title={[token.strongs, token.gloss].filter(Boolean).join(" · ")}
-            onClick={() =>
-              setActive((prev) => (prev === token.i ? null : token.i))
-            }
-          >
-            <span className="word-chip__tlit">{token.tlit}</span>
-          </button>
-        ))}
+        {data.tokens.map((token) => {
+          const literal = shortLiteral(token.gloss);
+          return (
+            <button
+              key={`${token.i}-${token.strongs}-${token.tlit}`}
+              type="button"
+              role="listitem"
+              className={`word-chip ${active === token.i ? "is-active" : ""}`}
+              title={[token.strongs, token.gloss].filter(Boolean).join(" · ")}
+              onClick={() =>
+                setActive((prev) => (prev === token.i ? null : token.i))
+              }
+            >
+              <span className="word-chip__tlit">{token.tlit}</span>
+              {literal ? (
+                <span className="word-chip__literal">({literal})</span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
       {selected ? (
         <div className="word-detail">
