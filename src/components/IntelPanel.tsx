@@ -332,11 +332,6 @@ export function IntelPanel({
                     <p className="muted">Gathering commentary…</p>
                   )}
                   {intel?.error && <p className="error">{intel.error}</p>}
-                  {intel?.data ? (
-                    <p className="muted source-line">
-                      Source · {intel.data.meta.title} ({intel.data.meta.license})
-                    </p>
-                  ) : null}
                   {intel?.data?.bookIntro ? (
                     <article className="intel-entry intel-entry--intro">
                       <header className="intel-entry__head">
@@ -535,9 +530,6 @@ function WordsTab({
 
   return (
     <>
-      <p className="muted source-line">
-        {data.lang === "hebrew" ? "Hebrew" : "Greek"} · tap for Strong’s
-      </p>
       <div className="word-flow" role="list">
         {data.tokens.map((token) => {
           const literal = shortLiteral(token.gloss);
@@ -576,7 +568,6 @@ function WordsTab({
           ) : null}
         </div>
       ) : null}
-      <p className="muted tiny words-attr">{data.attribution}</p>
     </>
   );
 }
