@@ -176,9 +176,15 @@ export function BibleReader({
 
   useEffect(() => {
     if (!focusVerse) return;
-    document
-      .getElementById(`verse-${focusVerse}`)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const el = document.getElementById(`verse-${focusVerse}`);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const topSafe = 72;
+    const bottomSafe = window.innerHeight - 24;
+    const inView = rect.top >= topSafe && rect.bottom <= bottomSafe;
+    if (!inView) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }, [focusVerse, chapter, slug, version]);
 
   useEffect(() => {
@@ -192,7 +198,7 @@ export function BibleReader({
       }
       if (panelOpen) {
         setPanelOpen(false);
-        setToolbarOpen(Boolean(selected));
+        setToolbarOpen(false);
         return;
       }
       if (toolbarOpen) setToolbarOpen(false);
@@ -242,11 +248,19 @@ export function BibleReader({
       setToolbarOpen(false);
     } else {
       setSelected({ book, slug, chapter, verse: verseNum });
-      setToolbarOpen(true);
-      setPanelOpen(Boolean(opts?.openPanel));
       setNavOpen(false);
       setNavLayer(null);
       setSettingsOpen(false);
+      if (opts?.openPanel) {
+        setPanelOpen(true);
+        setToolbarOpen(false);
+      } else if (panelOpen) {
+        // Keep study open on the new verse — avoid panel↔toolbar thrash
+        setToolbarOpen(false);
+      } else {
+        setToolbarOpen(true);
+        setPanelOpen(false);
+      }
     }
     goTo({ verse: verseNum, replace: true });
   }
@@ -638,7 +652,8 @@ export function BibleReader({
         </div>
 
         {toolbarOpen && selected && selected.slug === slug ? (
-          <div className="verse-toolbar" role="dialog" aria-label="Verse tools">
+          <div className="verse-toolbar" role="presentation">
+            <div className="verse-toolbar__card" role="dialog" aria-label="Verse tools">
             <div className="verse-toolbar__head">
               <p className="verse-toolbar__selected">
                 Currently selected: {selected.book} {selected.chapter}:
@@ -720,15 +735,11 @@ export function BibleReader({
                 Note
               </button>
             </div>
+            </div>
           </div>
         ) : null}
 
         <IntelPanel
-          key={
-            selected
-              ? `${version}-${selected.slug}-${selected.chapter}-${selected.verse}`
-              : "closed"
-          }
           version={version}
           selected={panelOpen ? selected : null}
           verseText={selectedVerseText}
@@ -736,7 +747,7 @@ export function BibleReader({
           onXrefNavigate={handleXrefNavigate}
           onClose={() => {
             setPanelOpen(false);
-            setToolbarOpen(Boolean(selected));
+            setToolbarOpen(false);
           }}
         />
       </main>

@@ -124,6 +124,7 @@ a {
   z-index: 40;
   background: #fff;
   border-bottom: 1px solid var(--line);
+  transition: right var(--dur-slow) var(--ease-out);
 }
 
 .shell--intel .reader-bar {
@@ -347,7 +348,9 @@ a {
     background var(--dur-fast) ease,
     border-color var(--dur-fast) ease,
     transform var(--dur-fast) var(--ease-pop),
-    opacity var(--dur-fast) ease;
+    opacity var(--dur-fast) ease,
+    right var(--dur-slow) var(--ease-out),
+    left var(--dur-slow) var(--ease-out);
 }
 
 .chapter-arrow:hover:not(:disabled) {
@@ -525,7 +528,6 @@ a {
   width: min(100%, var(--reader-max));
   max-width: var(--reader-max);
   margin: 0 auto;
-  animation: rise var(--dur-slow) var(--ease-out) both;
   transition:
     width var(--dur-med) var(--ease-out),
     max-width var(--dur-med) var(--ease-out),
@@ -731,7 +733,6 @@ a {
 .intel-entry {
   padding: 1.05rem 0;
   border-top: 1px solid var(--line);
-  animation: rise 420ms ease both;
 }
 
 .intel-entry__head {
@@ -1054,10 +1055,23 @@ a.xref-card:hover {
 
 .verse-toolbar {
   position: fixed;
-  left: 50%;
-  right: auto;
+  left: 0;
+  right: 0;
   bottom: 1.35rem;
   z-index: 25;
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem;
+  pointer-events: none;
+  transition: right var(--dur-slow) var(--ease-out);
+}
+
+.shell--intel .verse-toolbar {
+  right: var(--intel-width);
+}
+
+.verse-toolbar__card {
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
@@ -1067,16 +1081,7 @@ a.xref-card:hover {
   border-radius: 12px;
   background: #fff;
   box-shadow: var(--shadow);
-  transform: translateX(-50%);
-  animation: pop-down 360ms var(--ease-pop) backwards;
-  transition:
-    width var(--dur-slow) var(--ease-out),
-    left var(--dur-slow) var(--ease-out),
-    bottom var(--dur-med) var(--ease-out);
-}
-
-.shell--intel .verse-toolbar {
-  left: calc((100vw - var(--intel-width)) / 2);
+  animation: pop-down 280ms var(--ease-out) both;
 }
 
 .verse-toolbar__head {
@@ -1200,7 +1205,6 @@ a.xref-card:hover {
   justify-content: center;
   gap: 0.55rem;
   margin: 0 0 0.85rem;
-  animation: rise var(--dur-med) var(--ease-out) both;
 }
 
 .reading-trail__back {
@@ -1535,23 +1539,23 @@ a.xref-card:hover {
   }
 
   .verse-toolbar {
-    left: 0.75rem;
-    right: 0.75rem;
+    left: 0;
+    right: 0;
     bottom: 0.75rem;
-    width: auto;
-    transform: none;
+    padding: 0 0.75rem;
   }
 
   .shell--intel .reader {
     padding-right: 0;
   }
 
-  .shell--intel .reader-bar {
+  .shell--intel .reader-bar,
+  .shell--intel .verse-toolbar {
     right: 0;
   }
 
-  .shell--intel .verse-toolbar {
-    left: 0.75rem;
+  .verse-toolbar__card {
+    width: 100%;
   }
 
   .intel-panel {
