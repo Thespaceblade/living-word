@@ -2,26 +2,33 @@
 
 Private scripture intel surface with verse-tagged public-domain commentary.
 
-**Not for public redistribution of third-party copyrighted material.** Local ingest only uses public-domain / CC0 sources (KJV, ASV, WEB + Matthew Henry via Open Christian Data). Do not point the fetch scripts at copyrighted commentary sites.
+**Not for public redistribution of third-party copyrighted material.** This project only ingests public-domain / CC0 sources. Do not point the fetch scripts at copyrighted commentary sites, and do not bundle NIV, ESV, NKJV, or other restricted translations.
 
 ## Translations
 
-Always available offline:
+Free / public-domain packs included for Genesis, Psalms, and John:
 
-- KJV, ASV, WEB (public domain)
+- **KJV** King James Version
+- **ASV** American Standard Version
+- **WEB** World English Bible (modern)
+- **BSB** Berean Standard Bible (modern, public domain)
+- **BBE** Bible in Basic English (simple modern English)
+- **NHEB** New Heart English Bible (modern, public domain)
 
-Optional licensed translations (fetched at runtime, never committed):
+NIV, ESV, and NKJV require paid licenses, so this app ships free modern
+alternatives instead of those restricted texts.
 
-- **ESV** via [api.esv.org](https://api.esv.org/) (`ESV_API_KEY`)
-- **NIV** and **NKJV** via [API.Bible](https://scripture.api.bible/) (`API_BIBLE_KEY`, plus plan access to those Bibles)
+Fetch the modern free packs with:
 
-Copy `.env.example` to `.env.local`, add keys, restart the app. Chapters are cached under `data/cache/bible` for up to 30 days.
+```bash
+npm run fetch:free-bibles
+npm run ingest
+```
 
 ## Stack
 
 - Next.js (App Router)
 - Public-domain Bible text + Matthew Henry commentary (CC0)
-- Optional licensed text through publisher APIs
 
 ## Commands
 

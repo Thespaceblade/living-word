@@ -48,7 +48,6 @@ type Props = {
   initialVerse?: number | null;
   planId?: string | null;
   planDay?: number | null;
-  copyrightNotice?: string | null;
 };
 
 type NavLayer = "place" | "chapter" | "verse" | null;
@@ -111,7 +110,6 @@ export function BibleReader({
   initialVerse = null,
   planId = null,
   planDay = null,
-  copyrightNotice = null,
 }: Props) {
   const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
@@ -508,9 +506,6 @@ export function BibleReader({
                     {versions.map((v) => (
                       <option key={v.id} value={v.id}>
                         {v.label}: {v.name}
-                        {v.source === "licensed" && v.ready === false
-                          ? " (setup)"
-                          : ""}
                       </option>
                     ))}
                   </select>
@@ -687,9 +682,6 @@ export function BibleReader({
               {book} {chapter}
             </h1>
             <p className="reader__meta">{versionMeta.name}</p>
-            {copyrightNotice ? (
-              <p className="reader__copyright">{copyrightNotice}</p>
-            ) : null}
           </div>
 
           <div className={`verse-stream verse-stream--${layout}`}>

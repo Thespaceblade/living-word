@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getIntelAsync, isValidVersion } from "@/lib/content";
+import { getIntel, isValidVersion } from "@/lib/content";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const intel = await getIntelAsync({ book, slug, chapter, verse }, version);
+  const intel = getIntel({ book, slug, chapter, verse }, version);
   if (!intel) {
     return NextResponse.json({ error: "Verse not found" }, { status: 404 });
   }
