@@ -68,7 +68,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "gospel-of-john",
     title: "Gospel of John",
     description:
-      "A classic 21-day walk—one full chapter a day through John’s Gospel.",
+      "A classic 21-day walk: one full chapter a day through John’s Gospel.",
     lengthLabel: "21 days",
     topic: "Gospel",
     image: "/plans/john.jpg",
@@ -98,7 +98,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "shepherd-psalms",
     title: "Shepherd Psalms",
     description:
-      "Ten full psalms of trust, repentance, and praise—one psalm each day.",
+      "Ten full psalms of trust, repentance, and praise: one psalm each day.",
     lengthLabel: "10 days",
     topic: "Trust",
     image: "/plans/shepherd.jpg",
@@ -138,7 +138,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "living-water",
     title: "Living Water",
     description:
-      "Wells, floods, and living water—full Genesis, John, and Psalm chapters.",
+      "Wells, floods, and living water: full Genesis, John, and Psalm chapters.",
     lengthLabel: "8 days",
     topic: "Water",
     image: "/plans/water.jpg",
@@ -158,7 +158,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "faith-of-abraham",
     title: "Faith of Abraham",
     description:
-      "Abraham’s call to the offering—shaped like YouVersion “Climbing with Abraham,” chapter by chapter.",
+      "Abraham’s call to the offering, shaped like YouVersion “Climbing with Abraham,” chapter by chapter.",
     lengthLabel: "10 days",
     topic: "Faith",
     image: "/plans/abraham.jpg",
@@ -180,7 +180,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "songs-of-ascent",
     title: "Songs of Ascent",
     description:
-      "Pilgrim psalms of going up—each day a full song of ascent.",
+      "Pilgrim psalms of going up: each day a full song of ascent.",
     lengthLabel: "8 days",
     topic: "Pilgrimage",
     image: "/plans/ascent.jpg",
@@ -200,7 +200,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "bread-of-life",
     title: "Bread of Life",
     description:
-      "Feeding, hunger, and the bread discourse—full chapters around John’s table.",
+      "Feeding, hunger, and the bread discourse: full chapters around John’s table.",
     lengthLabel: "5 days",
     topic: "Provision",
     image: "/plans/bread.jpg",
@@ -236,7 +236,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "be-not-afraid",
     title: "Be Not Afraid",
     description:
-      "Courage when fear rises—full chapters of promise in Genesis, Psalms, and John.",
+      "Courage when fear rises: full chapters of promise in Genesis, Psalms, and John.",
     lengthLabel: "8 days",
     topic: "Courage",
     image: "/plans/courage.jpg",
@@ -256,7 +256,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "i-am-sayings",
     title: "I Am Sayings",
     description:
-      "Seven I Am revelations—each day the full John chapter that holds the saying.",
+      "Seven I Am revelations: each day the full John chapter that holds the saying.",
     lengthLabel: "7 days",
     topic: "Christ",
     image: "/plans/iam.jpg",
@@ -275,7 +275,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "beginnings",
     title: "Beginnings",
     description:
-      "Genesis foundations—creation to Abraham’s call, one chapter a day.",
+      "Genesis foundations: creation to Abraham’s call, one chapter a day.",
     lengthLabel: "12 days",
     topic: "Beginnings",
     image: "/plans/beginnings.jpg",
@@ -290,7 +290,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "praise-and-wonder",
     title: "Praise & Wonder",
     description:
-      "Full psalms that lift the eyes—praise for every season.",
+      "Full psalms that lift the eyes: praise for every season.",
     lengthLabel: "9 days",
     topic: "Praise",
     image: "/plans/praise.jpg",
@@ -311,7 +311,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "the-word",
     title: "The Word",
     description:
-      "Christ the Word and the word that lights the path—full chapters only.",
+      "Christ the Word and the word that lights the path: full chapters only.",
     lengthLabel: "7 days",
     topic: "Scripture",
     image: "/plans/word.jpg",
@@ -330,7 +330,7 @@ export const READING_PLANS: ReadingPlan[] = [
     id: "who-is-jesus",
     title: "Who Is Jesus?",
     description:
-      "Seven full John chapters that answer who He is—from Word to risen Lord.",
+      "Seven full John chapters that answer who He is, from Word to risen Lord.",
     lengthLabel: "7 days",
     topic: "Christ",
     image: "/plans/john.jpg",
