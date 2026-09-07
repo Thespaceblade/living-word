@@ -10,6 +10,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { LivingWordLogo } from "@/components/LivingWordLogo";
+import { PlanReadingBar } from "@/components/PlanReadingBar";
 import { SearchPanel } from "@/components/SearchPanel";
 import {
   getMark,
@@ -45,6 +46,8 @@ type Props = {
   chapterCount: number;
   books: { book: string; slug: string; chapters: number }[];
   initialVerse?: number | null;
+  planId?: string | null;
+  planDay?: number | null;
 };
 
 type NavLayer = "place" | "chapter" | "verse" | null;
@@ -105,6 +108,8 @@ export function BibleReader({
   chapterCount,
   books,
   initialVerse = null,
+  planId = null,
+  planDay = null,
 }: Props) {
   const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
@@ -640,6 +645,9 @@ export function BibleReader({
       </button>
 
       <main className="reader">
+        {planId && planDay ? (
+          <PlanReadingBar planId={planId} day={planDay} version={version} />
+        ) : null}
         <div className={`reader__stage reader__stage--${layout}`}>
           <div className="reader__heading">
             {trailTop ? (

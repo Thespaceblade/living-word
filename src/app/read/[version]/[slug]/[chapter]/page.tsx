@@ -4,7 +4,7 @@ import { getCatalog, getChapter, isValidVersion } from "@/lib/content";
 
 type Props = {
   params: Promise<{ version: string; slug: string; chapter: string }>;
-  searchParams: Promise<{ verse?: string }>;
+  searchParams: Promise<{ verse?: string; plan?: string; day?: string }>;
 };
 
 export function generateStaticParams() {
@@ -22,7 +22,11 @@ export function generateStaticParams() {
 
 export default async function ReadPage({ params, searchParams }: Props) {
   const { version, slug, chapter: chapterParam } = await params;
-  const { verse: verseParam } = await searchParams;
+  const {
+    verse: verseParam,
+    plan: planParam,
+    day: dayParam,
+  } = await searchParams;
 
   if (!isValidVersion(version)) notFound();
 
@@ -34,6 +38,7 @@ export default async function ReadPage({ params, searchParams }: Props) {
   if (!chapter) notFound();
 
   const initialVerse = verseParam ? Number.parseInt(verseParam, 10) : null;
+  const planDay = dayParam ? Number.parseInt(dayParam, 10) : null;
 
   return (
     <BibleReader
@@ -55,6 +60,8 @@ export default async function ReadPage({ params, searchParams }: Props) {
       initialVerse={
         Number.isFinite(initialVerse as number) ? initialVerse : null
       }
+      planId={planParam || null}
+      planDay={Number.isFinite(planDay as number) ? planDay : null}
     />
   );
 }
