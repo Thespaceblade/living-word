@@ -209,19 +209,14 @@ a {
 
 .nav-float,
 .nav-popout {
-  display: none;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: #fff;
   box-shadow: none;
   transform-origin: top center;
-}
-
-.nav-float.is-open,
-.nav-popout.is-open {
-  display: flex;
-  flex-direction: column;
-  animation: pop-down 520ms var(--ease-pop) both;
+  animation: pop-down 520ms var(--ease-pop) backwards;
 }
 
 .nav-float {
@@ -248,32 +243,33 @@ a {
   cursor: pointer;
   text-align: left;
   color: inherit;
+  animation: tile-pop 480ms var(--ease-pop) backwards;
   transition:
     border-color var(--dur-fast) ease,
     background var(--dur-fast) ease,
     transform var(--dur-fast) var(--ease-pop);
 }
 
-.nav-float.is-open .nav-tile {
-  opacity: 0;
-  animation: tile-pop 480ms var(--ease-pop) both;
-}
-
-.nav-float.is-open .nav-tile:nth-child(1) {
+.nav-tile:nth-child(1) {
   animation-delay: 70ms;
 }
 
-.nav-float.is-open .nav-tile:nth-child(2) {
+.nav-tile:nth-child(2) {
   animation-delay: 140ms;
 }
 
-.nav-float.is-open .nav-tile:nth-child(3) {
+.nav-tile:nth-child(3) {
   animation-delay: 210ms;
 }
 
-.nav-float.is-open .nav-float__footer {
-  opacity: 0;
-  animation: tile-pop 420ms var(--ease-pop) 280ms both;
+.nav-float__footer {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.2rem 0.15rem;
+  border-top: 1px solid var(--line);
+  animation: tile-pop 420ms var(--ease-pop) 280ms backwards;
 }
 
 .nav-tile:hover {
@@ -305,15 +301,6 @@ a {
   letter-spacing: -0.01em;
 }
 
-.nav-float__footer {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.45rem 0.2rem 0.15rem;
-  border-top: 1px solid var(--line);
-}
-
 .nav-popout {
   width: 100%;
   max-height: min(70vh, 28rem);
@@ -322,26 +309,22 @@ a {
   gap: 0.45rem;
 }
 
-.nav-popout.is-open {
-  animation: pop-down 520ms var(--ease-pop) both;
-}
-
-.nav-popout.is-open .picker-grid__item {
+.nav-popout .picker-grid__item {
   opacity: 0;
   animation: tile-pop 460ms var(--ease-pop) both;
   animation-delay: calc(60ms + (22ms * min(var(--i, 0), 20)));
 }
 
-.nav-popout.is-open .field {
+.nav-popout .field {
   opacity: 0;
   animation: tile-pop 440ms var(--ease-pop) both;
 }
 
-.nav-popout.is-open .field:nth-of-type(1) {
+.nav-popout .field:nth-of-type(1) {
   animation-delay: 90ms;
 }
 
-.nav-popout.is-open .field:nth-of-type(2) {
+.nav-popout .field:nth-of-type(2) {
   animation-delay: 170ms;
 }
 

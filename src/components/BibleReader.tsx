@@ -287,173 +287,167 @@ export function BibleReader({
           </span>
         </button>
 
-        <div
-          id="nav-dock-panel"
-          className={`nav-float ${navOpen ? "is-open" : ""}`}
-          aria-hidden={!navOpen}
-        >
-          <div className="nav-float__stack">
-            <button
-              type="button"
-              className={`nav-tile ${navLayer === "place" ? "is-active" : ""}`}
-              onClick={() => toggleLayer("place")}
-            >
-              <span className="nav-tile__label">Place</span>
-              <span className="nav-tile__value">
-                {versionMeta.label} · {book}
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`nav-tile ${navLayer === "chapter" ? "is-active" : ""}`}
-              onClick={() => toggleLayer("chapter")}
-            >
-              <span className="nav-tile__label">Chapter</span>
-              <span className="nav-tile__value">{chapter}</span>
-            </button>
-            <button
-              type="button"
-              className={`nav-tile ${navLayer === "verse" ? "is-active" : ""}`}
-              onClick={() => toggleLayer("verse")}
-            >
-              <span className="nav-tile__label">Verse</span>
-              <span className="nav-tile__value">
-                {focusVerse ?? "All"}
-              </span>
-            </button>
-          </div>
-
-          <div className="nav-float__footer">
-            <div className="layout-toggle" role="group" aria-label="Layout">
-              <span>Layout</span>
-              <div className="layout-toggle__btns">
-                <button
-                  type="button"
-                  className={layout === "single" ? "is-active" : ""}
-                  onClick={() => writeLayout("single")}
-                >
-                  Single
-                </button>
-                <button
-                  type="button"
-                  className={layout === "dual" ? "is-active" : ""}
-                  onClick={() => writeLayout("dual")}
-                >
-                  Dual
-                </button>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="ghost-btn"
-              onClick={() => {
-                setNavOpen(false);
-                setNavLayer(null);
-              }}
-            >
-              Done
-            </button>
-          </div>
-        </div>
-
-        <div
-          className={`nav-popout ${navOpen && navLayer === "place" ? "is-open" : ""}`}
-          aria-hidden={!(navOpen && navLayer === "place")}
-          key={navOpen && navLayer === "place" ? "place-open" : "place"}
-        >
-          <p className="nav-popout__title">Version & book</p>
-          <label className="field">
-            <span>Version</span>
-            <select
-              value={version}
-              onChange={(e) =>
-                goTo({ version: e.target.value, verse: focusVerse })
-              }
-            >
-              {versions.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.label} — {v.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Book</span>
-            <select
-              value={slug}
-              onChange={(e) => {
-                goTo({ slug: e.target.value, chapter: 1, verse: null });
-                setNavLayer("chapter");
-              }}
-            >
-              {books.map((b) => (
-                <option key={b.slug} value={b.slug}>
-                  {b.book}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div
-          className={`nav-popout ${navOpen && navLayer === "chapter" ? "is-open" : ""}`}
-          aria-hidden={!(navOpen && navLayer === "chapter")}
-        >
-          <p className="nav-popout__title">Chapter</p>
-          <div className="picker-grid" role="listbox" aria-label="Chapter">
-            {chapters.map((n, i) => (
+        {navOpen ? (
+          <div id="nav-dock-panel" className="nav-float">
+            <div className="nav-float__stack">
               <button
-                key={n}
                 type="button"
-                role="option"
-                aria-selected={n === chapter}
-                className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
-                style={{ ["--i" as string]: i }}
+                className={`nav-tile ${navLayer === "place" ? "is-active" : ""}`}
+                onClick={() => toggleLayer("place")}
+              >
+                <span className="nav-tile__label">Place</span>
+                <span className="nav-tile__value">
+                  {versionMeta.label} · {book}
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`nav-tile ${navLayer === "chapter" ? "is-active" : ""}`}
+                onClick={() => toggleLayer("chapter")}
+              >
+                <span className="nav-tile__label">Chapter</span>
+                <span className="nav-tile__value">{chapter}</span>
+              </button>
+              <button
+                type="button"
+                className={`nav-tile ${navLayer === "verse" ? "is-active" : ""}`}
+                onClick={() => toggleLayer("verse")}
+              >
+                <span className="nav-tile__label">Verse</span>
+                <span className="nav-tile__value">
+                  {focusVerse ?? "All"}
+                </span>
+              </button>
+            </div>
+
+            <div className="nav-float__footer">
+              <div className="layout-toggle" role="group" aria-label="Layout">
+                <span>Layout</span>
+                <div className="layout-toggle__btns">
+                  <button
+                    type="button"
+                    className={layout === "single" ? "is-active" : ""}
+                    onClick={() => writeLayout("single")}
+                  >
+                    Single
+                  </button>
+                  <button
+                    type="button"
+                    className={layout === "dual" ? "is-active" : ""}
+                    onClick={() => writeLayout("dual")}
+                  >
+                    Dual
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="ghost-btn"
                 onClick={() => {
-                  goTo({ chapter: n, verse: null });
-                  setNavLayer("verse");
+                  setNavOpen(false);
+                  setNavLayer(null);
                 }}
               >
-                {n}
+                Done
               </button>
-            ))}
+            </div>
           </div>
-        </div>
+        ) : null}
 
-        <div
-          className={`nav-popout ${navOpen && navLayer === "verse" ? "is-open" : ""}`}
-          aria-hidden={!(navOpen && navLayer === "verse")}
-        >
-          <p className="nav-popout__title">Verse</p>
-          <div className="picker-grid" role="listbox" aria-label="Verse">
-            <button
-              type="button"
-              role="option"
-              aria-selected={focusVerse == null}
-              className={`picker-grid__item picker-grid__item--wide ${focusVerse == null ? "is-active" : ""}`}
-              style={{ ["--i" as string]: 0 }}
-              onClick={() => chooseVerse(null)}
-            >
-              All
-            </button>
-            {verses.map((v, i) => {
-              const mark = getMark(marks, slug, chapter, v.verse);
-              return (
+        {navOpen && navLayer === "place" ? (
+          <div className="nav-popout">
+            <p className="nav-popout__title">Version & book</p>
+            <label className="field">
+              <span>Version</span>
+              <select
+                value={version}
+                onChange={(e) =>
+                  goTo({ version: e.target.value, verse: focusVerse })
+                }
+              >
+                {versions.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.label} — {v.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>Book</span>
+              <select
+                value={slug}
+                onChange={(e) => {
+                  goTo({ slug: e.target.value, chapter: 1, verse: null });
+                  setNavLayer("chapter");
+                }}
+              >
+                {books.map((b) => (
+                  <option key={b.slug} value={b.slug}>
+                    {b.book}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : null}
+
+        {navOpen && navLayer === "chapter" ? (
+          <div className="nav-popout">
+            <p className="nav-popout__title">Chapter</p>
+            <div className="picker-grid" role="listbox" aria-label="Chapter">
+              {chapters.map((n, i) => (
                 <button
-                  key={v.verse}
+                  key={n}
                   type="button"
                   role="option"
-                  aria-selected={focusVerse === v.verse}
-                  className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""} ${mark?.bookmarked ? "is-bookmarked" : ""}`}
-                  style={{ ["--i" as string]: i + 1 }}
-                  onClick={() => chooseVerse(v.verse)}
+                  aria-selected={n === chapter}
+                  className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
+                  style={{ ["--i" as string]: i }}
+                  onClick={() => {
+                    goTo({ chapter: n, verse: null });
+                    setNavLayer("verse");
+                  }}
                 >
-                  {v.verse}
+                  {n}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
+
+        {navOpen && navLayer === "verse" ? (
+          <div className="nav-popout">
+            <p className="nav-popout__title">Verse</p>
+            <div className="picker-grid" role="listbox" aria-label="Verse">
+              <button
+                type="button"
+                role="option"
+                aria-selected={focusVerse == null}
+                className={`picker-grid__item picker-grid__item--wide ${focusVerse == null ? "is-active" : ""}`}
+                style={{ ["--i" as string]: 0 }}
+                onClick={() => chooseVerse(null)}
+              >
+                All
+              </button>
+              {verses.map((v, i) => {
+                const mark = getMark(marks, slug, chapter, v.verse);
+                return (
+                  <button
+                    key={v.verse}
+                    type="button"
+                    role="option"
+                    aria-selected={focusVerse === v.verse}
+                    className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""} ${mark?.bookmarked ? "is-bookmarked" : ""}`}
+                    style={{ ["--i" as string]: i + 1 }}
+                    onClick={() => chooseVerse(v.verse)}
+                  >
+                    {v.verse}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <main className="reader">
