@@ -12,14 +12,15 @@
   --accent-soft: rgba(47, 95, 143, 0.08);
   --warn: #9a4f2e;
   --shadow: 0 12px 40px rgba(28, 32, 38, 0.06);
-  --font-sans: var(--font-source-sans), "Source Sans 3", sans-serif;
-  --font-serif: var(--font-source-serif), "Source Serif 4", serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", "Iowan Old Style",
+    "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: var(--font-serif);
 }
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-serif);
   --font-serif: var(--font-serif);
 }
 
@@ -39,7 +40,7 @@ body {
     radial-gradient(900px 420px at 12% -8%, rgba(47, 95, 143, 0.06), transparent 55%),
     radial-gradient(700px 380px at 92% 0%, rgba(28, 32, 38, 0.03), transparent 50%),
     linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #f4f6f8 100%);
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
 }
 
 a {
@@ -368,7 +369,7 @@ a {
 
 .verse__n {
   color: var(--accent);
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.85;
