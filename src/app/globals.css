@@ -383,8 +383,7 @@ a {
 .layout-toggle > span,
 .brand-sub,
 .eyebrow,
-.muted,
-.source-line {
+.muted {
   color: var(--muted);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
@@ -843,11 +842,6 @@ a {
 
 .study-tab-panel {
   min-height: 8rem;
-}
-
-.source-line {
-  margin: 0 0 0.85rem;
-  font-size: 0.84rem;
 }
 
 .compare-list {
@@ -1379,11 +1373,6 @@ a.xref-card:hover {
   margin: 0.35rem 0 0;
   color: var(--muted);
   font-size: 0.95rem;
-}
-
-.words-attr {
-  margin-top: 1rem;
-  line-height: 1.45;
 }
 
 .landing {
