@@ -27,9 +27,9 @@ export type AudioSource = {
 
 /**
  * Public-domain chapter audio hosted on Internet Archive (CORS-friendly).
- * - KJV: AudioTreasure “Ultra Light” pack
+ * - KJV: AudioTreasure "Ultra Light" pack
  * - WEB: legacy-web-audio mirror of the David Williams WEB narration
- * - ASV: no dedicated PD pack yet; uses the KJV narration
+ * - ASV and other free packs: use the KJV narration until dedicated audio exists
  */
 export function resolveChapterAudio(
   version: string,
