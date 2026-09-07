@@ -1,0 +1,10 @@
+---
+description: Writing and copy style for Living Word
+alwaysApply: true
+---
+
+# Copy style
+
+- Never use em dashes (—) in product copy, UI strings, comments, docs, or commit messages.
+- Prefer commas, colons, periods, or parentheses instead.
+- Do not rewrite scripture or third-party source text solely to remove em dashes.

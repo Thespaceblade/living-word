@@ -158,7 +158,7 @@ function main() {
 
   const books = [];
 
-  // Commentary is version-agnostic — ingest once from KJV structure.
+  // Commentary is version-agnostic: ingest once from KJV structure.
   for (const [book, slug] of Object.entries(BOOK_SLUGS)) {
     console.log(`Ingesting commentary tags for ${book}...`);
     const kjv = loadBibleBook("kjv", book);
