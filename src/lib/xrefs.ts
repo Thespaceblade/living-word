@@ -1,4 +1,5 @@
-import { getCatalog, getChapter, getIntel } from "@/lib/content";
+import { getCatalog, getChapter, getIntel, getIntelAsync, getVerseTextAsync } from "@/lib/content";
+import { isLicensedVersionId } from "@/lib/licensed-versions";
 import type { VerseRef } from "@/lib/types";
 
 /** Abbrs that resolve into the current corpus (Genesis, Psalms, John). */
@@ -65,12 +66,27 @@ function snippet(text: string, max = 140) {
 export function resolveXrefs(ref: VerseRef, version: string): XrefItem[] {
   const intel = getIntel(ref, version);
   if (!intel) return [];
+  return buildXrefItems(intel.entries, version);
+}
 
+export async function resolveXrefsAsync(
+  ref: VerseRef,
+  version: string,
+): Promise<XrefItem[]> {
+  const intel = await getIntelAsync(ref, version);
+  if (!intel) return [];
+  return buildXrefItemsAsync(intel.entries, version);
+}
+
+function buildXrefItems(
+  entries: { crossReferences: string[] }[],
+  version: string,
+): XrefItem[] {
   const catalogSlugs = new Set(getCatalog().books.map((b) => b.slug));
   const seen = new Set<string>();
   const items: XrefItem[] = [];
 
-  for (const entry of intel.entries) {
+  for (const entry of entries) {
     for (const raw of entry.crossReferences) {
       if (seen.has(raw)) continue;
       seen.add(raw);
@@ -96,7 +112,6 @@ export function resolveXrefs(ref: VerseRef, version: string): XrefItem[] {
         chapterData?.chapter.verses.find((v) => v.verse === parsed.verse)
           ?.text ?? null;
 
-      // Only keep in-library refs that resolve to a real verse
       if (!chapterData || !verseText) continue;
 
       items.push({
@@ -111,6 +126,65 @@ export function resolveXrefs(ref: VerseRef, version: string): XrefItem[] {
     }
   }
 
-  // Jumpable (real) first, then out-of-library
+  return items.sort((a, b) => Number(b.jumpable) - Number(a.jumpable));
+}
+
+async function buildXrefItemsAsync(
+  entries: { crossReferences: string[] }[],
+  version: string,
+): Promise<XrefItem[]> {
+  if (!isLicensedVersionId(version)) {
+    return buildXrefItems(entries, version);
+  }
+
+  const catalog = getCatalog();
+  const catalogSlugs = new Set(catalog.books.map((b) => b.slug));
+  const seen = new Set<string>();
+  const items: XrefItem[] = [];
+
+  for (const entry of entries) {
+    for (const raw of entry.crossReferences) {
+      if (seen.has(raw)) continue;
+      seen.add(raw);
+
+      const parsed = parseXref(raw);
+      if (!parsed) continue;
+
+      if (!parsed.slug || !catalogSlugs.has(parsed.slug)) {
+        items.push({
+          raw: parsed.raw,
+          label: parsed.label,
+          slug: parsed.slug,
+          chapter: parsed.chapter,
+          verse: parsed.verse,
+          text: null,
+          jumpable: false,
+        });
+        continue;
+      }
+
+      const verseText = await getVerseTextAsync(
+        version,
+        parsed.slug,
+        parsed.chapter,
+        parsed.verse,
+      );
+      if (!verseText) continue;
+
+      const book =
+        catalog.books.find((b) => b.slug === parsed.slug)?.book ?? parsed.slug;
+
+      items.push({
+        raw: parsed.raw,
+        label: `${book} ${parsed.chapter}:${parsed.verse}`,
+        slug: parsed.slug,
+        chapter: parsed.chapter,
+        verse: parsed.verse,
+        text: snippet(verseText),
+        jumpable: true,
+      });
+    }
+  }
+
   return items.sort((a, b) => Number(b.jumpable) - Number(a.jumpable));
 }
