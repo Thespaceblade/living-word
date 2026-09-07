@@ -52,6 +52,16 @@ export function getChapter(version: string, slug: string, chapter: number) {
   };
 }
 
+export function getVerseText(
+  version: string,
+  slug: string,
+  chapter: number,
+  verse: number,
+): string | null {
+  const data = getChapter(version, slug, chapter);
+  return data?.chapter.verses.find((v) => v.verse === verse)?.text ?? null;
+}
+
 export function verseKey(book: string, chapter: number, verse: number) {
   return `${book}.${chapter}.${verse}`;
 }
