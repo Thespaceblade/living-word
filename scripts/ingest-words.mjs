@@ -152,7 +152,7 @@ function parseBookFile(slug, meta, text) {
     slug,
     lang: meta.lang,
     source: "STEPBible TAGNT/TAHOT",
-    license: "CC BY 4.0 — Tyndale House / STEPBible.org",
+    license: "CC BY 4.0 - Tyndale House / STEPBible.org",
     attribution: "Data created by www.STEPBible.org based on work at Tyndale House Cambridge (CC BY 4.0)",
     chapters,
   };

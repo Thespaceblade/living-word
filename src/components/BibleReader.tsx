@@ -505,7 +505,7 @@ export function BibleReader({
                   >
                     {versions.map((v) => (
                       <option key={v.id} value={v.id}>
-                        {v.label} — {v.name}
+                        {v.label}: {v.name}
                       </option>
                     ))}
                   </select>
