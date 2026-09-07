@@ -10,14 +10,10 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
-  HIGHLIGHT_COLORS,
   getMark,
   getMarksSnapshot,
   getServerMarksSnapshot,
-  setHighlight,
   subscribeMarks,
-  toggleBookmark,
-  type HighlightColor,
 } from "@/lib/marks";
 import {
   clearTrail,
@@ -34,7 +30,7 @@ import type {
   LayoutMode,
   VerseRef,
 } from "@/lib/types";
-import { IntelPanel, preferStudyTab, type StudyTabId } from "./IntelPanel";
+import { VerseModule } from "./VerseModule";
 
 type Props = {
   version: string;
@@ -136,8 +132,6 @@ export function BibleReader({
       ? { book, slug, chapter, verse: initialVerse }
       : null,
   );
-  const [panelOpen, setPanelOpen] = useState(Boolean(initialVerse));
-  const [toolbarOpen, setToolbarOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [navLayer, setNavLayer] = useState<NavLayer>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -196,17 +190,16 @@ export function BibleReader({
         setSettingsOpen(false);
         return;
       }
-      if (panelOpen) {
-        setPanelOpen(false);
-        setToolbarOpen(false);
-        return;
+      if (selected) {
+        setSelected(null);
+        setFocusVerse(null);
+        router.replace(`/read/${version}/${slug}/${chapter}`);
       }
-      if (toolbarOpen) setToolbarOpen(false);
     }
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [navOpen, settingsOpen, panelOpen, toolbarOpen, selected]);
+  }, [navOpen, settingsOpen, selected, version, slug, chapter, router]);
 
   useEffect(() => {
     if (!navOpen && !settingsOpen) return;
@@ -222,6 +215,25 @@ export function BibleReader({
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [navOpen, settingsOpen]);
+
+  useEffect(() => {
+    if (!selected) return;
+
+    function onPointerDown(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest(".verse-module")) return;
+      if (target.closest(".verse")) return;
+      if (target.closest(".reader-bar")) return;
+      if (target.closest(".chapter-arrow")) return;
+      setSelected(null);
+      setFocusVerse(null);
+      router.replace(`/read/${version}/${slug}/${chapter}`);
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [selected, version, slug, chapter, router]);
 
   function goTo(next: {
     version?: string;
@@ -240,51 +252,31 @@ export function BibleReader({
     else router.push(href);
   }
 
-  function chooseVerse(verseNum: number | null, opts?: { openPanel?: boolean }) {
+  function chooseVerse(verseNum: number | null) {
+    // Toggle off when clicking the same verse again
+    if (
+      verseNum != null &&
+      selected &&
+      selected.slug === slug &&
+      selected.chapter === chapter &&
+      selected.verse === verseNum
+    ) {
+      setFocusVerse(null);
+      setSelected(null);
+      goTo({ verse: null, replace: true });
+      return;
+    }
+
     setFocusVerse(verseNum);
     if (verseNum == null) {
       setSelected(null);
-      setPanelOpen(false);
-      setToolbarOpen(false);
     } else {
       setSelected({ book, slug, chapter, verse: verseNum });
       setNavOpen(false);
       setNavLayer(null);
       setSettingsOpen(false);
-      if (opts?.openPanel) {
-        setPanelOpen(true);
-        setToolbarOpen(false);
-      } else if (panelOpen) {
-        // Keep study open on the new verse — avoid panel↔toolbar thrash
-        setToolbarOpen(false);
-      } else {
-        setToolbarOpen(true);
-        setPanelOpen(false);
-      }
     }
     goTo({ verse: verseNum, replace: true });
-  }
-
-  function openStudy(tab: StudyTabId = "study") {
-    if (!selected) return;
-    preferStudyTab(tab);
-    setPanelOpen(true);
-    setToolbarOpen(false);
-  }
-
-  function markInputFor(verseNum: number) {
-    return { slug, book, chapter, verse: verseNum };
-  }
-
-  function copySelected() {
-    if (!selected || !selectedVerseText) return;
-    const citation = `${selected.book} ${selected.chapter}:${selected.verse} ${version.toUpperCase()}\n${selectedVerseText}`;
-    void navigator.clipboard.writeText(citation);
-  }
-
-  function quickHighlight(color: HighlightColor) {
-    if (!selected) return;
-    setHighlight(markInputFor(selected.verse), color);
   }
 
   function handleXrefNavigate() {
@@ -306,8 +298,6 @@ export function BibleReader({
   function goBackOnTrail() {
     const place = popTrail();
     if (!place) return;
-    setPanelOpen(true);
-    setToolbarOpen(false);
     router.push(
       `/read/${place.version}/${place.slug}/${place.chapter}?verse=${place.verse}`,
     );
@@ -324,8 +314,6 @@ export function BibleReader({
     if (nextChapter >= 1 && nextChapter <= chapterCount) {
       setFocusVerse(null);
       setSelected(null);
-      setToolbarOpen(false);
-      setPanelOpen(false);
       goTo({ chapter: nextChapter, verse: null });
       return;
     }
@@ -334,8 +322,6 @@ export function BibleReader({
       const prev = books[bookIndex - 1];
       setFocusVerse(null);
       setSelected(null);
-      setToolbarOpen(false);
-      setPanelOpen(false);
       goTo({ slug: prev.slug, chapter: prev.chapters, verse: null });
       return;
     }
@@ -344,16 +330,12 @@ export function BibleReader({
       const next = books[bookIndex + 1];
       setFocusVerse(null);
       setSelected(null);
-      setToolbarOpen(false);
-      setPanelOpen(false);
       goTo({ slug: next.slug, chapter: 1, verse: null });
     }
   }
 
   return (
-    <div
-      className={`shell shell--biblecom ${panelOpen && selected ? "shell--intel" : ""} shell--font-${fontScale}`}
-    >
+    <div className={`shell shell--biblecom shell--font-${fontScale}`}>
       <header className="reader-bar" ref={navRef}>
         <div className="reader-bar__inner">
           <Link href="/" className="reader-bar__brand">
@@ -651,105 +633,21 @@ export function BibleReader({
           </div>
         </div>
 
-        {toolbarOpen && selected && selected.slug === slug ? (
-          <div className="verse-toolbar" role="presentation">
-            <div className="verse-toolbar__card" role="dialog" aria-label="Verse tools">
-            <div className="verse-toolbar__head">
-              <p className="verse-toolbar__selected">
-                Currently selected: {selected.book} {selected.chapter}:
-                {selected.verse} {versionMeta.label}
-              </p>
-              <button
-                type="button"
-                className="verse-toolbar__close"
-                aria-label="Close"
-                onClick={() => setToolbarOpen(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="verse-toolbar__swatches" aria-label="Highlight color">
-              {HIGHLIGHT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`swatch swatch--${color} ${selectedMark?.highlight === color ? "is-active" : ""}`}
-                  aria-label={`Highlight ${color}`}
-                  onClick={() => quickHighlight(color)}
-                />
-              ))}
-            </div>
-            <div className="verse-toolbar__quick">
-              <button
-                type="button"
-                className="verse-toolbar__chip"
-                onClick={() => {
-                  toggleBookmark(markInputFor(selected.verse));
-                }}
-              >
-                {selectedMark?.bookmarked ? "Unbookmark" : "Bookmark"}
-              </button>
-              <button
-                type="button"
-                className="verse-toolbar__chip"
-                onClick={copySelected}
-              >
-                Copy
-              </button>
-            </div>
-            <p className="verse-toolbar__section">Study</p>
-            <div className="verse-toolbar__study">
-              <button
-                type="button"
-                className="verse-toolbar__study-btn verse-toolbar__study-btn--primary"
-                onClick={() => openStudy("study")}
-              >
-                Commentary
-              </button>
-              <button
-                type="button"
-                className="verse-toolbar__study-btn"
-                onClick={() => openStudy("words")}
-              >
-                Words
-              </button>
-              <button
-                type="button"
-                className="verse-toolbar__study-btn"
-                onClick={() => openStudy("compare")}
-              >
-                Compare
-              </button>
-              <button
-                type="button"
-                className="verse-toolbar__study-btn"
-                onClick={() => openStudy("xrefs")}
-              >
-                Cross-refs
-              </button>
-              <button
-                type="button"
-                className="verse-toolbar__study-btn"
-                onClick={() => openStudy("notes")}
-              >
-                Note
-              </button>
-            </div>
-            </div>
-          </div>
+        {selected && selected.slug === slug && selected.chapter === chapter ? (
+          <VerseModule
+            version={version}
+            versionLabel={versionMeta.label}
+            selected={selected}
+            verseText={selectedVerseText}
+            mark={selectedMark}
+            onXrefNavigate={handleXrefNavigate}
+            onClose={() => {
+              setSelected(null);
+              setFocusVerse(null);
+              router.replace(`/read/${version}/${slug}/${chapter}`);
+            }}
+          />
         ) : null}
-
-        <IntelPanel
-          version={version}
-          selected={panelOpen ? selected : null}
-          verseText={selectedVerseText}
-          mark={selectedMark}
-          onXrefNavigate={handleXrefNavigate}
-          onClose={() => {
-            setPanelOpen(false);
-            setToolbarOpen(false);
-          }}
-        />
       </main>
     </div>
   );

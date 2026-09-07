@@ -514,12 +514,6 @@ a {
   min-width: 0;
   height: 100vh;
   overflow: auto;
-  transition: padding-right var(--dur-slow) var(--ease-out);
-}
-
-/* When the study panel opens, reserve its width so scripture recenters */
-.shell--intel .reader {
-  padding-right: var(--intel-width);
 }
 
 /* Scripture column centers; bible.com-like narrow measure */
@@ -1053,53 +1047,58 @@ a.xref-card:hover {
   background: #f0b46e;
 }
 
-.verse-toolbar {
+.verse-module {
   position: fixed;
+  top: 0;
   left: 0;
-  right: 0;
-  bottom: 1.35rem;
-  z-index: 25;
-  display: flex;
-  justify-content: center;
-  padding: 0 1rem;
+  z-index: 28;
+  max-height: calc(100vh - 5.5rem);
   pointer-events: none;
-  transition: right var(--dur-slow) var(--ease-out);
+  will-change: transform;
+  transition: opacity 160ms ease;
 }
 
-.shell--intel .verse-toolbar {
-  right: var(--intel-width);
-}
-
-.verse-toolbar__card {
+.verse-module__shell {
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  width: min(22rem, calc(100vw - 2rem));
-  padding: 0.85rem 0.9rem 0.95rem;
+  gap: 0.65rem;
+  max-height: inherit;
+  padding: 0.8rem 0.85rem 0.9rem;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #fff;
   box-shadow: var(--shadow);
-  animation: pop-down 280ms var(--ease-out) both;
+  animation: pop-down 320ms var(--ease-pop) both;
+  overflow: hidden;
 }
 
-.verse-toolbar__head {
+.verse-module.is-expanded .verse-module__shell {
+  max-height: inherit;
+}
+
+.verse-module__head {
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
-.verse-toolbar__selected {
+.verse-module__cite {
   margin: 0;
-  color: var(--text);
-  font-size: 0.88rem;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.verse-toolbar__close {
+.verse-module__ver {
+  margin: 0.1rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.verse-module__close {
   border: 0;
   background: transparent;
   color: var(--muted);
@@ -1109,59 +1108,48 @@ a.xref-card:hover {
   padding: 0 0.15rem;
 }
 
-.verse-toolbar__swatches {
+.verse-module__swatches {
   display: flex;
-  gap: 0.45rem;
-  padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--line);
+  gap: 0.4rem;
 }
 
-.verse-toolbar__quick {
+.verse-module__quick {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
-.verse-toolbar__chip {
+.verse-module__chip {
   border: 1px solid var(--line);
   background: #fff;
   color: var(--text);
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 0.4rem 0.7rem;
+  padding: 0.32rem 0.65rem;
   border-radius: 999px;
   cursor: pointer;
 }
 
-.verse-toolbar__chip:hover {
-  border-color: var(--line-strong);
+.verse-module__chip:hover {
   background: var(--bg);
+  border-color: var(--line-strong);
 }
 
-.verse-toolbar__section {
-  margin: 0.15rem 0 0;
-  color: var(--muted);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.verse-toolbar__study {
+.verse-module__actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
-.verse-toolbar__study-btn {
+.verse-module__action {
   border: 1px solid var(--line);
   background: #fff;
   color: var(--text);
   font: inherit;
-  font-size: 0.88rem;
-  font-weight: 600;
-  text-align: center;
-  padding: 0.55rem 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 0.45rem 0.35rem;
   border-radius: 8px;
   cursor: pointer;
   transition:
@@ -1170,22 +1158,29 @@ a.xref-card:hover {
     color var(--dur-fast) ease;
 }
 
-.verse-toolbar__study-btn:hover {
+.verse-module__action:hover {
   background: var(--bg);
-  border-color: var(--line-strong);
 }
 
-.verse-toolbar__study-btn--primary {
-  grid-column: 1 / -1;
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+.verse-module__action.is-active {
+  background: var(--accent-soft);
+  border-color: rgba(47, 95, 143, 0.35);
+  color: var(--accent);
 }
 
-.verse-toolbar__study-btn--primary:hover {
-  background: #264e76;
-  border-color: #264e76;
-  color: #fff;
+.verse-module__body {
+  margin-top: 0.15rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  overflow: auto;
+  overscroll-behavior: contain;
+  max-height: min(52vh, 28rem);
+  animation: pop-down 280ms var(--ease-out) both;
+}
+
+.verse-module__body .intel-entry:first-child {
+  border-top: 0;
+  padding-top: 0;
 }
 
 .intel-entry--intro {
@@ -1488,7 +1483,9 @@ a.xref-card:hover {
   .reader-settings,
   .chapter-arrow,
   .picker-grid__item,
-  .verse-toolbar,
+  .verse-module,
+  .verse-module__shell,
+  .verse-module__body,
   .verse {
     animation: none !important;
     transition-duration: 0.01ms !important;
@@ -1538,27 +1535,12 @@ a.xref-card:hover {
     column-count: 1;
   }
 
-  .verse-toolbar {
-    left: 0;
-    right: 0;
-    bottom: 0.75rem;
-    padding: 0 0.75rem;
+  .verse-module {
+    width: calc(100vw - 1.5rem) !important;
+    max-height: min(70vh, 34rem);
   }
 
-  .shell--intel .reader {
-    padding-right: 0;
-  }
-
-  .shell--intel .reader-bar,
-  .shell--intel .verse-toolbar {
-    right: 0;
-  }
-
-  .verse-toolbar__card {
-    width: 100%;
-  }
-
-  .intel-panel {
+  .verse-module__shell {
     width: 100%;
   }
 }
