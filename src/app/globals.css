@@ -215,8 +215,8 @@ a {
   border-radius: 10px;
   background: #fff;
   box-shadow: none;
-  transform-origin: top center;
-  animation: pop-down 520ms var(--ease-pop) backwards;
+  transform-origin: top left;
+  animation: pop-down 640ms var(--ease-pop) backwards;
 }
 
 .nav-float {
@@ -243,7 +243,7 @@ a {
   cursor: pointer;
   text-align: left;
   color: inherit;
-  animation: tile-pop 480ms var(--ease-pop) backwards;
+  animation: tile-pop 620ms var(--ease-pop) both;
   transition:
     border-color var(--dur-fast) ease,
     background var(--dur-fast) ease,
@@ -251,15 +251,15 @@ a {
 }
 
 .nav-tile:nth-child(1) {
-  animation-delay: 70ms;
+  animation-delay: 90ms;
 }
 
 .nav-tile:nth-child(2) {
-  animation-delay: 140ms;
+  animation-delay: 200ms;
 }
 
 .nav-tile:nth-child(3) {
-  animation-delay: 210ms;
+  animation-delay: 310ms;
 }
 
 .nav-float__footer {
@@ -269,7 +269,7 @@ a {
   gap: 0.75rem;
   padding: 0.45rem 0.2rem 0.15rem;
   border-top: 1px solid var(--line);
-  animation: tile-pop 420ms var(--ease-pop) 280ms backwards;
+  animation: tile-pop 560ms var(--ease-pop) 400ms both;
 }
 
 .nav-tile:hover {
@@ -310,14 +310,12 @@ a {
 }
 
 .nav-popout .picker-grid__item {
-  opacity: 0;
-  animation: tile-pop 460ms var(--ease-pop) both;
-  animation-delay: calc(60ms + (22ms * min(var(--i, 0), 20)));
+  animation: tile-pop 580ms var(--ease-pop) both;
+  animation-delay: calc(80ms + (36ms * min(var(--i, 0), 18)));
 }
 
 .nav-popout .field {
-  opacity: 0;
-  animation: tile-pop 440ms var(--ease-pop) both;
+  animation: tile-pop 560ms var(--ease-pop) both;
 }
 
 .nav-popout .field:nth-of-type(1) {
@@ -1323,11 +1321,11 @@ a.xref-card:hover {
 @keyframes pop-down {
   0% {
     opacity: 0;
-    transform: translateY(-22px) scale(0.9);
+    transform: translateY(-28px) scale(0.86);
   }
-  62% {
+  58% {
     opacity: 1;
-    transform: translateY(4px) scale(1.035);
+    transform: translateY(6px) scale(1.045);
   }
   100% {
     opacity: 1;
@@ -1338,15 +1336,15 @@ a.xref-card:hover {
 @keyframes tile-pop {
   0% {
     opacity: 0;
-    transform: translateY(-14px) scale(0.9);
+    transform: translateY(-18px) scale(0.82);
   }
-  58% {
+  55% {
     opacity: 1;
-    transform: translateY(3px) scale(1.05);
+    transform: translateY(5px) scale(1.07);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: none;
   }
 }
 
@@ -1387,7 +1385,7 @@ a.xref-card:hover {
     width: min(17.5rem, calc(100vw - 2rem));
   }
 
-  .nav-popout.is-open {
+  .nav-popout {
     max-height: min(50vh, 22rem);
   }
 
