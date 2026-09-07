@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run ingest && next build",
+    "build": "npm run ingest && npm run ingest:words && next build",
     "start": "next start",
     "lint": "eslint",
-    "ingest": "node scripts/ingest.mjs"
+    "ingest": "node scripts/ingest.mjs",
+    "ingest:words": "node scripts/ingest-words.mjs"
   },
   "dependencies": {
     "next": "16.3.4",

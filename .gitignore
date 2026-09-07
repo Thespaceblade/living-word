@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# large raw morphology downloads (processed JSON is committed)
+/data/raw/stepbible/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

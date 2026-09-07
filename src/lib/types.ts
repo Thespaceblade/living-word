@@ -82,3 +82,22 @@ export type IntelPayload = {
 };
 
 export type LayoutMode = "single" | "dual";
+
+export type WordToken = {
+  i: number;
+  surface: string;
+  tlit: string;
+  strongs: string;
+  gloss: string;
+};
+
+export type VerseWords = {
+  slug: string;
+  chapter: number;
+  verse: number;
+  lang: "hebrew" | "greek";
+  tokens: WordToken[];
+  source: string;
+  license: string;
+  attribution: string;
+};

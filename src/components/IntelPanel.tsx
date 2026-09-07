@@ -10,9 +10,20 @@ import {
   setNote,
   toggleBookmark,
 } from "@/lib/marks";
-import type { CommentaryEntry, IntelPayload, VerseRef } from "@/lib/types";
+import type {
+  CommentaryEntry,
+  IntelPayload,
+  VerseRef,
+  VerseWords,
+} from "@/lib/types";
 
-export type StudyTabId = "study" | "compare" | "xrefs" | "notes" | "marks";
+export type StudyTabId =
+  | "study"
+  | "words"
+  | "compare"
+  | "xrefs"
+  | "notes"
+  | "marks";
 
 type CompareRow = {
   id: string;
@@ -23,6 +34,7 @@ type CompareRow = {
 
 const TABS: { id: StudyTabId; label: string }[] = [
   { id: "study", label: "Study" },
+  { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
   { id: "xrefs", label: "Cross-refs" },
   { id: "notes", label: "Notes" },
@@ -32,30 +44,39 @@ const TABS: { id: StudyTabId; label: string }[] = [
 const TAB_KEY = "lw-study-tab";
 const tabListeners = new Set<() => void>();
 
+/** Abbrs that resolve into the current corpus (Genesis, Psalms, John). */
 const ABBR_TO_SLUG: Record<string, string> = {
   gen: "genesis",
+  ge: "genesis",
+  gn: "genesis",
   genesis: "genesis",
   ps: "psalms",
   psa: "psalms",
+  pss: "psalms",
   psalm: "psalms",
   psalms: "psalms",
   john: "john",
+  jhn: "john",
   jn: "john",
+  joh: "john",
 };
 
-function parseXref(
-  ref: string,
-): { slug: string; label: string; chapter: number; verse: number } | null {
+function parseXref(ref: string): {
+  slug: string | null;
+  label: string;
+  chapter: number;
+  verse: number;
+} | null {
   const match = ref.trim().match(/^([A-Za-z0-9]+)\.(\d+)\.(\d+)$/);
   if (!match) return null;
   const abbr = match[1];
-  const slug = ABBR_TO_SLUG[abbr.toLowerCase()];
-  if (!slug) return null;
+  const chapter = Number(match[2]);
+  const verse = Number(match[3]);
   return {
-    slug,
-    label: `${abbr} ${match[2]}:${match[3]}`,
-    chapter: Number(match[2]),
-    verse: Number(match[3]),
+    slug: ABBR_TO_SLUG[abbr.toLowerCase()] ?? null,
+    label: `${abbr} ${chapter}:${verse}`,
+    chapter,
+    verse,
   };
 }
 
@@ -92,6 +113,7 @@ type Props = {
   verseText: string | null;
   mark: VerseMark | null;
   availableSlugs: string[];
+  onXrefNavigate?: () => void;
   onClose: () => void;
 };
 
@@ -101,6 +123,7 @@ export function IntelPanel({
   verseText,
   mark,
   availableSlugs,
+  onXrefNavigate,
   onClose,
 }: Props) {
   const tab = useSyncExternalStore(
@@ -116,6 +139,10 @@ export function IntelPanel({
     selected && tab === "compare"
       ? `${selected.slug}:${selected.chapter}:${selected.verse}`
       : null;
+  const wordsKey =
+    selected && tab === "words"
+      ? `${selected.slug}:${selected.chapter}:${selected.verse}`
+      : null;
 
   const [intelResult, setIntelResult] = useState<{
     key: string;
@@ -125,6 +152,11 @@ export function IntelPanel({
   const [compareResult, setCompareResult] = useState<{
     key: string;
     rows?: CompareRow[];
+    error?: string;
+  } | null>(null);
+  const [wordsResult, setWordsResult] = useState<{
+    key: string;
+    data?: VerseWords;
     error?: string;
   } | null>(null);
 
@@ -191,12 +223,44 @@ export function IntelPanel({
     return () => controller.abort();
   }, [selected, compareKey]);
 
+  useEffect(() => {
+    if (!selected || !wordsKey) return;
+
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      slug: selected.slug,
+      chapter: String(selected.chapter),
+      verse: String(selected.verse),
+    });
+
+    fetch(`/api/words?${params}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load words");
+        return (await res.json()) as VerseWords;
+      })
+      .then((data) => {
+        setWordsResult({ key: wordsKey, data });
+      })
+      .catch((err: Error) => {
+        if (err.name === "AbortError") return;
+        setWordsResult({
+          key: wordsKey,
+          error: "No transliteration for this verse yet.",
+        });
+      });
+
+    return () => controller.abort();
+  }, [selected, wordsKey]);
+
   const intel =
     intelResult && intelResult.key === intelKey ? intelResult : null;
   const compare =
     compareResult && compareResult.key === compareKey ? compareResult : null;
+  const words =
+    wordsResult && wordsResult.key === wordsKey ? wordsResult : null;
   const intelLoading = Boolean(intelKey) && !intel;
   const compareLoading = Boolean(compareKey) && !compare;
+  const wordsLoading = Boolean(wordsKey) && !words;
 
   const crossRefs = useMemo(() => {
     const refs = new Set<string>();
@@ -317,6 +381,14 @@ export function IntelPanel({
                 </>
               )}
 
+              {tab === "words" && (
+                <WordsTab
+                  loading={wordsLoading}
+                  error={words?.error}
+                  data={words?.data}
+                />
+              )}
+
               {tab === "compare" && (
                 <>
                   {compareLoading && (
@@ -363,15 +435,24 @@ export function IntelPanel({
                   <ul className="xref-list">
                     {crossRefs.map((ref) => {
                       const parsed = parseXref(ref);
-                      const canJump =
-                        parsed && availableSlugs.includes(parsed.slug);
-                      if (!canJump || !parsed) {
+                      if (!parsed) {
                         return (
                           <li key={ref}>
-                            <span>
-                              {ref
-                                .replace(/\./g, " ")
-                                .replace(/ (\d+) (\d+)$/, " $1:$2")}
+                            <span className="xref-row xref-row--plain">
+                              {ref}
+                            </span>
+                          </li>
+                        );
+                      }
+                      const canJump =
+                        parsed.slug != null &&
+                        availableSlugs.includes(parsed.slug);
+                      if (!canJump || !parsed.slug) {
+                        return (
+                          <li key={ref}>
+                            <span className="xref-row xref-row--locked">
+                              <span>{parsed.label}</span>
+                              <em>Not in library</em>
                             </span>
                           </li>
                         );
@@ -379,8 +460,12 @@ export function IntelPanel({
                       return (
                         <li key={ref}>
                           <Link
+                            className="xref-row xref-row--jump"
                             href={`/read/${version}/${parsed.slug}/${parsed.chapter}?verse=${parsed.verse}`}
-                            onClick={onClose}
+                            onClick={() => {
+                              onXrefNavigate?.();
+                              onClose();
+                            }}
                           >
                             {parsed.label}
                           </Link>
@@ -472,5 +557,51 @@ export function IntelPanel({
         )}
       </div>
     </aside>
+  );
+}
+
+function WordsTab({
+  loading,
+  error,
+  data,
+}: {
+  loading: boolean;
+  error?: string;
+  data?: VerseWords;
+}) {
+  if (loading) return <p className="muted">Loading transliteration…</p>;
+  if (error) return <p className="muted">{error}</p>;
+  if (!data) return null;
+
+  return (
+    <>
+      <p className="muted source-line">
+        {data.lang === "hebrew" ? "Hebrew" : "Greek"} · Latin-script reading
+      </p>
+      <ol className="word-list">
+        {data.tokens.map((token) => (
+          <li key={`${token.i}-${token.strongs}-${token.tlit}`}>
+            <div className="word-token">
+              <span className="word-token__tlit">{token.tlit}</span>
+              {token.strongs ? (
+                <span className="word-token__strongs">{token.strongs}</span>
+              ) : null}
+            </div>
+            {token.gloss ? (
+              <p className="word-token__gloss">{token.gloss}</p>
+            ) : null}
+            {token.surface ? (
+              <p
+                className="word-token__surface"
+                lang={data.lang === "hebrew" ? "he" : "el"}
+              >
+                {token.surface}
+              </p>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+      <p className="muted tiny words-attr">{data.attribution}</p>
+    </>
   );
 }

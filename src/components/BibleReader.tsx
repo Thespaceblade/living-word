@@ -12,6 +12,15 @@ import {
   toggleBookmark,
   type HighlightColor,
 } from "@/lib/marks";
+import {
+  clearTrail,
+  formatTrailLabel,
+  getServerTrailSnapshot,
+  getTrailSnapshot,
+  popTrail,
+  pushTrail,
+  subscribeTrail,
+} from "@/lib/reading-trail";
 import type {
   BibleVerse,
   BibleVersion,
@@ -79,6 +88,12 @@ export function BibleReader({
     getMarksSnapshot,
     getServerMarksSnapshot,
   );
+  const trail = useSyncExternalStore(
+    subscribeTrail,
+    getTrailSnapshot,
+    getServerTrailSnapshot,
+  );
+  const trailTop = trail[trail.length - 1] ?? null;
   const [focusVerse, setFocusVerse] = useState<number | null>(initialVerse);
   const [selected, setSelected] = useState<VerseRef | null>(() =>
     initialVerse
@@ -175,6 +190,32 @@ export function BibleReader({
   function quickHighlight(color: HighlightColor) {
     if (!selected) return;
     setHighlight(markInputFor(selected.verse), color);
+  }
+
+  function handleXrefNavigate() {
+    const from =
+      selected ??
+      (focusVerse
+        ? { book, slug, chapter, verse: focusVerse }
+        : null);
+    if (!from) return;
+    pushTrail({
+      version,
+      book: from.book,
+      slug: from.slug,
+      chapter: from.chapter,
+      verse: from.verse,
+    });
+  }
+
+  function goBackOnTrail() {
+    const place = popTrail();
+    if (!place) return;
+    setPanelOpen(true);
+    setToolbarOpen(false);
+    router.push(
+      `/read/${place.version}/${place.slug}/${place.chapter}?verse=${place.verse}`,
+    );
   }
 
   return (
@@ -293,6 +334,28 @@ export function BibleReader({
       <main className="reader">
         <div className={`reader__stage reader__stage--${layout}`}>
           <div className="reader__heading">
+            {trailTop ? (
+              <div className="reading-trail" role="navigation" aria-label="Reading trail">
+                <button
+                  type="button"
+                  className="reading-trail__back"
+                  onClick={goBackOnTrail}
+                >
+                  Back to {formatTrailLabel(trailTop)}
+                </button>
+                {trail.length > 1 ? (
+                  <span className="muted tiny">{trail.length} places</span>
+                ) : null}
+                <button
+                  type="button"
+                  className="reading-trail__clear"
+                  onClick={() => clearTrail()}
+                  aria-label="Clear reading trail"
+                >
+                  Clear
+                </button>
+              </div>
+            ) : null}
             <h1>
               {book} {chapter}
             </h1>
@@ -387,6 +450,7 @@ export function BibleReader({
           verseText={selectedVerseText}
           mark={selectedMark}
           availableSlugs={availableSlugs}
+          onXrefNavigate={handleXrefNavigate}
           onClose={() => {
             setPanelOpen(false);
             setToolbarOpen(Boolean(selected));
