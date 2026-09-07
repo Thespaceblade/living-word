@@ -40,8 +40,11 @@ function getLayoutSnapshot(): LayoutMode {
   return saved === "dual" ? "dual" : "single";
 }
 
+const SERVER_LAYOUT: LayoutMode = "single";
+
+
 function getServerLayoutSnapshot(): LayoutMode {
-  return "single";
+  return SERVER_LAYOUT;
 }
 
 function subscribeLayout(onStoreChange: () => void) {
