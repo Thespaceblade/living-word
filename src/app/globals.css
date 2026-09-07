@@ -1823,6 +1823,9 @@ a.xref-card:hover {
 }
 
 .plan-bar {
+  position: sticky;
+  top: calc(var(--reader-bar-h) + 0.35rem);
+  z-index: 25;
   width: min(100%, var(--reader-max));
   margin: 0 auto 1rem;
   padding: 0.75rem 0.85rem;
@@ -1834,6 +1837,7 @@ a.xref-card:hover {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1rem;
+  box-shadow: var(--shadow-float);
 }
 
 .plan-bar__label {
