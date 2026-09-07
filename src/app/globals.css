@@ -12,6 +12,8 @@
   --accent-soft: rgba(47, 95, 143, 0.08);
   --warn: #9a4f2e;
   --shadow: 0 12px 40px rgba(28, 32, 38, 0.06);
+  --sidebar-width: 15.5rem;
+  --intel-width: 420px;
   --font-serif: var(--font-source-serif), "Source Serif 4", "Iowan Old Style",
     "Palatino Linotype", Palatino, Georgia, serif;
   --font-sans: var(--font-serif);
@@ -60,42 +62,24 @@ a {
   text-decoration: none;
 }
 
-/* Quiet, theme-matched scrollbars — no stock OS chrome */
+/* Scroll without visible scrollbar chrome */
 .sidebar,
 .intel-panel,
-.reader {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(47, 95, 143, 0.28) transparent;
+.reader,
+.study-tabs,
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .sidebar::-webkit-scrollbar,
 .intel-panel::-webkit-scrollbar,
-.reader::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.sidebar::-webkit-scrollbar-track,
-.intel-panel::-webkit-scrollbar-track,
-.reader::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar::-webkit-scrollbar-thumb,
-.intel-panel::-webkit-scrollbar-thumb,
-.reader::-webkit-scrollbar-thumb {
-  background: rgba(47, 95, 143, 0.22);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-.sidebar:hover::-webkit-scrollbar-thumb,
-.intel-panel:hover::-webkit-scrollbar-thumb,
-.reader:hover::-webkit-scrollbar-thumb {
-  background: rgba(47, 95, 143, 0.4);
-  border: 2px solid transparent;
-  background-clip: padding-box;
+.reader::-webkit-scrollbar,
+.study-tabs::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 .shell,
@@ -107,7 +91,7 @@ a {
 
 .shell {
   display: grid;
-  grid-template-columns: 15.5rem minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -260,9 +244,15 @@ a {
   flex: 1;
   min-height: 0;
   min-width: 0;
+  transition: padding-right 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Wide scripture column inside the main pane; commentary overlays */
+/* When the study panel opens, reserve its width so scripture recenters */
+.shell--intel .reader {
+  padding-right: var(--intel-width);
+}
+
+/* Scripture column centers in the space between left rail and right panel */
 .reader__stage {
   padding: 2.5rem clamp(1.25rem, 3vw, 2.5rem) 5rem;
   width: min(100%, 52rem);
@@ -271,7 +261,8 @@ a {
   animation: rise 520ms ease-out both;
   transition:
     width 220ms ease,
-    max-width 220ms ease;
+    max-width 220ms ease,
+    padding 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .reader__stage--dual {
@@ -406,7 +397,8 @@ a {
     opacity 220ms ease;
   position: fixed;
   inset: 0 0 0 auto;
-  width: min(420px, 100%);
+  width: var(--intel-width);
+  max-width: 100%;
   z-index: 30;
   overflow: auto;
 }
@@ -762,7 +754,7 @@ a {
 
 .verse-toolbar {
   position: fixed;
-  left: calc(15.5rem + 1.25rem);
+  left: calc(var(--sidebar-width) + 1.25rem);
   right: auto;
   bottom: 1.25rem;
   z-index: 25;
@@ -770,7 +762,7 @@ a {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
-  max-width: min(42rem, calc(100vw - 17.5rem));
+  max-width: min(42rem, calc(100vw - var(--sidebar-width) - 2.5rem));
   padding: 0.55rem 0.65rem;
   border: 1px solid var(--line-strong);
   border-radius: 10px;
@@ -778,6 +770,16 @@ a {
   box-shadow: 0 12px 32px rgba(28, 32, 38, 0.12);
   backdrop-filter: blur(8px);
   animation: rise 220ms ease both;
+  transition:
+    max-width 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    left 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.shell--intel .verse-toolbar {
+  max-width: min(
+    42rem,
+    calc(100vw - var(--sidebar-width) - var(--intel-width) - 2.5rem)
+  );
 }
 
 .verse-toolbar__swatches {
@@ -915,6 +917,14 @@ a {
     left: 0.75rem;
     right: 0.75rem;
     bottom: 0.75rem;
+    max-width: none;
+  }
+
+  .shell--intel .reader {
+    padding-right: 0;
+  }
+
+  .shell--intel .verse-toolbar {
     max-width: none;
   }
 
