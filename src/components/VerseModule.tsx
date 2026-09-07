@@ -76,7 +76,6 @@ function shortLiteral(gloss: string) {
 
 type Props = {
   version: string;
-  versionLabel: string;
   selected: VerseRef;
   verseText: string | null;
   mark: VerseMark | null;
@@ -86,7 +85,6 @@ type Props = {
 
 export function VerseModule({
   version,
-  versionLabel,
   selected,
   verseText,
   mark,
@@ -97,6 +95,7 @@ export function VerseModule({
   const pos = useRef({ x: 0, y: 0, ready: false });
   const target = useRef({ x: 0, y: 0 });
   const [mode, setMode] = useState<StudyMode>(null);
+  const [highlightOpen, setHighlightOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState(mark?.note ?? "");
   const [placed, setPlaced] = useState(false);
 
@@ -142,6 +141,7 @@ export function VerseModule({
   useEffect(() => {
     // Reset expanded mode when the verse changes so the stack relocates cleanly
     setMode(null);
+    setHighlightOpen(false);
   }, [selected.slug, selected.chapter, selected.verse]);
 
   function computeTarget() {
@@ -370,11 +370,13 @@ export function VerseModule({
   };
 
   function toggleMode(next: NonNullable<StudyMode>) {
+    setHighlightOpen(false);
     setMode((current) => (current === next ? null : next));
   }
 
   function applyHighlight(color: HighlightColor) {
     setHighlight(markInput, color);
+    setHighlightOpen(false);
   }
 
   function copyCitation() {
@@ -391,57 +393,88 @@ export function VerseModule({
   return (
     <div
       ref={rootRef}
-      className={`verse-module ${mode ? "is-expanded" : ""}`}
+      className={`verse-module ${mode ? "is-expanded" : ""} ${highlightOpen ? "is-highlighting" : ""}`}
       style={style}
       role="dialog"
       aria-label={`Verse ${selected.book} ${selected.chapter}:${selected.verse}`}
     >
       <div className="verse-module__shell">
         <header className="verse-module__head">
-          <div>
-            <p className="verse-module__cite">
-              {selected.book} {selected.chapter}:{selected.verse}
-            </p>
-            <p className="verse-module__ver">{versionLabel}</p>
+          <p className="verse-module__cite">
+            {selected.book} {selected.chapter}:{selected.verse}
+          </p>
+          <div className="verse-module__tools">
+            <button
+              type="button"
+              className={`verse-module__tool ${highlightOpen ? "is-active" : ""} ${mark?.highlight ? "has-mark" : ""}`}
+              aria-label="Highlight"
+              aria-expanded={highlightOpen}
+              title="Highlight"
+              onClick={() => {
+                setMode(null);
+                setHighlightOpen((open) => !open);
+              }}
+            >
+              <span
+                className={`verse-module__tool-mark ${mark?.highlight ? `is-${mark.highlight}` : ""}`}
+                aria-hidden
+              />
+              Highlight
+            </button>
+            <button
+              type="button"
+              className={`verse-module__tool ${mark?.bookmarked ? "is-active" : ""}`}
+              aria-label={mark?.bookmarked ? "Remove bookmark" : "Bookmark"}
+              title="Bookmark"
+              onClick={() => toggleBookmark(markInput)}
+            >
+              Bookmark
+            </button>
+            <button
+              type="button"
+              className="verse-module__tool"
+              aria-label="Copy verse"
+              title="Copy"
+              onClick={copyCitation}
+            >
+              Copy
+            </button>
+            <button
+              type="button"
+              className="verse-module__close"
+              aria-label="Close"
+              onClick={onClose}
+            >
+              ×
+            </button>
           </div>
-          <button
-            type="button"
-            className="verse-module__close"
-            aria-label="Close"
-            onClick={onClose}
-          >
-            ×
-          </button>
         </header>
 
-        <div className="verse-module__swatches" aria-label="Highlight color">
-          {HIGHLIGHT_COLORS.map((color) => (
-            <button
-              key={color}
-              type="button"
-              className={`swatch swatch--${color} ${mark?.highlight === color ? "is-active" : ""}`}
-              aria-label={`Highlight ${color}`}
-              onClick={() => applyHighlight(color)}
-            />
-          ))}
-        </div>
-
-        <div className="verse-module__quick">
-          <button
-            type="button"
-            className="verse-module__chip"
-            onClick={() => toggleBookmark(markInput)}
-          >
-            {mark?.bookmarked ? "Unbookmark" : "Bookmark"}
-          </button>
-          <button
-            type="button"
-            className="verse-module__chip"
-            onClick={copyCitation}
-          >
-            Copy
-          </button>
-        </div>
+        {highlightOpen ? (
+          <div className="verse-module__swatches" aria-label="Highlight color">
+            {HIGHLIGHT_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                className={`swatch swatch--${color} ${mark?.highlight === color ? "is-active" : ""}`}
+                aria-label={`Highlight ${color}`}
+                onClick={() => applyHighlight(color)}
+              />
+            ))}
+            {mark?.highlight ? (
+              <button
+                type="button"
+                className="verse-module__clear-hl"
+                onClick={() => {
+                  setHighlight(markInput, null);
+                  setHighlightOpen(false);
+                }}
+              >
+                Clear
+              </button>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="verse-module__actions" role="toolbar" aria-label="Study">
           {MODES.map((item) => (
@@ -452,7 +485,7 @@ export function VerseModule({
               aria-pressed={mode === item.id}
               onClick={() => toggleMode(item.id)}
             >
-              {item.label}
+              {item.id === "xrefs" ? "Refs" : item.label}
             </button>
           ))}
         </div>

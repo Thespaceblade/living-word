@@ -1062,9 +1062,9 @@ a.xref-card:hover {
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.55rem;
   max-height: inherit;
-  padding: 0.8rem 0.85rem 0.9rem;
+  padding: 0.7rem 0.75rem 0.8rem;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #fff;
@@ -1079,67 +1079,130 @@ a.xref-card:hover {
 
 .verse-module__head {
   display: flex;
-  align-items: start;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .verse-module__cite {
   margin: 0;
-  font-size: 1rem;
+  min-width: 0;
+  font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.verse-module__ver {
-  margin: 0.1rem 0 0;
+.verse-module__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.verse-module__tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--muted);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0.28rem 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.verse-module__tool:hover,
+.verse-module__tool.is-active {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.verse-module__tool.has-mark {
+  color: var(--text);
+}
+
+.verse-module__tool-mark {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+}
+
+.verse-module__tool-mark.is-yellow {
+  background: #fadc64;
+  border-color: transparent;
+}
+
+.verse-module__tool-mark.is-green {
+  background: #8ccd96;
+  border-color: transparent;
+}
+
+.verse-module__tool-mark.is-blue {
+  background: #8cb9e6;
+  border-color: transparent;
+}
+
+.verse-module__tool-mark.is-pink {
+  background: #eba0be;
+  border-color: transparent;
+}
+
+.verse-module__tool-mark.is-orange {
+  background: #f0b46e;
+  border-color: transparent;
 }
 
 .verse-module__close {
   border: 0;
   background: transparent;
   color: var(--muted);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   line-height: 1;
   cursor: pointer;
-  padding: 0 0.15rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: 6px;
+}
+
+.verse-module__close:hover {
+  background: var(--bg);
+  color: var(--text);
 }
 
 .verse-module__swatches {
   display: flex;
+  align-items: center;
   gap: 0.4rem;
+  padding: 0.35rem 0.15rem 0.15rem;
+  animation: pop-down 220ms var(--ease-out) both;
 }
 
-.verse-module__quick {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-
-.verse-module__chip {
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--text);
+.verse-module__clear-hl {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  padding: 0.32rem 0.65rem;
-  border-radius: 999px;
   cursor: pointer;
+  padding: 0.2rem 0.35rem;
 }
 
-.verse-module__chip:hover {
-  background: var(--bg);
-  border-color: var(--line-strong);
+.verse-module__clear-hl:hover {
+  color: var(--text);
 }
 
 .verse-module__actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.3rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.25rem;
 }
 
 .verse-module__action {
@@ -1147,11 +1210,13 @@ a.xref-card:hover {
   background: #fff;
   color: var(--text);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   font-weight: 650;
-  padding: 0.45rem 0.35rem;
-  border-radius: 8px;
+  letter-spacing: -0.01em;
+  padding: 0.42rem 0.15rem;
+  border-radius: 7px;
   cursor: pointer;
+  min-width: 0;
   transition:
     background var(--dur-fast) ease,
     border-color var(--dur-fast) ease,
@@ -1169,8 +1234,8 @@ a.xref-card:hover {
 }
 
 .verse-module__body {
-  margin-top: 0.15rem;
-  padding-top: 0.7rem;
+  margin-top: 0.1rem;
+  padding-top: 0.65rem;
   border-top: 1px solid var(--line);
   overflow: auto;
   overscroll-behavior: contain;

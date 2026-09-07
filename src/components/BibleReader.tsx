@@ -636,7 +636,6 @@ export function BibleReader({
         {selected && selected.slug === slug && selected.chapter === chapter ? (
           <VerseModule
             version={version}
-            versionLabel={versionMeta.label}
             selected={selected}
             verseText={selectedVerseText}
             mark={selectedMark}
