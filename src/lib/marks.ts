@@ -30,34 +30,41 @@ export const HIGHLIGHT_COLORS: Exclude<HighlightColor, null>[] = [
 
 const STORAGE_KEY = "lw-marks-v1";
 const listeners = new Set<() => void>();
+const EMPTY_STORE: MarksStore = Object.freeze({}) as MarksStore;
 
-function emptyStore(): MarksStore {
-  return {};
-}
+let cachedRaw: string | null = null;
+let cachedStore: MarksStore = EMPTY_STORE;
 
 export function markKey(slug: string, chapter: number, verse: number) {
   return `${slug}.${chapter}.${verse}`;
 }
 
 export function getMarksSnapshot(): MarksStore {
-  if (typeof window === "undefined") return emptyStore();
+  if (typeof window === "undefined") return EMPTY_STORE;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return emptyStore();
-    return JSON.parse(raw) as MarksStore;
+    if (raw === cachedRaw) return cachedStore;
+    cachedRaw = raw;
+    cachedStore = raw ? (JSON.parse(raw) as MarksStore) : EMPTY_STORE;
+    return cachedStore;
   } catch {
-    return emptyStore();
+    cachedRaw = null;
+    cachedStore = EMPTY_STORE;
+    return EMPTY_STORE;
   }
 }
 
 export function getServerMarksSnapshot(): MarksStore {
-  return emptyStore();
+  return EMPTY_STORE;
 }
 
 export function subscribeMarks(onStoreChange: () => void) {
   listeners.add(onStoreChange);
   const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY) onStoreChange();
+    if (event.key === STORAGE_KEY) {
+      cachedRaw = null;
+      onStoreChange();
+    }
   };
   window.addEventListener("storage", onStorage);
   return () => {
@@ -67,7 +74,10 @@ export function subscribeMarks(onStoreChange: () => void) {
 }
 
 function writeStore(next: MarksStore) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const raw = JSON.stringify(next);
+  window.localStorage.setItem(STORAGE_KEY, raw);
+  cachedRaw = raw;
+  cachedStore = Object.keys(next).length === 0 ? EMPTY_STORE : next;
   listeners.forEach((listener) => listener());
 }
 
