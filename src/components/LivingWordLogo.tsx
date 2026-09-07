@@ -20,25 +20,33 @@ export function LivingWordLogo({
         role={showWordmark ? undefined : "img"}
         aria-label={showWordmark ? undefined : "Living Word"}
       >
-        {/* Open book */}
+        {/* Living leaf */}
         <path
-          d="M16 11.2C12.4 10.4 7.6 9.6 4.8 9.4v14.2c2.9.5 7.2 1.5 11.2 2.4 4-.9 8.3-1.9 11.2-2.4V9.4c-2.8.2-7.6 1-11.2 1.8Z"
+          d="M16 2.8c2.6 1.4 4 3.6 4 6.2-1.7-.4-3-.6-4-.6s-2.3.2-4 .6c0-2.6 1.4-4.8 4-6.2Z"
+          fill="currentColor"
+        />
+        <path
+          d="M16 4.2v5.4"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.7"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
+        {/* Open book */}
+        <path
+          d="M5 12.2c3.2.4 7.2 1.3 11 2.1 3.8-.8 7.8-1.7 11-2.1v13.2c-3.4.7-7.4 1.8-11 2.7-3.6-.9-7.6-2-11-2.7V12.2Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
           strokeLinejoin="round"
         />
         <path
-          d="M16 11.2v14.8"
+          d="M16 14.3v13.8"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.7"
+          strokeWidth="1.75"
           strokeLinecap="round"
-        />
-        {/* Living leaf */}
-        <path
-          d="M16 11.1c0-2.4 1.2-4.4 3.1-5.6-2.5.7-3.9 2.6-4.1 5.1-.2-2.5-1.6-4.4-4.1-5.1 1.9 1.2 3.1 3.2 3.1 5.6Z"
-          fill="currentColor"
         />
       </svg>
       {showWordmark ? (
