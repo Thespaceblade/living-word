@@ -182,6 +182,27 @@ export function BibleReader({
   }, [focusVerse, chapter, slug, version]);
 
   useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (navOpen || settingsOpen) {
+        setNavOpen(false);
+        setNavLayer(null);
+        setSettingsOpen(false);
+        return;
+      }
+      if (panelOpen) {
+        setPanelOpen(false);
+        setToolbarOpen(Boolean(selected));
+        return;
+      }
+      if (toolbarOpen) setToolbarOpen(false);
+    }
+
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navOpen, settingsOpen, panelOpen, toolbarOpen, selected]);
+
+  useEffect(() => {
     if (!navOpen && !settingsOpen) return;
 
     function onPointerDown(event: MouseEvent) {
@@ -192,21 +213,8 @@ export function BibleReader({
       }
     }
 
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setNavOpen(false);
-        setNavLayer(null);
-        setSettingsOpen(false);
-        setToolbarOpen(false);
-      }
-    }
-
     document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-    };
+    return () => document.removeEventListener("mousedown", onPointerDown);
   }, [navOpen, settingsOpen]);
 
   function goTo(next: {
@@ -243,9 +251,9 @@ export function BibleReader({
     goTo({ verse: verseNum, replace: true });
   }
 
-  function openStudy(tab?: StudyTabId) {
+  function openStudy(tab: StudyTabId = "study") {
     if (!selected) return;
-    if (tab) preferStudyTab(tab);
+    preferStudyTab(tab);
     setPanelOpen(true);
     setToolbarOpen(false);
   }
@@ -365,7 +373,8 @@ export function BibleReader({
             <button
               type="button"
               className={`reader-bar__icon ${layout === "dual" ? "is-active" : ""}`}
-              aria-label="Parallel layout"
+              aria-label="Dual-column layout"
+              title="Dual columns"
               aria-pressed={layout === "dual"}
               onClick={() =>
                 writeLayout(layout === "dual" ? "single" : "dual")
@@ -655,10 +664,10 @@ export function BibleReader({
                 />
               ))}
             </div>
-            <div className="verse-toolbar__actions">
+            <div className="verse-toolbar__quick">
               <button
                 type="button"
-                className="verse-toolbar__action"
+                className="verse-toolbar__chip"
                 onClick={() => {
                   toggleBookmark(markInputFor(selected.verse));
                 }}
@@ -667,24 +676,48 @@ export function BibleReader({
               </button>
               <button
                 type="button"
-                className="verse-toolbar__action"
-                onClick={() => openStudy("notes")}
-              >
-                Note
-              </button>
-              <button
-                type="button"
-                className="verse-toolbar__action"
+                className="verse-toolbar__chip"
                 onClick={copySelected}
               >
                 Copy
               </button>
+            </div>
+            <p className="verse-toolbar__section">Study</p>
+            <div className="verse-toolbar__study">
               <button
                 type="button"
-                className="verse-toolbar__action verse-toolbar__action--primary"
-                onClick={() => openStudy()}
+                className="verse-toolbar__study-btn verse-toolbar__study-btn--primary"
+                onClick={() => openStudy("study")}
               >
-                Study
+                Commentary
+              </button>
+              <button
+                type="button"
+                className="verse-toolbar__study-btn"
+                onClick={() => openStudy("words")}
+              >
+                Words
+              </button>
+              <button
+                type="button"
+                className="verse-toolbar__study-btn"
+                onClick={() => openStudy("compare")}
+              >
+                Compare
+              </button>
+              <button
+                type="button"
+                className="verse-toolbar__study-btn"
+                onClick={() => openStudy("xrefs")}
+              >
+                Cross-refs
+              </button>
+              <button
+                type="button"
+                className="verse-toolbar__study-btn"
+                onClick={() => openStudy("notes")}
+              >
+                Note
               </button>
             </div>
           </div>

@@ -3,12 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import {
-  HIGHLIGHT_COLORS,
-  type HighlightColor,
   type VerseMark,
-  setHighlight,
   setNote,
-  toggleBookmark,
 } from "@/lib/marks";
 import type {
   CommentaryEntry,
@@ -23,8 +19,7 @@ export type StudyTabId =
   | "words"
   | "compare"
   | "xrefs"
-  | "notes"
-  | "marks";
+  | "notes";
 
 type CompareRow = {
   id: string;
@@ -34,12 +29,11 @@ type CompareRow = {
 };
 
 const TABS: { id: StudyTabId; label: string }[] = [
-  { id: "study", label: "Study" },
+  { id: "study", label: "Commentary" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
   { id: "xrefs", label: "Cross-refs" },
   { id: "notes", label: "Notes" },
-  { id: "marks", label: "Marks" },
 ];
 
 const TAB_KEY = "lw-study-tab";
@@ -58,6 +52,8 @@ function entryLabel(entry: CommentaryEntry) {
 function readSavedTab(): StudyTabId {
   if (typeof window === "undefined") return "study";
   const saved = window.localStorage.getItem(TAB_KEY);
+  // Marks folded into the verse card; map legacy value to commentary
+  if (saved === "marks") return "study";
   if (TABS.some((t) => t.id === saved)) return saved as StudyTabId;
   return "study";
 }
@@ -133,6 +129,10 @@ export function IntelPanel({
   } | null>(null);
 
   const [noteDraft, setNoteDraft] = useState(mark?.note ?? "");
+
+  useEffect(() => {
+    setNoteDraft(mark?.note ?? "");
+  }, [mark?.note, selected?.slug, selected?.chapter, selected?.verse]);
 
   useEffect(() => {
     if (!selected || !intelKey) return;
@@ -279,25 +279,9 @@ export function IntelPanel({
       }
     : null;
 
-  function copyCitation() {
-    if (!selected || !verseText) return;
-    const citation = `${selected.book} ${selected.chapter}:${selected.verse} ${version.toUpperCase()}\n${verseText}`;
-    void navigator.clipboard.writeText(citation);
-  }
-
   function saveNote() {
     if (!markInput) return;
     setNote(markInput, noteDraft);
-  }
-
-  function applyHighlight(color: HighlightColor) {
-    if (!markInput) return;
-    setHighlight(markInput, color);
-  }
-
-  function applyBookmark() {
-    if (!markInput) return;
-    toggleBookmark(markInput);
   }
 
   return (
@@ -353,10 +337,26 @@ export function IntelPanel({
                       Source · {intel.data.meta.title} ({intel.data.meta.license})
                     </p>
                   ) : null}
+                  {intel?.data?.bookIntro ? (
+                    <article className="intel-entry intel-entry--intro">
+                      <header className="intel-entry__head">
+                        <span className="intel-entry__label">
+                          {entryLabel(intel.data.bookIntro)}
+                        </span>
+                        <span className="intel-entry__meta">
+                          {intel.data.bookIntro.author}
+                        </span>
+                      </header>
+                      <p className="intel-entry__body">
+                        {intel.data.bookIntro.text}
+                      </p>
+                    </article>
+                  ) : null}
                   {!intelLoading &&
                     !intel?.error &&
                     intel?.data &&
-                    intel.data.entries.length === 0 && (
+                    intel.data.entries.length === 0 &&
+                    !intel.data.bookIntro && (
                       <p className="muted">
                         No commentary tagged for this verse yet.
                       </p>
@@ -491,54 +491,6 @@ export function IntelPanel({
                         Updated {new Date(mark.updatedAt).toLocaleString()}
                       </span>
                     ) : null}
-                  </div>
-                </div>
-              )}
-
-              {tab === "marks" && (
-                <div className="marks-tools">
-                  <div className="marks-block">
-                    <h3>Highlight</h3>
-                    <div className="swatch-row">
-                      {HIGHLIGHT_COLORS.map((color) => (
-                        <button
-                          key={color}
-                          type="button"
-                          className={`swatch swatch--${color} ${mark?.highlight === color ? "is-active" : ""}`}
-                          aria-label={`Highlight ${color}`}
-                          onClick={() => applyHighlight(color)}
-                        />
-                      ))}
-                      <button
-                        type="button"
-                        className="ghost-btn"
-                        onClick={() => applyHighlight(null)}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="marks-block">
-                    <h3>Bookmark</h3>
-                    <button
-                      type="button"
-                      className="primary-btn"
-                      onClick={applyBookmark}
-                    >
-                      {mark?.bookmarked ? "Remove bookmark" : "Bookmark verse"}
-                    </button>
-                  </div>
-
-                  <div className="marks-block">
-                    <h3>Share</h3>
-                    <button
-                      type="button"
-                      className="ghost-btn"
-                      onClick={copyCitation}
-                    >
-                      Copy citation
-                    </button>
                   </div>
                 </div>
               )}

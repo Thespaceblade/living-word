@@ -1111,32 +1111,82 @@ a.xref-card:hover {
   border-bottom: 1px solid var(--line);
 }
 
-.verse-toolbar__actions {
+.verse-toolbar__quick {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
-.verse-toolbar__action {
-  width: 100%;
-  border: 0;
-  background: transparent;
+.verse-toolbar__chip {
+  border: 1px solid var(--line);
+  background: #fff;
   color: var(--text);
   font: inherit;
-  font-size: 0.92rem;
-  text-align: left;
-  padding: 0.55rem 0.35rem;
-  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
   cursor: pointer;
 }
 
-.verse-toolbar__action:hover {
+.verse-toolbar__chip:hover {
+  border-color: var(--line-strong);
   background: var(--bg);
 }
 
-.verse-toolbar__action--primary {
-  color: var(--accent);
-  font-weight: 650;
+.verse-toolbar__section {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.verse-toolbar__study {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.verse-toolbar__study-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.55rem 0.4rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.verse-toolbar__study-btn:hover {
+  background: var(--bg);
+  border-color: var(--line-strong);
+}
+
+.verse-toolbar__study-btn--primary {
+  grid-column: 1 / -1;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.verse-toolbar__study-btn--primary:hover {
+  background: #264e76;
+  border-color: #264e76;
+  color: #fff;
+}
+
+.intel-entry--intro {
+  padding-top: 0;
+  border-top: 0;
+  margin-bottom: 0.35rem;
 }
 
 .picker-grid__item.is-bookmarked {
