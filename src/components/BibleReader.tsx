@@ -809,7 +809,9 @@ export function BibleReader({
         ) : null}
 
         <AudioBar
+          version={version}
           book={book}
+          slug={slug}
           chapter={chapter}
           verses={verses}
           listeningVerse={listeningVerse}

@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { BibleVerse } from "@/lib/types";
 import {
   AUDIO_RATES,
   getSavedAudioRate,
+  resolveChapterAudio,
   saveAudioRate,
-  speakVerse,
   type AudioRate,
+  verseAtTime,
   verseIndex,
+  verseStartTimes,
 } from "@/lib/audio";
 
 type Props = {
+  version: string;
   book: string;
+  slug: string;
   chapter: number;
   verses: BibleVerse[];
   listeningVerse: number | null;
@@ -25,7 +29,9 @@ type Props = {
 };
 
 export function AudioBar({
+  version,
   book,
+  slug,
   chapter,
   verses,
   listeningVerse,
@@ -36,114 +42,131 @@ export function AudioBar({
   open,
   onClose,
 }: Props) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const startsRef = useRef<number[]>([]);
+  const versesRef = useRef(verses);
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState<AudioRate>(1);
-  const cancelRef = useRef<(() => void) | null>(null);
-  const playingRef = useRef(false);
-  const rateRef = useRef(rate);
-  const versesRef = useRef(verses);
-  const listeningRef = useRef(listeningVerse);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const source = useMemo(
+    () => resolveChapterAudio(version, slug, chapter),
+    [version, slug, chapter],
+  );
 
   useEffect(() => {
     setRate(getSavedAudioRate());
   }, []);
 
   useEffect(() => {
-    rateRef.current = rate;
-  }, [rate]);
-
-  useEffect(() => {
     versesRef.current = verses;
   }, [verses]);
 
   useEffect(() => {
-    listeningRef.current = listeningVerse;
-  }, [listeningVerse]);
+    const audio = audioRef.current;
+    if (!audio || !open || !source) return;
 
-  useEffect(() => {
-    // Stop when the chapter changes under us.
-    cancelRef.current?.();
-    cancelRef.current = null;
-    playingRef.current = false;
+    setReady(false);
+    setFailed(false);
     setPlaying(false);
     onListeningVerse(null);
+    audio.pause();
+    audio.src = source.url;
+    audio.load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [book, chapter]);
+  }, [open, source?.url, chapter, slug, version]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.playbackRate = rate;
+  }, [rate]);
 
   useEffect(() => {
     return () => {
-      cancelRef.current?.();
-      cancelRef.current = null;
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
     };
   }, []);
 
-  function stopPlayback(clearHighlight = true) {
-    cancelRef.current?.();
-    cancelRef.current = null;
-    playingRef.current = false;
-    setPlaying(false);
-    if (clearHighlight) onListeningVerse(null);
+  function rebuildStarts(duration: number) {
+    startsRef.current = verseStartTimes(versesRef.current, duration);
   }
 
-  function speakAt(index: number) {
-    const list = versesRef.current;
-    const verse = list[index];
-    if (!verse) {
-      stopPlayback(true);
+  function syncHighlight(time: number) {
+    const verse = verseAtTime(startsRef.current, versesRef.current, time);
+    if (verse != null) onListeningVerse(verse);
+  }
+
+  async function togglePlay() {
+    const audio = audioRef.current;
+    if (!audio || !source || failed) return;
+
+    if (!audio.paused) {
+      audio.pause();
+      setPlaying(false);
       return;
     }
 
-    cancelRef.current?.();
-    onListeningVerse(verse.verse);
-    playingRef.current = true;
-    setPlaying(true);
-
-    const handle = speakVerse(verse.text, rateRef.current, {
-      onEnd: () => {
-        if (!playingRef.current) return;
-        const next = index + 1;
-        if (next < versesRef.current.length) {
-          speakAt(next);
-        } else {
-          stopPlayback(true);
+    try {
+      if (!Number.isFinite(audio.duration) || audio.duration === 0) {
+        await new Promise<void>((resolve, reject) => {
+          const onReady = () => {
+            cleanup();
+            resolve();
+          };
+          const onError = () => {
+            cleanup();
+            reject(new Error("audio failed"));
+          };
+          const cleanup = () => {
+            audio.removeEventListener("loadedmetadata", onReady);
+            audio.removeEventListener("error", onError);
+          };
+          audio.addEventListener("loadedmetadata", onReady, { once: true });
+          audio.addEventListener("error", onError, { once: true });
+        });
+      }
+      rebuildStarts(audio.duration);
+      if (listeningVerse == null && verses[0]) {
+        onListeningVerse(verses[0].verse);
+      } else if (listeningVerse != null) {
+        const idx = verseIndex(verses, listeningVerse);
+        const start = startsRef.current[idx] ?? 0;
+        if (Math.abs(audio.currentTime - start) > 0.75) {
+          audio.currentTime = start;
         }
-      },
-    });
-    cancelRef.current = handle.cancel;
-  }
-
-  function togglePlay() {
-    if (playingRef.current) {
-      stopPlayback(false);
-      return;
+      }
+      audio.playbackRate = rate;
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      setFailed(true);
+      setPlaying(false);
     }
-    const start = verseIndex(verses, listeningVerse ?? verses[0]?.verse ?? null);
-    speakAt(start);
   }
 
   function skipVerse(delta: -1 | 1) {
-    const list = verses;
-    if (!list.length) return;
-    const current = verseIndex(list, listeningVerse ?? list[0]?.verse ?? null);
-    const next = Math.min(Math.max(current + delta, 0), list.length - 1);
-    if (playingRef.current) {
-      speakAt(next);
-    } else {
-      onListeningVerse(list[next]!.verse);
+    const audio = audioRef.current;
+    if (!audio || !verses.length) return;
+    const current = verseIndex(verses, listeningVerse ?? verses[0]?.verse ?? null);
+    const next = Math.min(Math.max(current + delta, 0), verses.length - 1);
+    if (!startsRef.current.length && Number.isFinite(audio.duration)) {
+      rebuildStarts(audio.duration);
     }
+    const start = startsRef.current[next] ?? 0;
+    audio.currentTime = start;
+    onListeningVerse(verses[next]!.verse);
   }
 
   function changeRate(next: AudioRate) {
     setRate(next);
     saveAudioRate(next);
-    rateRef.current = next;
-    if (playingRef.current) {
-      const idx = verseIndex(verses, listeningVerse);
-      speakAt(idx);
-    }
+    if (audioRef.current) audioRef.current.playbackRate = next;
   }
 
   if (!open) return null;
@@ -155,6 +178,30 @@ export function AudioBar({
 
   return (
     <div className="audio-bar" role="region" aria-label="Audio Bible">
+      <audio
+        ref={audioRef}
+        preload="metadata"
+        onLoadedMetadata={(event) => {
+          const audio = event.currentTarget;
+          rebuildStarts(audio.duration);
+          setReady(true);
+          setFailed(false);
+        }}
+        onTimeUpdate={(event) => {
+          syncHighlight(event.currentTarget.currentTime);
+        }}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => {
+          setPlaying(false);
+          onListeningVerse(null);
+        }}
+        onError={() => {
+          setFailed(true);
+          setPlaying(false);
+        }}
+      />
+
       <div className="audio-bar__copy">
         <p className="audio-bar__label">Listen · {label}</p>
       </div>
@@ -166,7 +213,9 @@ export function AudioBar({
           aria-label="Previous chapter"
           disabled={!canPrevChapter}
           onClick={() => {
-            stopPlayback(true);
+            audioRef.current?.pause();
+            setPlaying(false);
+            onListeningVerse(null);
             onRequestChapter(-1);
           }}
         >
@@ -176,7 +225,7 @@ export function AudioBar({
           type="button"
           className="audio-bar__btn"
           aria-label="Previous verse"
-          disabled={verses.length === 0}
+          disabled={!verses.length || failed}
           onClick={() => skipVerse(-1)}
         >
           ‹
@@ -185,7 +234,10 @@ export function AudioBar({
           type="button"
           className={`audio-bar__btn audio-bar__btn--play ${playing ? "is-active" : ""}`}
           aria-label={playing ? "Pause" : "Play"}
-          onClick={togglePlay}
+          disabled={!source || failed}
+          onClick={() => {
+            void togglePlay();
+          }}
         >
           {playing ? "Pause" : "Play"}
         </button>
@@ -193,7 +245,7 @@ export function AudioBar({
           type="button"
           className="audio-bar__btn"
           aria-label="Next verse"
-          disabled={verses.length === 0}
+          disabled={!verses.length || failed}
           onClick={() => skipVerse(1)}
         >
           ›
@@ -204,7 +256,9 @@ export function AudioBar({
           aria-label="Next chapter"
           disabled={!canNextChapter}
           onClick={() => {
-            stopPlayback(true);
+            audioRef.current?.pause();
+            setPlaying(false);
+            onListeningVerse(null);
             onRequestChapter(1);
           }}
         >
@@ -232,13 +286,26 @@ export function AudioBar({
           className="audio-bar__btn audio-bar__btn--ghost"
           aria-label="Close audio"
           onClick={() => {
-            stopPlayback(true);
+            audioRef.current?.pause();
+            setPlaying(false);
+            onListeningVerse(null);
             onClose();
           }}
         >
           Close
         </button>
       </div>
+
+      {failed ? (
+        <p className="audio-bar__warn" role="status">
+          Audio unavailable for this chapter.
+        </p>
+      ) : null}
+      {!failed && source && !ready ? (
+        <p className="sr-only" role="status">
+          Loading audio
+        </p>
+      ) : null}
     </div>
   );
 }
