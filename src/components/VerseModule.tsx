@@ -406,7 +406,7 @@ export function VerseModule({
           <div className="verse-module__tools">
             <button
               type="button"
-              className={`verse-module__tool ${highlightOpen ? "is-active" : ""} ${mark?.highlight ? "has-mark" : ""}`}
+              className={`verse-module__tool ${highlightOpen ? "is-active" : ""} ${mark?.highlight ? `has-mark is-${mark.highlight}` : ""}`}
               aria-label="Highlight"
               aria-expanded={highlightOpen}
               title="Highlight"
@@ -415,20 +415,41 @@ export function VerseModule({
                 setHighlightOpen((open) => !open);
               }}
             >
-              <span
-                className={`verse-module__tool-mark ${mark?.highlight ? `is-${mark.highlight}` : ""}`}
+              <svg
+                className="verse-module__icon"
+                viewBox="0 0 16 16"
                 aria-hidden
-              />
-              Highlight
+              >
+                <path
+                  d="M2.2 13.2 4.6 9.4l5.2-5.2 2 2-5.2 5.2-3.8 1.8Zm7.1-9.3 1.6-1.6a1.2 1.2 0 0 1 1.7 0l1.1 1.1a1.2 1.2 0 0 1 0 1.7L12 7.1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
             <button
               type="button"
-              className={`verse-module__tool ${mark?.bookmarked ? "is-active" : ""}`}
+              className={`verse-module__tool ${mark?.bookmarked ? "is-active is-bookmarked" : ""}`}
               aria-label={mark?.bookmarked ? "Remove bookmark" : "Bookmark"}
               title="Bookmark"
               onClick={() => toggleBookmark(markInput)}
             >
-              Bookmark
+              <svg
+                className="verse-module__icon"
+                viewBox="0 0 16 16"
+                aria-hidden
+              >
+                <path
+                  d="M4 2.4h8a.8.8 0 0 1 .8.8v10.1l-4.8-2.6-4.8 2.6V3.2a.8.8 0 0 1 .8-.8Z"
+                  fill={mark?.bookmarked ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
             <button
               type="button"
@@ -437,7 +458,29 @@ export function VerseModule({
               title="Copy"
               onClick={copyCitation}
             >
-              Copy
+              <svg
+                className="verse-module__icon"
+                viewBox="0 0 16 16"
+                aria-hidden
+              >
+                <rect
+                  x="5.2"
+                  y="5.2"
+                  width="7.2"
+                  height="8.2"
+                  rx="1.2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                />
+                <path
+                  d="M10.2 5.1V3.8A1.2 1.2 0 0 0 9 2.6H3.8A1.2 1.2 0 0 0 2.6 3.8V11a1.2 1.2 0 0 0 1.2 1.2h1.3"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinecap="round"
+                />
+              </svg>
             </button>
             <button
               type="button"

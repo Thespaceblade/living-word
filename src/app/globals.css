@@ -1095,19 +1095,16 @@ a.xref-card:hover {
 }
 
 .verse-module__tool {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.28rem;
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
   border: 1px solid transparent;
+  border-radius: 6px;
   background: transparent;
   color: var(--muted);
-  font: inherit;
-  font-size: 0.72rem;
-  font-weight: 650;
-  padding: 0.28rem 0.4rem;
-  border-radius: 6px;
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .verse-module__tool:hover,
@@ -1117,41 +1114,35 @@ a.xref-card:hover {
   color: var(--text);
 }
 
-.verse-module__tool.has-mark {
+.verse-module__tool.has-mark,
+.verse-module__tool.is-bookmarked {
   color: var(--text);
 }
 
-.verse-module__tool-mark {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  background: #fff;
+.verse-module__tool.is-yellow {
+  color: #c9a40f;
 }
 
-.verse-module__tool-mark.is-yellow {
-  background: #fadc64;
-  border-color: transparent;
+.verse-module__tool.is-green {
+  color: #3f8a4c;
 }
 
-.verse-module__tool-mark.is-green {
-  background: #8ccd96;
-  border-color: transparent;
+.verse-module__tool.is-blue {
+  color: #3d6f9e;
 }
 
-.verse-module__tool-mark.is-blue {
-  background: #8cb9e6;
-  border-color: transparent;
+.verse-module__tool.is-pink {
+  color: #b2557a;
 }
 
-.verse-module__tool-mark.is-pink {
-  background: #eba0be;
-  border-color: transparent;
+.verse-module__tool.is-orange {
+  color: #c07a2e;
 }
 
-.verse-module__tool-mark.is-orange {
-  background: #f0b46e;
-  border-color: transparent;
+.verse-module__icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
 }
 
 .verse-module__close {
