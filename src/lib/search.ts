@@ -146,14 +146,66 @@ export function detectSearchMode(
   return "text";
 }
 
+const STOP = new Set([
+  "a",
+  "an",
+  "and",
+  "as",
+  "at",
+  "be",
+  "but",
+  "by",
+  "for",
+  "from",
+  "he",
+  "her",
+  "his",
+  "i",
+  "in",
+  "into",
+  "is",
+  "it",
+  "me",
+  "my",
+  "not",
+  "of",
+  "on",
+  "or",
+  "our",
+  "so",
+  "that",
+  "the",
+  "their",
+  "them",
+  "then",
+  "there",
+  "they",
+  "this",
+  "to",
+  "unto",
+  "up",
+  "was",
+  "we",
+  "which",
+  "who",
+  "with",
+  "ye",
+  "you",
+  "your",
+]);
+
 function scoreText(haystack: string, needle: string, words: string[]): number {
-  if (haystack.includes(needle) && needle.includes(" ")) return 100;
-  if (haystack.includes(needle)) return 80;
-  if (words.length === 0) return 0;
-  const matched = words.filter((w) => haystack.includes(w)).length;
-  if (matched === words.length) return 50 + matched;
-  if (matched > 0) return matched * 10;
-  return 0;
+  if (!needle) return 0;
+  if (haystack.includes(needle)) {
+    return needle.includes(" ") ? 100 : 80;
+  }
+  const meaningful = words.filter((w) => w.length > 2 && !STOP.has(w));
+  const terms = meaningful.length > 0 ? meaningful : words.filter((w) => w.length > 1);
+  if (terms.length === 0) return 0;
+  const matched = terms.filter((w) => haystack.includes(w)).length;
+  // Require every meaningful term for keyword search
+  if (matched < terms.length) return 0;
+  return 40 + matched * 5;
 }
 
 function snippetAround(text: string, query: string): string {
