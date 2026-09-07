@@ -243,7 +243,7 @@ a {
   cursor: pointer;
   text-align: left;
   color: inherit;
-  animation: tile-pop 620ms var(--ease-pop) both;
+  animation: tile-pop 620ms var(--ease-pop) backwards;
   transition:
     border-color var(--dur-fast) ease,
     background var(--dur-fast) ease,
@@ -269,7 +269,7 @@ a {
   gap: 0.75rem;
   padding: 0.45rem 0.2rem 0.15rem;
   border-top: 1px solid var(--line);
-  animation: tile-pop 560ms var(--ease-pop) 400ms both;
+  animation: tile-pop 560ms var(--ease-pop) 400ms backwards;
 }
 
 .nav-tile:hover {
@@ -310,12 +310,12 @@ a {
 }
 
 .nav-popout .picker-grid__item {
-  animation: tile-pop 580ms var(--ease-pop) both;
+  animation: tile-pop 580ms var(--ease-pop) backwards;
   animation-delay: calc(80ms + (36ms * min(var(--i, 0), 18)));
 }
 
 .nav-popout .field {
-  animation: tile-pop 560ms var(--ease-pop) both;
+  animation: tile-pop 560ms var(--ease-pop) backwards;
 }
 
 .nav-popout .field:nth-of-type(1) {
