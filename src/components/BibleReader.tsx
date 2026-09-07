@@ -646,7 +646,13 @@ export function BibleReader({
 
       <main className="reader">
         {planId && planDay ? (
-          <PlanReadingBar planId={planId} day={planDay} version={version} />
+          <PlanReadingBar
+            planId={planId}
+            day={planDay}
+            version={version}
+            slug={slug}
+            chapter={chapter}
+          />
         ) : null}
         <div className={`reader__stage reader__stage--${layout}`}>
           <div className="reader__heading">

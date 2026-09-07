@@ -2029,6 +2029,30 @@ a.xref-card:hover {
   font-size: 0.82rem;
 }
 
+.plan-bar__readings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
+.plan-bar__chip {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  text-decoration: none;
+}
+
+.plan-bar__chip.is-active {
+  background: var(--accent-soft);
+  border-color: rgba(47, 95, 143, 0.35);
+  color: var(--accent);
+}
+
 .plan-bar .plan-progress {
   max-width: 12rem;
 }

@@ -10,7 +10,11 @@ import {
   readingHref,
   subscribePlans,
 } from "@/lib/plans";
-import { PLAN_TOPICS, READING_PLANS } from "@/lib/plans-data";
+import {
+  formatDayReadings,
+  PLAN_TOPICS,
+  READING_PLANS,
+} from "@/lib/plans-data";
 
 type Props = {
   version: string;
@@ -103,6 +107,12 @@ export function PlansSection({ version }: Props) {
                   <p className="plan-card__meta">
                     {plan.lengthLabel}
                     {done > 0 ? ` · ${done}/${total}` : null}
+                    <span aria-hidden> · </span>
+                    {formatDayReadings(
+                      (plan.days.find((d) => d.day === resumeDay) ?? plan.days[0])
+                        .readings,
+                    )}{" "}
+                    today
                   </p>
                   {done > 0 ? (
                     <div

@@ -123,13 +123,14 @@ export function markPlanDayIncomplete(planId: string, day: number) {
 
 export function readingHref(
   version: string,
-  reading: { slug: string; chapter: number; verse?: number },
+  reading: { slug: string; chapter: number },
   planId: string,
   day: number,
+  readingIndex = 0,
 ) {
   const qs = new URLSearchParams();
-  if (reading.verse) qs.set("verse", String(reading.verse));
   qs.set("plan", planId);
   qs.set("day", String(day));
+  if (readingIndex > 0) qs.set("r", String(readingIndex));
   return `/read/${version}/${reading.slug}/${reading.chapter}?${qs.toString()}`;
 }

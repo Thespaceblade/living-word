@@ -13,6 +13,7 @@ import {
   subscribePlans,
 } from "@/lib/plans";
 import type { ReadingPlan } from "@/lib/plans-data";
+import { formatDayReadings } from "@/lib/plans-data";
 
 type Props = {
   plan: ReadingPlan;
@@ -79,9 +80,13 @@ export function PlanDetail({ plan, version }: Props) {
 
       <ol className="plan-days">
         {plan.days.map((day, index) => {
-          const reading = day.readings[0];
           const isDone = done.has(day.day);
-          const href = readingHref(version, reading, plan.id, day.day);
+          const href = readingHref(
+            version,
+            day.readings[0],
+            plan.id,
+            day.day,
+          );
           return (
             <li
               key={day.day}
@@ -95,8 +100,7 @@ export function PlanDetail({ plan, version }: Props) {
                 </p>
                 <h2>{day.title}</h2>
                 <p className="plan-day__reading">
-                  {reading.book} {reading.chapter}
-                  {reading.verse ? `:${reading.verse}` : ""}
+                  {formatDayReadings(day.readings)}
                 </p>
               </div>
               <div className="plan-day__actions">

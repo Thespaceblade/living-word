@@ -12,15 +12,23 @@ import {
   readingHref,
   subscribePlans,
 } from "@/lib/plans";
-import { getPlan } from "@/lib/plans-data";
+import { formatDayReadings, getPlan } from "@/lib/plans-data";
 
 type Props = {
   planId: string;
   day: number;
   version: string;
+  slug: string;
+  chapter: number;
 };
 
-export function PlanReadingBar({ planId, day, version }: Props) {
+export function PlanReadingBar({
+  planId,
+  day,
+  version,
+  slug,
+  chapter,
+}: Props) {
   const plan = getPlan(planId);
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -35,16 +43,32 @@ export function PlanReadingBar({ planId, day, version }: Props) {
   const isDone = progress.completedDays.includes(day);
   const dayMeta = plan.days.find((d) => d.day === day);
   const next = plan.days.find((d) => d.day === day + 1);
+  const readings = dayMeta?.readings ?? [];
+  const currentIndex = Math.max(
+    0,
+    readings.findIndex((r) => r.slug === slug && r.chapter === chapter),
+  );
+  const withinDayNext = readings[currentIndex + 1] ?? null;
   const pct = Math.round(
     (progress.completedDays.length / plan.days.length) * 100,
   );
 
+  function goNextChapter() {
+    if (!plan || !withinDayNext) return;
+    startTransition(() => {
+      router.push(
+        readingHref(version, withinDayNext, plan.id, day, currentIndex + 1),
+      );
+    });
+  }
+
   function completeDay() {
-    if (!plan || !next) {
+    if (!plan) {
       markPlanDayComplete(planId, day);
       return;
     }
     markPlanDayComplete(planId, day);
+    if (!next) return;
     startTransition(() => {
       router.push(readingHref(version, next.readings[0], plan.id, next.day));
     });
@@ -64,14 +88,44 @@ export function PlanReadingBar({ planId, day, version }: Props) {
           {dayMeta ? ` · ${dayMeta.title}` : ""}
         </p>
         <p className="plan-bar__meta">
+          Today: {formatDayReadings(readings)}
+          <span aria-hidden> · </span>
           {progress.completedDays.length}/{plan.days.length} days complete
         </p>
+        {readings.length > 1 ? (
+          <div className="plan-bar__readings" aria-label="Today’s chapters">
+            {readings.map((reading, index) => {
+              const active =
+                reading.slug === slug && reading.chapter === chapter;
+              return (
+                <Link
+                  key={`${reading.slug}-${reading.chapter}-${index}`}
+                  className={`plan-bar__chip ${active ? "is-active" : ""}`}
+                  href={readingHref(version, reading, plan.id, day, index)}
+                >
+                  {reading.book} {reading.chapter}
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
         <div className="plan-progress" aria-hidden>
           <span style={{ width: `${pct}%` }} />
         </div>
       </div>
       <div className="plan-bar__actions">
-        {isDone ? (
+        {withinDayNext ? (
+          <button
+            type="button"
+            className="plan-bar__btn"
+            disabled={pending}
+            onClick={goNextChapter}
+          >
+            {pending
+              ? "Opening…"
+              : `Next: ${withinDayNext.book} ${withinDayNext.chapter}`}
+          </button>
+        ) : isDone ? (
           <>
             <button
               type="button"
@@ -96,7 +150,11 @@ export function PlanReadingBar({ planId, day, version }: Props) {
             disabled={pending}
             onClick={completeDay}
           >
-            {pending ? "Saving…" : "Complete & continue"}
+            {pending
+              ? "Saving…"
+              : next
+                ? "Complete & continue"
+                : "Mark day complete"}
           </button>
         )}
       </div>
