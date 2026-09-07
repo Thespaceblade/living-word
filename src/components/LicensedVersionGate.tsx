@@ -84,33 +84,38 @@ export function LicensedVersionGate({
                 </p>
                 <ol className="license-gate__steps">
                   {version === "esv" ? (
-                    <li>
-                      Create an app key at{" "}
-                      <a href="https://api.esv.org/" target="_blank" rel="noreferrer">
-                        api.esv.org
-                      </a>{" "}
-                      and set <code>ESV_API_KEY</code>.
-                    </li>
+                    <>
+                      <li>
+                        Create an app key at{" "}
+                        <a href="https://api.esv.org/" target="_blank" rel="noreferrer">
+                          api.esv.org
+                        </a>{" "}
+                        and set <code>ESV_API_KEY</code>.
+                      </li>
+                      <li>Restart the app, then reopen this chapter.</li>
+                    </>
                   ) : (
-                    <li>
-                      Create an API.Bible key at{" "}
-                      <a
-                        href="https://scripture.api.bible/"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        scripture.api.bible
-                      </a>
-                      , enable NIV/NKJV on your plan, and set{" "}
-                      <code>API_BIBLE_KEY</code>.
-                    </li>
+                    <>
+                      <li>
+                        Create an API.Bible key at{" "}
+                        <a
+                          href="https://scripture.api.bible/"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          scripture.api.bible
+                        </a>
+                        , enable NIV/NKJV on your plan, and set{" "}
+                        <code>API_BIBLE_KEY</code>.
+                      </li>
+                      <li>
+                        Optional: set <code>API_BIBLE_NIV_ID</code> /{" "}
+                        <code>API_BIBLE_NKJV_ID</code> if your account uses
+                        different Bible ids.
+                      </li>
+                      <li>Restart the app, then reopen this chapter.</li>
+                    </>
                   )}
-                  <li>
-                    Optional: set <code>API_BIBLE_NIV_ID</code> /{" "}
-                    <code>API_BIBLE_NKJV_ID</code> if your account uses different
-                    Bible ids.
-                  </li>
-                  <li>Restart the app, then reopen this chapter.</li>
                 </ol>
               </>
             ) : (
