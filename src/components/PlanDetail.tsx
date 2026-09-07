@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import {
@@ -26,25 +27,58 @@ export function PlanDetail({ plan, version }: Props) {
   );
   const progress = getPlanProgress(store, plan.id);
   const done = new Set(progress.completedDays);
+  const pct = Math.round((done.size / plan.days.length) * 100);
+  const resumeDay =
+    done.size >= plan.days.length
+      ? plan.days.length
+      : Math.min(progress.currentDay, plan.days.length);
+  const resume = plan.days.find((d) => d.day === resumeDay) ?? plan.days[0];
 
   return (
     <div className="plan-detail">
-      <header className="plan-detail__head">
-        <p className="plan-detail__eyebrow">
-          <Link href="/">Living Word</Link>
-          <span aria-hidden> · </span>
-          Reading plan
-        </p>
-        <h1>{plan.title}</h1>
-        <p className="plan-detail__lede">{plan.description}</p>
-        <p className="plan-detail__meta">
-          {plan.lengthLabel} · {progress.completedDays.length}/{plan.days.length}{" "}
-          complete
-        </p>
-      </header>
+      <div className="plan-detail__hero">
+        <Image
+          src={plan.image}
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 900px) 100vw, 920px"
+          className="plan-detail__hero-img"
+        />
+        <div className="plan-detail__hero-shade" />
+        <div className="plan-detail__hero-copy">
+          <p className="plan-detail__eyebrow">
+            <Link href="/">Living Word</Link>
+            <span aria-hidden> · </span>
+            {plan.topic}
+          </p>
+          <h1>{plan.title}</h1>
+          <p className="plan-detail__lede">{plan.description}</p>
+          <div className="plan-detail__stats">
+            <span>
+              {plan.lengthLabel} · {done.size}/{plan.days.length} complete
+            </span>
+            <div className="plan-progress plan-progress--light" aria-hidden>
+              <span style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+          <div className="plan-detail__cta">
+            <Link
+              className="cta"
+              href={readingHref(version, resume.readings[0], plan.id, resume.day)}
+            >
+              {done.size === 0
+                ? "Start day 1"
+                : done.size >= plan.days.length
+                  ? "Read again"
+                  : `Continue day ${resume.day}`}
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <ol className="plan-days">
-        {plan.days.map((day) => {
+        {plan.days.map((day, index) => {
           const reading = day.readings[0];
           const isDone = done.has(day.day);
           const href = readingHref(version, reading, plan.id, day.day);
@@ -52,6 +86,7 @@ export function PlanDetail({ plan, version }: Props) {
             <li
               key={day.day}
               className={`plan-day ${isDone ? "is-done" : ""} ${progress.currentDay === day.day ? "is-current" : ""}`}
+              style={{ ["--i" as string]: index }}
             >
               <div className="plan-day__copy">
                 <p className="plan-day__label">
