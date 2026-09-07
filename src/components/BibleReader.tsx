@@ -10,6 +10,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { LivingWordLogo } from "@/components/LivingWordLogo";
+import { SearchPanel } from "@/components/SearchPanel";
 import {
   getMark,
   getMarksSnapshot,
@@ -31,6 +32,7 @@ import type {
   LayoutMode,
   VerseRef,
 } from "@/lib/types";
+import type { SearchHit } from "@/lib/search-shared";
 import { VerseModule } from "./VerseModule";
 
 type Props = {
@@ -136,6 +138,7 @@ export function BibleReader({
   const [navOpen, setNavOpen] = useState(false);
   const [navLayer, setNavLayer] = useState<NavLayer>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const chapters = useMemo(
     () => Array.from({ length: chapterCount }, (_, i) => i + 1),
@@ -185,10 +188,11 @@ export function BibleReader({
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
-      if (navOpen || settingsOpen) {
+      if (navOpen || settingsOpen || searchOpen) {
         setNavOpen(false);
         setNavLayer(null);
         setSettingsOpen(false);
+        setSearchOpen(false);
         return;
       }
       if (selected) {
@@ -200,22 +204,23 @@ export function BibleReader({
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [navOpen, settingsOpen, selected, version, slug, chapter, router]);
+  }, [navOpen, settingsOpen, searchOpen, selected, version, slug, chapter, router]);
 
   useEffect(() => {
-    if (!navOpen && !settingsOpen) return;
+    if (!navOpen && !settingsOpen && !searchOpen) return;
 
     function onPointerDown(event: MouseEvent) {
       if (!navRef.current?.contains(event.target as Node)) {
         setNavOpen(false);
         setNavLayer(null);
         setSettingsOpen(false);
+        setSearchOpen(false);
       }
     }
 
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [navOpen, settingsOpen]);
+  }, [navOpen, settingsOpen, searchOpen]);
 
   useEffect(() => {
     if (!selected) return;
@@ -276,6 +281,7 @@ export function BibleReader({
       setNavOpen(false);
       setNavLayer(null);
       setSettingsOpen(false);
+      setSearchOpen(false);
     }
     goTo({ verse: verseNum, replace: true });
   }
@@ -306,8 +312,32 @@ export function BibleReader({
 
   function openLayer(layer: NavLayer) {
     setSettingsOpen(false);
+    setSearchOpen(false);
     setNavOpen(true);
     setNavLayer(layer);
+  }
+
+  function openSearch() {
+    setNavOpen(false);
+    setNavLayer(null);
+    setSettingsOpen(false);
+    setSearchOpen((open) => !open);
+  }
+
+  function selectSearchHit(hit: SearchHit) {
+    setSearchOpen(false);
+    setFocusVerse(hit.verse);
+    setSelected({
+      book: hit.book,
+      slug: hit.slug,
+      chapter: hit.chapter,
+      verse: hit.verse,
+    });
+    goTo({
+      slug: hit.slug,
+      chapter: hit.chapter,
+      verse: hit.verse,
+    });
   }
 
   function goChapter(delta: -1 | 1) {
@@ -369,6 +399,36 @@ export function BibleReader({
           <div className="reader-bar__tools">
             <button
               type="button"
+              className={`reader-bar__icon ${searchOpen ? "is-active" : ""}`}
+              aria-label="Search Scripture"
+              title="Search"
+              aria-expanded={searchOpen}
+              onClick={openSearch}
+            >
+              <svg
+                className="reader-bar__search-icon"
+                viewBox="0 0 16 16"
+                aria-hidden
+              >
+                <circle
+                  cx="7"
+                  cy="7"
+                  r="4.25"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M10.2 10.2 13.4 13.4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
               className={`reader-bar__icon ${layout === "dual" ? "is-active" : ""}`}
               aria-label="Dual-column layout"
               title="Dual columns"
@@ -387,6 +447,7 @@ export function BibleReader({
               onClick={() => {
                 setNavOpen(false);
                 setNavLayer(null);
+                setSearchOpen(false);
                 setSettingsOpen((open) => !open);
               }}
             >
@@ -548,6 +609,14 @@ export function BibleReader({
               </button>
             </div>
           </div>
+        ) : null}
+
+        {searchOpen ? (
+          <SearchPanel
+            version={version}
+            onClose={() => setSearchOpen(false)}
+            onSelect={selectSearchHit}
+          />
         ) : null}
       </header>
 
