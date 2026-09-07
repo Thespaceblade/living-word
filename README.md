@@ -21,6 +21,9 @@ node scripts/fetch-sources.mjs romans matthew   # pull more PD books
 
 After fetching new books, add them to `BOOK_SLUGS` in `scripts/ingest.mjs`, then re-run ingest.
 
-## How tagging works
+## Audio
+
+Listen uses the browser’s speech synthesis on the public-domain chapter text already on screen (KJV, ASV, WEB), with verse-by-verse highlight sync. Human narration can be added later when timed PD audio is hosted.
+
 
 Commentary entries ship with ranges like `1-3` or `intro`. `scripts/ingest.mjs` expands ranges into concrete keys (`John.3.16`) and builds an inverted index used by `/api/intel`.

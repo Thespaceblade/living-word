@@ -9,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { AudioBar } from "@/components/AudioBar";
 import { LivingWordLogo } from "@/components/LivingWordLogo";
 import { PlanReadingBar } from "@/components/PlanReadingBar";
 import { SearchPanel } from "@/components/SearchPanel";
@@ -144,6 +145,8 @@ export function BibleReader({
   const [navLayer, setNavLayer] = useState<NavLayer>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [audioOpen, setAudioOpen] = useState(false);
+  const [listeningVerse, setListeningVerse] = useState<number | null>(null);
 
   const chapters = useMemo(
     () => Array.from({ length: chapterCount }, (_, i) => i + 1),
@@ -183,12 +186,25 @@ export function BibleReader({
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const topSafe = 72;
-    const bottomSafe = window.innerHeight - 24;
+    const bottomSafe = window.innerHeight - (audioOpen ? 120 : 24);
     const inView = rect.top >= topSafe && rect.bottom <= bottomSafe;
     if (!inView) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  }, [focusVerse, chapter, slug, version]);
+  }, [focusVerse, chapter, slug, version, audioOpen]);
+
+  useEffect(() => {
+    if (!listeningVerse || !audioOpen) return;
+    const el = document.getElementById(`verse-${listeningVerse}`);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const topSafe = 72;
+    const bottomSafe = window.innerHeight - 120;
+    const inView = rect.top >= topSafe && rect.bottom <= bottomSafe;
+    if (!inView) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [listeningVerse, audioOpen, chapter, slug]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -200,6 +216,11 @@ export function BibleReader({
         setSearchOpen(false);
         return;
       }
+      if (audioOpen) {
+        setAudioOpen(false);
+        setListeningVerse(null);
+        return;
+      }
       if (selected) {
         setSelected(null);
         setFocusVerse(null);
@@ -209,7 +230,17 @@ export function BibleReader({
 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [navOpen, settingsOpen, searchOpen, selected, version, slug, chapter, router]);
+  }, [
+    navOpen,
+    settingsOpen,
+    searchOpen,
+    audioOpen,
+    selected,
+    version,
+    slug,
+    chapter,
+    router,
+  ]);
 
   useEffect(() => {
     if (!navOpen && !settingsOpen && !searchOpen) return;
@@ -371,7 +402,9 @@ export function BibleReader({
   }
 
   return (
-    <div className={`shell shell--biblecom shell--font-${fontScale}`}>
+    <div
+      className={`shell shell--biblecom shell--font-${fontScale} ${audioOpen ? "shell--audio" : ""}`}
+    >
       <header className="reader-bar" ref={navRef}>
         <div className="reader-bar__inner">
           <Link href="/" className="reader-bar__brand" aria-label="Living Word home">
@@ -428,6 +461,48 @@ export function BibleReader({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className={`reader-bar__icon ${audioOpen ? "is-active" : ""}`}
+              aria-label="Audio Bible"
+              title="Listen"
+              aria-expanded={audioOpen}
+              onClick={() => {
+                setNavOpen(false);
+                setNavLayer(null);
+                setSettingsOpen(false);
+                setSearchOpen(false);
+                setAudioOpen((open) => {
+                  if (open) setListeningVerse(null);
+                  return !open;
+                });
+              }}
+            >
+              <svg
+                className="reader-bar__audio-icon"
+                viewBox="0 0 16 16"
+                aria-hidden
+              >
+                <path
+                  d="M3.5 5.5v5h2.2L9 13.2V2.8L5.7 5.5H3.5Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M11 5.4a2.6 2.6 0 0 1 0 5.2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M12.6 3.6a4.6 4.6 0 0 1 0 8.8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
                   strokeLinecap="round"
                 />
               </svg>
@@ -690,6 +765,7 @@ export function BibleReader({
                 selected?.chapter === chapter &&
                 selected?.verse === v.verse &&
                 selected?.slug === slug;
+              const listening = listeningVerse === v.verse;
               const mark = getMark(marks, slug, chapter, v.verse);
               const hlClass = mark?.highlight
                 ? `verse--hl-${mark.highlight}`
@@ -699,7 +775,7 @@ export function BibleReader({
                   key={v.verse}
                   id={`verse-${v.verse}`}
                   type="button"
-                  className={`verse ${active ? "verse--active" : ""} ${hlClass} ${mark?.bookmarked ? "verse--bookmarked" : ""}`}
+                  className={`verse ${active ? "verse--active" : ""} ${listening ? "verse--listening" : ""} ${hlClass} ${mark?.bookmarked ? "verse--bookmarked" : ""}`}
                   onClick={() => chooseVerse(v.verse)}
                 >
                   <sup className="verse__n">
@@ -731,6 +807,22 @@ export function BibleReader({
             }}
           />
         ) : null}
+
+        <AudioBar
+          book={book}
+          chapter={chapter}
+          verses={verses}
+          listeningVerse={listeningVerse}
+          onListeningVerse={setListeningVerse}
+          onRequestChapter={goChapter}
+          canPrevChapter={canGoPrev}
+          canNextChapter={canGoNext}
+          open={audioOpen}
+          onClose={() => {
+            setAudioOpen(false);
+            setListeningVerse(null);
+          }}
+        />
       </main>
     </div>
   );
