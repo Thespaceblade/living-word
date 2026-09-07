@@ -1,14 +1,34 @@
 # Living Word
 
-Private scripture intel surface: KJV text with verse-tagged public-domain commentary.
+Private scripture intel surface with verse-tagged public-domain commentary.
 
-**Not for public redistribution of third-party copyrighted material.** This project only ingests public-domain / CC0 sources (KJV + Matthew Henry via Open Christian Data). Do not point the fetch scripts at copyrighted commentary sites.
+**Not for public redistribution of third-party copyrighted material.** This project only ingests public-domain / CC0 sources. Do not point the fetch scripts at copyrighted commentary sites, and do not bundle NIV, ESV, NKJV, or other restricted translations.
+
+## Translations
+
+Free / public-domain packs included for Genesis, Psalms, and John:
+
+- **KJV** King James Version
+- **ASV** American Standard Version
+- **WEB** World English Bible (modern)
+- **BSB** Berean Standard Bible (modern, public domain)
+- **BBE** Bible in Basic English (simple modern English)
+- **NHEB** New Heart English Bible (modern, public domain)
+
+NIV, ESV, and NKJV require paid licenses, so this app ships free modern
+alternatives instead of those restricted texts.
+
+Fetch the modern free packs with:
+
+```bash
+npm run fetch:free-bibles
+npm run ingest
+```
 
 ## Stack
 
 - Next.js (App Router)
-- Public-domain KJV
-- Matthew Henry commentary (CC0), tagged to verses by range expansion
+- Public-domain Bible text + Matthew Henry commentary (CC0)
 
 ## Commands
 
