@@ -282,8 +282,8 @@ export function BibleReader({
             {book} {chapter}
             {focusVerse ? `:${focusVerse}` : ""} · {versionMeta.label}
           </span>
-          <span className="nav-dock__chev" aria-hidden>
-            {navOpen ? "▴" : "▾"}
+          <span className={`nav-dock__chev ${navOpen ? "is-open" : ""}`} aria-hidden>
+            <span className="nav-dock__chev-mark" />
           </span>
         </button>
 
@@ -400,13 +400,14 @@ export function BibleReader({
         >
           <p className="nav-popout__title">Chapter</p>
           <div className="picker-grid" role="listbox" aria-label="Chapter">
-            {chapters.map((n) => (
+            {chapters.map((n, i) => (
               <button
                 key={n}
                 type="button"
                 role="option"
                 aria-selected={n === chapter}
                 className={`picker-grid__item ${n === chapter ? "is-active" : ""}`}
+                style={{ ["--i" as string]: i }}
                 onClick={() => {
                   goTo({ chapter: n, verse: null });
                   setNavLayer("verse");
@@ -429,11 +430,12 @@ export function BibleReader({
               role="option"
               aria-selected={focusVerse == null}
               className={`picker-grid__item picker-grid__item--wide ${focusVerse == null ? "is-active" : ""}`}
+              style={{ ["--i" as string]: 0 }}
               onClick={() => chooseVerse(null)}
             >
               All
             </button>
-            {verses.map((v) => {
+            {verses.map((v, i) => {
               const mark = getMark(marks, slug, chapter, v.verse);
               return (
                 <button
@@ -442,6 +444,7 @@ export function BibleReader({
                   role="option"
                   aria-selected={focusVerse === v.verse}
                   className={`picker-grid__item ${focusVerse === v.verse ? "is-active" : ""} ${mark?.bookmarked ? "is-bookmarked" : ""}`}
+                  style={{ ["--i" as string]: i + 1 }}
                   onClick={() => chooseVerse(v.verse)}
                 >
                   {v.verse}
