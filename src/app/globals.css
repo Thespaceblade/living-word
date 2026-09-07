@@ -143,12 +143,66 @@ a {
 }
 
 .reader-bar__brand {
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.lw-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: inherit;
+  line-height: 1;
+}
+
+.lw-logo__mark {
+  flex-shrink: 0;
+  display: block;
+  color: var(--accent);
+}
+
+.lw-logo__word {
   font-family: var(--font-serif);
-  font-size: 1.05rem;
   font-weight: 650;
   letter-spacing: -0.02em;
   color: var(--text);
-  white-space: nowrap;
+}
+
+.lw-logo--sm .lw-logo__mark {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.lw-logo--sm .lw-logo__word {
+  font-size: 1.05rem;
+}
+
+.lw-logo--md .lw-logo__mark {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.lw-logo--md .lw-logo__word {
+  font-size: 1.25rem;
+}
+
+.lw-logo--lg {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.lw-logo--lg .lw-logo__mark {
+  width: 3.4rem;
+  height: 3.4rem;
+}
+
+.lw-logo--lg .lw-logo__word {
+  font-size: clamp(3.1rem, 10vw, 6.2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
 }
 
 .reader-bar__pills {
@@ -1389,14 +1443,8 @@ a.xref-card:hover {
   animation: rise 700ms ease both;
 }
 
-.landing__brand {
+.landing__logo {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(3.1rem, 10vw, 6.2rem);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  font-weight: 600;
-  color: var(--text);
 }
 
 .landing__lede {

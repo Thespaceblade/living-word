@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LivingWordLogo } from "@/components/LivingWordLogo";
 import { getCatalog } from "@/lib/content";
 
 export default function HomePage() {
@@ -9,8 +10,7 @@ export default function HomePage() {
   return (
     <div className="landing">
       <section className="landing__frame">
-        <p className="eyebrow">Holy Bible</p>
-        <h1 className="landing__brand">Living Word</h1>
+        <LivingWordLogo size="lg" className="landing__logo" />
         <p className="landing__lede">
           A clean place to read Scripture. Choose a version, open a chapter,
           jump to any verse, and read commentary tagged to that reference.
