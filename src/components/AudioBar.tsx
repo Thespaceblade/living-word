@@ -4,11 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import type { BibleVerse } from "@/lib/types";
 import {
   AUDIO_RATES,
-  AUDIO_SOURCE_NOTE,
   getSavedAudioRate,
   saveAudioRate,
   speakVerse,
-  speechSupported,
   type AudioRate,
   verseIndex,
 } from "@/lib/audio";
@@ -40,7 +38,6 @@ export function AudioBar({
 }: Props) {
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState<AudioRate>(1);
-  const [supported, setSupported] = useState(true);
   const cancelRef = useRef<(() => void) | null>(null);
   const playingRef = useRef(false);
   const rateRef = useRef(rate);
@@ -49,7 +46,6 @@ export function AudioBar({
 
   useEffect(() => {
     setRate(getSavedAudioRate());
-    setSupported(speechSupported());
   }, []);
 
   useEffect(() => {
@@ -161,7 +157,6 @@ export function AudioBar({
     <div className="audio-bar" role="region" aria-label="Audio Bible">
       <div className="audio-bar__copy">
         <p className="audio-bar__label">Listen · {label}</p>
-        <p className="audio-bar__meta">{AUDIO_SOURCE_NOTE}</p>
       </div>
 
       <div className="audio-bar__transport" role="group" aria-label="Playback">
@@ -244,12 +239,6 @@ export function AudioBar({
           Close
         </button>
       </div>
-
-      {!supported ? (
-        <p className="audio-bar__warn">
-          This browser has no speech engine. Highlight still advances on a timer.
-        </p>
-      ) : null}
     </div>
   );
 }

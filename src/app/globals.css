@@ -2149,13 +2149,6 @@ a.xref-card:hover {
   font-size: 0.95rem;
 }
 
-.audio-bar__meta {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
 .audio-bar__transport,
 .audio-bar__side {
   display: flex;
@@ -2216,13 +2209,6 @@ a.xref-card:hover {
   background: #fff;
   color: var(--text);
   padding: 0.4rem 0.45rem;
-}
-
-.audio-bar__warn {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.78rem;
 }
 
 @media (max-width: 820px) {

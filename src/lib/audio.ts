@@ -3,9 +3,6 @@ import type { BibleVerse } from "@/lib/types";
 export const AUDIO_RATES = [0.75, 1, 1.25, 1.5] as const;
 export type AudioRate = (typeof AUDIO_RATES)[number];
 
-export const AUDIO_SOURCE_NOTE =
-  "Spoken with your browser’s text-to-speech from the on-screen public-domain text (KJV, ASV, or WEB). Human narration can be added later when we host timed PD audio.";
-
 const SPEED_KEY = "lw-audio-rate";
 
 export function getSavedAudioRate(): AudioRate {
