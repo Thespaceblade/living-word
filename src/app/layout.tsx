@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Living Word",
   description:
     "A clean KJV Bible reader with verse-tagged public-domain commentary.",
+  icons: {
+    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
