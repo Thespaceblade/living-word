@@ -108,8 +108,6 @@ export function BibleReader({
     [chapterCount],
   );
 
-  const availableSlugs = useMemo(() => books.map((b) => b.slug), [books]);
-
   const versionMeta =
     versions.find((v) => v.id === version) ??
     ({
@@ -449,7 +447,6 @@ export function BibleReader({
           selected={panelOpen ? selected : null}
           verseText={selectedVerseText}
           mark={selectedMark}
-          availableSlugs={availableSlugs}
           onXrefNavigate={handleXrefNavigate}
           onClose={() => {
             setPanelOpen(false);
