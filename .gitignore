@@ -24,8 +24,9 @@
 .DS_Store
 *.pem
 
-# large raw morphology downloads (processed JSON is committed)
+# large raw morphology / lexicon downloads (processed JSON is committed)
 /data/raw/stepbible/
+/data/raw/strongs/
 
 # debug
 npm-debug.log*

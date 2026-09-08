@@ -582,6 +582,10 @@ export function VerseModule({
                 loading={!words}
                 error={words?.error}
                 data={words?.data}
+                version={version}
+                selected={selected}
+                onNavigate={onXrefNavigate}
+                onClose={onClose}
               />
             )}
 
@@ -684,23 +688,107 @@ export function VerseModule({
   );
 }
 
+type LexiconPayload = {
+  strongs: string;
+  entry: {
+    id: string;
+    lemma: string;
+    translit: string;
+    pronunciation: string;
+    derivation: string;
+    strongsDef: string;
+    kjvDef: string;
+    lang: "hebrew" | "greek";
+  } | null;
+  occurrences: {
+    book: string;
+    slug: string;
+    chapter: number;
+    verse: number;
+    text: string;
+    gloss: string;
+    tlit: string;
+  }[];
+  total: number;
+};
+
 function WordsBody({
   loading,
   error,
   data,
+  version,
+  selected,
+  onNavigate,
+  onClose,
 }: {
   loading: boolean;
   error?: string;
   data?: VerseWords;
+  version: string;
+  selected: VerseRef;
+  onNavigate?: () => void;
+  onClose: () => void;
 }) {
   const [active, setActive] = useState<number | null>(null);
+  const [lexicon, setLexicon] = useState<{
+    key: string;
+    data?: LexiconPayload;
+    error?: string;
+  } | null>(null);
+
+  const selectedToken =
+    active != null ? data?.tokens.find((t) => t.i === active) : null;
+
+  useEffect(() => {
+    setActive(null);
+    setLexicon(null);
+  }, [data?.slug, data?.chapter, data?.verse]);
+
+  useEffect(() => {
+    if (!selectedToken?.strongs) {
+      setLexicon(null);
+      return;
+    }
+    const key = `${version}:${selectedToken.strongs}:${selected.slug}:${selected.chapter}:${selected.verse}`;
+    const controller = new AbortController();
+    setLexicon({ key });
+    const params = new URLSearchParams({
+      strongs: selectedToken.strongs,
+      version,
+      exclude: `${selected.slug}:${selected.chapter}:${selected.verse}`,
+      limit: "20",
+    });
+    fetch(`/api/lexicon?${params}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Lexicon unavailable");
+        return (await res.json()) as LexiconPayload;
+      })
+      .then((payload) => setLexicon({ key, data: payload }))
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        setLexicon({
+          key,
+          error: err instanceof Error ? err.message : "Lexicon unavailable",
+        });
+      });
+    return () => controller.abort();
+  }, [
+    selectedToken?.strongs,
+    selectedToken?.i,
+    version,
+    selected.slug,
+    selected.chapter,
+    selected.verse,
+  ]);
 
   if (loading) return <p className="muted">Loading transliteration…</p>;
   if (error) return <p className="muted">{error}</p>;
   if (!data) return null;
 
-  const selectedToken =
-    active != null ? data.tokens.find((t) => t.i === active) : null;
+  const lex =
+    lexicon && selectedToken && lexicon.key.includes(selectedToken.strongs)
+      ? lexicon
+      : null;
 
   return (
     <>
@@ -742,8 +830,91 @@ function WordsBody({
               {selectedToken.surface}
             </p>
           ) : null}
+
+          {!selectedToken.strongs ? (
+            <p className="muted tiny">No Strongs number for this token.</p>
+          ) : null}
+
+          {lex && !lex.data && !lex.error ? (
+            <p className="muted tiny">Loading Strongs entry…</p>
+          ) : null}
+          {lex?.error ? <p className="error tiny">{lex.error}</p> : null}
+
+          {lex?.data?.entry ? (
+            <div className="lexicon-card">
+              <p className="lexicon-card__lemma" lang={lex.data.entry.lang === "hebrew" ? "he" : "el"}>
+                {lex.data.entry.lemma}
+              </p>
+              <p className="lexicon-card__id">{lex.data.entry.id}</p>
+              {lex.data.entry.translit ? (
+                <p className="lexicon-card__line">
+                  <span>Transliteration</span>
+                  {lex.data.entry.translit}
+                  {lex.data.entry.pronunciation
+                    ? ` (${lex.data.entry.pronunciation})`
+                    : ""}
+                </p>
+              ) : null}
+              {lex.data.entry.strongsDef ? (
+                <p className="lexicon-card__def">{lex.data.entry.strongsDef}</p>
+              ) : null}
+              {lex.data.entry.kjvDef ? (
+                <p className="lexicon-card__line">
+                  <span>KJV uses</span>
+                  {lex.data.entry.kjvDef}
+                </p>
+              ) : null}
+              {lex.data.entry.derivation ? (
+                <p className="lexicon-card__line">
+                  <span>Derivation</span>
+                  {lex.data.entry.derivation}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {lex?.data ? (
+            <div className="concordance">
+              <p className="concordance__heading">
+                In this library
+                {lex.data.total > 0 ? ` · ${lex.data.total}` : ""}
+              </p>
+              {lex.data.occurrences.length === 0 ? (
+                <p className="muted tiny">No other occurrences yet.</p>
+              ) : (
+                <ul className="concordance__list">
+                  {lex.data.occurrences.map((hit) => (
+                    <li key={`${hit.slug}-${hit.chapter}-${hit.verse}`}>
+                      <Link
+                        className="concordance__item"
+                        href={`/read/${version}/${hit.slug}/${hit.chapter}?verse=${hit.verse}`}
+                        onClick={() => {
+                          onNavigate?.();
+                          onClose();
+                        }}
+                      >
+                        <span className="concordance__ref">
+                          {hit.book} {hit.chapter}:{hit.verse}
+                        </span>
+                        <span className="concordance__text">
+                          {hit.text || "Open verse"}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {lex.data.total > lex.data.occurrences.length ? (
+                <p className="muted tiny">
+                  Showing {lex.data.occurrences.length} of {lex.data.total}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      ) : (
+        <p className="muted tiny">Tap a word for Strongs and concordance.</p>
+      )}
     </>
   );
 }
