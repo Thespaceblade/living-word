@@ -6,7 +6,7 @@ Private scripture intel surface with verse-tagged public-domain commentary.
 
 ## Translations
 
-Free / public-domain packs included for Genesis, Psalms, and John:
+Free / public-domain packs for the full Protestant canon (66 books):
 
 - **KJV** King James Version
 - **ASV** American Standard Version
@@ -18,38 +18,33 @@ Free / public-domain packs included for Genesis, Psalms, and John:
 NIV, ESV, and NKJV require paid licenses, so this app ships free modern
 alternatives instead of those restricted texts.
 
-Fetch the modern free packs with:
+Fetch and process the library with:
 
 ```bash
-npm run fetch:free-bibles
+npm run fetch:bible-library
 npm run ingest
+npm run ingest:words
 ```
+
+Matthew Henry commentary is included for every book OpenChristianData publishes
+(Song of Solomon has no MH pack yet). Original-language words come from STEPBible.
 
 ## Stack
 
 - Next.js (App Router)
 - Public-domain Bible text + Matthew Henry commentary (CC0)
+- STEPBible morphology (CC BY 4.0)
 
 ## Commands
 
 ```bash
 npm install
 npm run ingest          # tag commentary → data/processed
+npm run ingest:words    # STEPBible morphology → data/processed/words
 npm run dev             # http://localhost:3000
-node scripts/fetch-sources.mjs romans matthew   # pull more PD books
+npm run fetch:bible-library
 ```
 
-After fetching new books, add them to `BOOK_SLUGS` in `scripts/ingest.mjs`, then re-run ingest.
-
-## Audio
-
-Listen streams public-domain chapter MP3s from the Internet Archive:
-
-- **KJV** (and ASV fallback): AudioTreasure Ultra Light pack (`kingjamesversionaudio`)
-- **WEB**: David Williams narration mirror (`legacy-web-audio`)
-
-Verse highlight is approximate, based on relative word counts within the chapter (these packs do not ship verse timings).
-
-
+## How tagging works
 
 Commentary entries ship with ranges like `1-3` or `intro`. `scripts/ingest.mjs` expands ranges into concrete keys (`John.3.16`) and builds an inverted index used by `/api/intel`.
