@@ -9,7 +9,7 @@ restricted translation text into this repository.
 
 ## Translations
 
-Free / public-domain packs included for Genesis, Psalms, and John:
+Free / public-domain packs for the full Protestant canon (66 books):
 
 - **KJV** King James Version
 - **ASV** American Standard Version
@@ -31,17 +31,22 @@ Copy `.env.example` to `.env.local`, add keys, restart the app. Chapters are
 cached under `data/cache/bible` for up to 30 days. Without keys, those versions
 show a setup screen and free packs keep working.
 
-Fetch the modern free packs with:
+Fetch and process the library with:
 
 ```bash
-npm run fetch:free-bibles
+npm run fetch:bible-library
 npm run ingest
+npm run ingest:words
 ```
+
+Matthew Henry commentary is included for every book OpenChristianData publishes
+(Song of Solomon has no MH pack yet). Original-language words come from STEPBible.
 
 ## Stack
 
 - Next.js (App Router)
 - Public-domain Bible text + Matthew Henry commentary (CC0)
+- STEPBible morphology (CC BY 4.0)
 - Optional licensed text through publisher APIs
 
 ## Commands
@@ -49,11 +54,10 @@ npm run ingest
 ```bash
 npm install
 npm run ingest          # tag commentary → data/processed
+npm run ingest:words    # STEPBible morphology → data/processed/words
 npm run dev             # http://localhost:3000
-node scripts/fetch-sources.mjs romans matthew   # pull more PD books
+npm run fetch:bible-library
 ```
-
-After fetching new books, add them to `BOOK_SLUGS` in `scripts/ingest.mjs`, then re-run ingest.
 
 ## How tagging works
 

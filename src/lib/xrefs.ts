@@ -1,23 +1,10 @@
 import { getCatalog, getChapter, getIntel, getIntelAsync, getVerseTextAsync } from "@/lib/content";
+import { CANON_ABBRS } from "@/lib/canon";
 import { isLicensedVersionId } from "@/lib/licensed-versions";
 import type { VerseRef } from "@/lib/types";
 
-/** Abbrs that resolve into the current corpus (Genesis, Psalms, John). */
-export const ABBR_TO_SLUG: Record<string, string> = {
-  gen: "genesis",
-  ge: "genesis",
-  gn: "genesis",
-  genesis: "genesis",
-  ps: "psalms",
-  psa: "psalms",
-  pss: "psalms",
-  psalm: "psalms",
-  psalms: "psalms",
-  john: "john",
-  jhn: "john",
-  jn: "john",
-  joh: "john",
-};
+/** Abbrs that resolve into the current corpus. */
+export const ABBR_TO_SLUG: Record<string, string> = CANON_ABBRS;
 
 export type ParsedXref = {
   raw: string;
