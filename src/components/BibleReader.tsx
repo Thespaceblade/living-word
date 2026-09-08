@@ -57,8 +57,10 @@ type FontScale = "sm" | "md" | "lg";
 
 const LAYOUT_KEY = "lw-layout";
 const FONT_KEY = "lw-font-scale";
+const PARALLEL_KEY = "lw-parallel-version";
 const layoutListeners = new Set<() => void>();
 const fontListeners = new Set<() => void>();
+const parallelListeners = new Set<() => void>();
 
 function getLayoutSnapshot(): LayoutMode {
   const saved = window.localStorage.getItem(LAYOUT_KEY);
@@ -100,6 +102,28 @@ function writeFont(scale: FontScale) {
   fontListeners.forEach((listener) => listener());
 }
 
+function readParallelPreference(): string | null {
+  return window.localStorage.getItem(PARALLEL_KEY);
+}
+
+function writeParallelVersion(id: string) {
+  window.localStorage.setItem(PARALLEL_KEY, id);
+  parallelListeners.forEach((listener) => listener());
+}
+
+function subscribeParallel(onStoreChange: () => void) {
+  parallelListeners.add(onStoreChange);
+  return () => parallelListeners.delete(onStoreChange);
+}
+
+function pickDefaultParallel(primary: string, versions: BibleVersion[]) {
+  const preferred = ["web", "bsb", "nheb", "bbe", "asv", "kjv"];
+  for (const id of preferred) {
+    if (id !== primary && versions.some((v) => v.id === id)) return id;
+  }
+  return versions.find((v) => v.id !== primary)?.id ?? primary;
+}
+
 export function BibleReader({
   version,
   versions,
@@ -126,6 +150,11 @@ export function BibleReader({
     getFontSnapshot,
     getServerFontSnapshot,
   );
+  const parallelPref = useSyncExternalStore(
+    subscribeParallel,
+    readParallelPreference,
+    () => null,
+  );
   const marks = useSyncExternalStore(
     subscribeMarks,
     getMarksSnapshot,
@@ -147,6 +176,10 @@ export function BibleReader({
   const [navLayer, setNavLayer] = useState<NavLayer>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [parallelVerses, setParallelVerses] = useState<BibleVerse[] | null>(
+    null,
+  );
+  const [parallelError, setParallelError] = useState<string | null>(null);
   const [audioOpen, setAudioOpen] = useState(false);
   const [listeningVerse, setListeningVerse] = useState<number | null>(null);
 
@@ -162,6 +195,68 @@ export function BibleReader({
       label: version.toUpperCase(),
       name: version,
     } satisfies BibleVersion);
+
+  const parallelVersion = useMemo(() => {
+    if (
+      parallelPref &&
+      parallelPref !== version &&
+      versions.some((v) => v.id === parallelPref)
+    ) {
+      return parallelPref;
+    }
+    return pickDefaultParallel(version, versions);
+  }, [parallelPref, version, versions]);
+
+  const parallelMeta =
+    versions.find((v) => v.id === parallelVersion) ??
+    ({
+      id: parallelVersion,
+      label: parallelVersion.toUpperCase(),
+      name: parallelVersion,
+    } satisfies BibleVersion);
+
+  useEffect(() => {
+    if (layout !== "dual") {
+      setParallelVerses(null);
+      setParallelError(null);
+      return;
+    }
+    if (parallelVersion === version) {
+      setParallelVerses(verses);
+      setParallelError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    setParallelVerses(null);
+    setParallelError(null);
+    const params = new URLSearchParams({
+      version: parallelVersion,
+      slug,
+      chapter: String(chapter),
+    });
+    fetch(`/api/chapter?${params}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Could not load parallel chapter");
+        return (await res.json()) as { verses: BibleVerse[] };
+      })
+      .then((json) => {
+        setParallelVerses(json.verses);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setParallelError(
+          error instanceof Error ? error.message : "Parallel load failed",
+        );
+      });
+    return () => controller.abort();
+  }, [layout, parallelVersion, version, slug, chapter, verses]);
+
+  const parallelByVerse = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const v of parallelVerses ?? []) map.set(v.verse, v.text);
+    return map;
+  }, [parallelVerses]);
 
   const bookIndex = books.findIndex((b) => b.slug === slug);
   const canGoPrev = chapter > 1 || bookIndex > 0;
@@ -512,8 +607,8 @@ export function BibleReader({
             <button
               type="button"
               className={`reader-bar__icon ${layout === "dual" ? "is-active" : ""}`}
-              aria-label="Dual-column layout"
-              title="Dual columns"
+              aria-label="Side-by-side versions"
+              title="Side-by-side versions"
               aria-pressed={layout === "dual"}
               onClick={() =>
                 writeLayout(layout === "dual" ? "single" : "dual")
@@ -693,6 +788,24 @@ export function BibleReader({
                 AA
               </button>
             </div>
+            <label className="field reader-settings__parallel">
+              <span>Parallel version</span>
+              <select
+                value={parallelVersion}
+                onChange={(e) => {
+                  writeParallelVersion(e.target.value);
+                  writeLayout("dual");
+                }}
+              >
+                {versions
+                  .filter((v) => v.id !== version)
+                  .map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.label}: {v.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
           </div>
         ) : null}
 
@@ -761,44 +874,110 @@ export function BibleReader({
             <h1>
               {book} {chapter}
             </h1>
-            <p className="reader__meta">{versionMeta.name}</p>
+            <p className="reader__meta">
+              {layout === "dual"
+                ? `${versionMeta.label} · ${parallelMeta.label}`
+                : versionMeta.name}
+            </p>
             {copyrightNotice ? (
               <p className="reader__copyright">{copyrightNotice}</p>
             ) : null}
           </div>
 
-          <div className={`verse-stream verse-stream--${layout}`}>
-            {verses.map((v) => {
-              const active =
-                selected?.chapter === chapter &&
-                selected?.verse === v.verse &&
-                selected?.slug === slug;
-              const listening = listeningVerse === v.verse;
-              const mark = getMark(marks, slug, chapter, v.verse);
-              const hlClass = mark?.highlight
-                ? `verse--hl-${mark.highlight}`
-                : "";
-              return (
-                <button
-                  key={v.verse}
-                  id={`verse-${v.verse}`}
-                  type="button"
-                  className={`verse ${active ? "verse--active" : ""} ${listening ? "verse--listening" : ""} ${hlClass} ${mark?.bookmarked ? "verse--bookmarked" : ""}`}
-                  onClick={() => chooseVerse(v.verse)}
-                >
-                  <sup className="verse__n">
-                    {v.verse}
-                    {mark?.bookmarked ? (
-                      <span className="verse__mark" aria-hidden>
-                        ·
-                      </span>
-                    ) : null}
-                  </sup>
-                  <span className="verse__t">{v.text}</span>
-                </button>
-              );
-            })}
-          </div>
+          {layout === "dual" ? (
+            <div className="parallel-board">
+              <div className="parallel-board__heads" aria-hidden>
+                <p className="parallel-board__label">{versionMeta.label}</p>
+                <p className="parallel-board__label">{parallelMeta.label}</p>
+              </div>
+              {parallelError ? (
+                <p className="parallel-board__status error">{parallelError}</p>
+              ) : null}
+              {!parallelVerses && !parallelError ? (
+                <p className="parallel-board__status muted">Loading parallel…</p>
+              ) : null}
+              <div className="parallel-board__rows">
+                {verses.map((v) => {
+                  const active =
+                    selected?.chapter === chapter &&
+                    selected?.verse === v.verse &&
+                    selected?.slug === slug;
+                  const listening = listeningVerse === v.verse;
+                  const mark = getMark(marks, slug, chapter, v.verse);
+                  const hlClass = mark?.highlight
+                    ? `verse--hl-${mark.highlight}`
+                    : "";
+                  const parallelText = parallelByVerse.get(v.verse) ?? "";
+                  return (
+                    <div
+                      key={v.verse}
+                      id={`verse-${v.verse}`}
+                      className={`parallel-row ${active ? "is-active" : ""} ${listening ? "is-listening" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        className={`verse parallel-row__cell ${active ? "verse--active" : ""} ${listening ? "verse--listening" : ""} ${hlClass} ${mark?.bookmarked ? "verse--bookmarked" : ""}`}
+                        onClick={() => chooseVerse(v.verse)}
+                      >
+                        <sup className="verse__n">
+                          {v.verse}
+                          {mark?.bookmarked ? (
+                            <span className="verse__mark" aria-hidden>
+                              ·
+                            </span>
+                          ) : null}
+                        </sup>
+                        <span className="verse__t">{v.text}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`verse parallel-row__cell ${active ? "verse--active" : ""} ${listening ? "verse--listening" : ""}`}
+                        onClick={() => chooseVerse(v.verse)}
+                      >
+                        <sup className="verse__n">{v.verse}</sup>
+                        <span className="verse__t">
+                          {parallelText || (parallelVerses ? "" : "…")}
+                        </span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="verse-stream verse-stream--single">
+              {verses.map((v) => {
+                const active =
+                  selected?.chapter === chapter &&
+                  selected?.verse === v.verse &&
+                  selected?.slug === slug;
+                const listening = listeningVerse === v.verse;
+                const mark = getMark(marks, slug, chapter, v.verse);
+                const hlClass = mark?.highlight
+                  ? `verse--hl-${mark.highlight}`
+                  : "";
+                return (
+                  <button
+                    key={v.verse}
+                    id={`verse-${v.verse}`}
+                    type="button"
+                    className={`verse ${active ? "verse--active" : ""} ${listening ? "verse--listening" : ""} ${hlClass} ${mark?.bookmarked ? "verse--bookmarked" : ""}`}
+                    onClick={() => chooseVerse(v.verse)}
+                  >
+                    <sup className="verse__n">
+                      {v.verse}
+                      {mark?.bookmarked ? (
+                        <span className="verse__mark" aria-hidden>
+                          ·
+                        </span>
+                      ) : null}
+                    </sup>
+                    <span className="verse__t">{v.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {selected && selected.slug === slug && selected.chapter === chapter ? (
