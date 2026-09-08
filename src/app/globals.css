@@ -770,6 +770,68 @@ a {
   max-width: 68rem;
 }
 
+.parallel-board {
+  margin-top: 2rem;
+}
+
+.parallel-board__heads {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.parallel-board__label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.parallel-board__status {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.parallel-board__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+}
+
+.parallel-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+  scroll-margin-top: 5.5rem;
+}
+
+.parallel-row__cell {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: var(--verse-size);
+  line-height: var(--verse-leading);
+}
+
+.reader-settings__parallel {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1rem;
+}
+
+.reader-settings__parallel select {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+  border-radius: 0.4rem;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  padding: 0.45rem 0.55rem;
+}
+
 .reader__heading {
   text-align: center;
 }
@@ -852,8 +914,8 @@ a {
 }
 
 .verse-stream--dual {
-  column-count: 2;
-  column-gap: 2.75rem;
+  /* Legacy dual column-count removed; true parallels use .parallel-board */
+  column-count: unset;
 }
 
 .verse {
@@ -2485,6 +2547,19 @@ a.xref-card:hover {
     width: 100%;
     max-width: none;
     padding-top: calc(var(--reader-bar-h) + 4.5rem);
+  }
+
+  .parallel-board__heads,
+  .parallel-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .parallel-board__heads .parallel-board__label:last-child,
+  .parallel-row__cell:last-child {
+    opacity: 0.92;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
   }
 
   .verse-stream--dual {
