@@ -37,16 +37,19 @@ Fetch and process the library with:
 npm run fetch:bible-library
 npm run ingest
 npm run ingest:words
+npm run ingest:lexicon
 ```
 
 Matthew Henry commentary is included for every book OpenChristianData publishes
 (Song of Solomon has no MH pack yet). Original-language words come from STEPBible.
+Strong's lexicon entries come from Open Scriptures (CC BY-SA).
 
 ## Stack
 
 - Next.js (App Router)
 - Public-domain Bible text + Matthew Henry commentary (CC0)
 - STEPBible morphology (CC BY 4.0)
+- Open Scriptures Strong's lexicon (CC BY-SA)
 - Optional licensed text through publisher APIs
 
 ## Commands
@@ -55,6 +58,7 @@ Matthew Henry commentary is included for every book OpenChristianData publishes
 npm install
 npm run ingest          # tag commentary → data/processed
 npm run ingest:words    # STEPBible morphology → data/processed/words
+npm run ingest:lexicon  # Strong's lexicon → data/processed/lexicon
 npm run dev             # http://localhost:3000
 npm run fetch:bible-library
 ```
