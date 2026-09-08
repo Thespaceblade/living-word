@@ -36,9 +36,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# licensed Bible chapter cache (API responses; refresh ~30 days)
+/data/cache/
 
 # typescript
 *.tsbuildinfo

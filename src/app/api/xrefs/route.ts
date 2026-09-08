@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isValidVersion } from "@/lib/content";
-import { resolveXrefs } from "@/lib/xrefs";
+import { resolveXrefsAsync } from "@/lib/xrefs";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -23,6 +23,6 @@ export async function GET(request: Request) {
     );
   }
 
-  const items = resolveXrefs({ book, slug, chapter, verse }, version);
+  const items = await resolveXrefsAsync({ book, slug, chapter, verse }, version);
   return NextResponse.json({ items });
 }
