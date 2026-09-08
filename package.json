@@ -9,7 +9,8 @@
     "lint": "eslint",
     "ingest": "node scripts/ingest.mjs",
     "ingest:words": "node scripts/ingest-words.mjs",
-    "fetch:free-bibles": "node scripts/fetch-free-bibles.mjs"
+    "fetch:free-bibles": "node scripts/fetch-free-bibles.mjs",
+    "fetch:bible-library": "node scripts/fetch-bible-library.mjs"
   },
   "dependencies": {
     "next": "16.3.4",

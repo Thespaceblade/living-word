@@ -1,22 +1,10 @@
 import type { BibleVerse } from "@/lib/types";
+import { AUDIO_BOOK_FILE, AUDIO_BOOK_NUM } from "@/lib/canon";
 
 export const AUDIO_RATES = [0.75, 1, 1.25, 1.5] as const;
 export type AudioRate = (typeof AUDIO_RATES)[number];
 
 const SPEED_KEY = "lw-audio-rate";
-
-/** Protestant canon book numbers used by AudioTreasure / archive.org packs. */
-const BOOK_NUM: Record<string, string> = {
-  genesis: "01",
-  psalms: "19",
-  john: "43",
-};
-
-const BOOK_FILE: Record<string, string> = {
-  genesis: "Genesis",
-  psalms: "Psalms",
-  john: "John",
-};
 
 export type AudioSource = {
   url: string;
@@ -36,8 +24,8 @@ export function resolveChapterAudio(
   slug: string,
   chapter: number,
 ): AudioSource | null {
-  const num = BOOK_NUM[slug];
-  const book = BOOK_FILE[slug];
+  const num = AUDIO_BOOK_NUM[slug];
+  const book = AUDIO_BOOK_FILE[slug];
   if (!num || !book) return null;
 
   const ch = String(chapter).padStart(3, "0");
@@ -50,7 +38,6 @@ export function resolveChapterAudio(
     };
   }
 
-  // kjv and asv
   return {
     url: `https://archive.org/download/kingjamesversionaudio/${num}_${book}_${ch}.mp3`,
     label: "KJV · public domain",

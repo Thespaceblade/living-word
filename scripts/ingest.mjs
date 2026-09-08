@@ -6,34 +6,19 @@
  * Bible versions (public domain / free only):
  * - kjv: aruljohn/Bible-kjv
  * - asv / web: midvash/bible-data
- * - bsb / bbe / nheb: scrollmapper/bible_databases (via scripts/fetch-free-bibles.mjs)
- * Commentary: OpenChristianData matthew-henry (CC0)
+ * - bsb / bbe / nheb: scrollmapper/bible_databases
+ * Commentary: OpenChristianData matthew-henry (CC0); optional per book
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { BOOK_SLUGS, CANON, VERSIONS } from "./canon.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const RAW_BIBLE = path.join(ROOT, "data/raw/bible");
 const RAW_COMMENTARY = path.join(ROOT, "data/raw/commentary/matthew-henry");
-// OpenChristianData files use lowercase book filenames.
 const OUT = path.join(ROOT, "data/processed");
-
-const BOOK_SLUGS = {
-  Genesis: "genesis",
-  Psalms: "psalms",
-  John: "john",
-};
-
-const VERSIONS = [
-  { id: "kjv", label: "KJV", name: "King James Version" },
-  { id: "asv", label: "ASV", name: "American Standard Version" },
-  { id: "web", label: "WEB", name: "World English Bible" },
-  { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
-  { id: "bbe", label: "BBE", name: "Bible in Basic English" },
-  { id: "nheb", label: "NHEB", name: "New Heart English Bible" },
-];
 
 /** Expand "1-3", "5", "1-2,5" into verse numbers. "intro" → []. */
 export function expandVerseRange(range) {
@@ -89,8 +74,31 @@ function loadBibleBook(versionId, book) {
   };
 }
 
-function loadCommentaryBook(slug, bookName, bible) {
-  const file = path.join(RAW_COMMENTARY, `${slug}.json`);
+function emptyCommentary(bookName, slug) {
+  return {
+    meta: {
+      id: "matthew-henry-complete",
+      title: "Matthew Henry's Commentary",
+      author: "Matthew Henry",
+      license: "cc0-1.0",
+      source: "OpenChristianData/open-christian-data",
+    },
+    entries: [],
+    byVerse: {},
+    byChapterIntro: {},
+    bookIntro: null,
+    book: bookName,
+    slug,
+  };
+}
+
+function loadCommentaryBook(slug, bookName, bible, commentaryFile) {
+  if (!commentaryFile) return emptyCommentary(bookName, slug);
+  const file = path.join(RAW_COMMENTARY, `${commentaryFile}.json`);
+  if (!fs.existsSync(file)) {
+    console.warn(`  no commentary file for ${slug}, continuing without it`);
+    return emptyCommentary(bookName, slug);
+  }
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
   const meta = {
     id: raw.meta?.id ?? "matthew-henry-complete",
@@ -162,14 +170,18 @@ function main() {
 
   const books = [];
 
-  // Commentary is version-agnostic: ingest once from KJV structure.
-  for (const [book, slug] of Object.entries(BOOK_SLUGS)) {
-    console.log(`Ingesting commentary tags for ${book}...`);
-    const kjv = loadBibleBook("kjv", book);
-    const commentary = loadCommentaryBook(slug, book, kjv);
+  for (const book of CANON) {
+    console.log(`Ingesting commentary tags for ${book.name}...`);
+    const kjv = loadBibleBook("kjv", book.name);
+    const commentary = loadCommentaryBook(
+      book.slug,
+      book.name,
+      kjv,
+      book.commentary,
+    );
     const runtime = {
-      book,
-      slug,
+      book: book.name,
+      slug: book.slug,
       meta: commentary.meta,
       bookIntroId: commentary.bookIntro,
       byChapterIntro: commentary.byChapterIntro,
@@ -192,11 +204,11 @@ function main() {
         ]),
       ),
     };
-    writeJson(path.join(OUT, "commentary", `${slug}.json`), runtime);
+    writeJson(path.join(OUT, "commentary", `${book.slug}.json`), runtime);
 
     books.push({
-      book,
-      slug,
+      book: book.name,
+      slug: book.slug,
       chapters: kjv.chapters.length,
       commentaryEntries: commentary.entries.length,
       taggedVerses: Object.keys(commentary.byVerse).length,
@@ -211,10 +223,10 @@ function main() {
   for (const version of VERSIONS) {
     console.log(`Ingesting Bible text: ${version.id}...`);
     ensureDir(path.join(OUT, "bible", version.id));
-    for (const [book, slug] of Object.entries(BOOK_SLUGS)) {
-      const bible = loadBibleBook(version.id, book);
-      writeJson(path.join(OUT, "bible", version.id, `${slug}.json`), bible);
-      console.log(`  ${version.id}/${slug}: ${bible.chapters.length} chapters`);
+    for (const book of CANON) {
+      const bible = loadBibleBook(version.id, book.name);
+      writeJson(path.join(OUT, "bible", version.id, `${book.slug}.json`), bible);
+      console.log(`  ${version.id}/${book.slug}: ${bible.chapters.length} chapters`);
     }
   }
 
@@ -241,7 +253,7 @@ function main() {
   console.log(
     "Done.",
     VERSIONS.map((v) => v.id).join("/"),
-    books.map((b) => b.slug).join(", "),
+    `${books.length} books`,
   );
 }
 
