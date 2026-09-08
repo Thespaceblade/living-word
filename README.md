@@ -2,7 +2,10 @@
 
 Private scripture intel surface with verse-tagged public-domain commentary.
 
-**Not for public redistribution of third-party copyrighted material.** This project only ingests public-domain / CC0 sources. Do not point the fetch scripts at copyrighted commentary sites, and do not bundle NIV, ESV, NKJV, or other restricted translations.
+**Not for public redistribution of third-party copyrighted material.** Local ingest
+only uses public-domain / CC0 sources. Do not point the fetch scripts at
+copyrighted commentary sites, and do not commit NIV, ESV, NKJV, or other
+restricted translation text into this repository.
 
 ## Translations
 
@@ -15,8 +18,18 @@ Free / public-domain packs for the full Protestant canon (66 books):
 - **BBE** Bible in Basic English (simple modern English)
 - **NHEB** New Heart English Bible (modern, public domain)
 
-NIV, ESV, and NKJV require paid licenses, so this app ships free modern
-alternatives instead of those restricted texts.
+### Optional licensed feature
+
+NIV, ESV, and NKJV require publisher licenses. Living Word can load them at
+runtime through official APIs when you add keys locally. Copyrighted text is
+never bundled or committed.
+
+- **ESV** via [api.esv.org](https://api.esv.org/) (`ESV_API_KEY`)
+- **NIV** and **NKJV** via [API.Bible](https://scripture.api.bible/) (`API_BIBLE_KEY`, plus plan access to those Bibles)
+
+Copy `.env.example` to `.env.local`, add keys, restart the app. Chapters are
+cached under `data/cache/bible` for up to 30 days. Without keys, those versions
+show a setup screen and free packs keep working.
 
 Fetch and process the library with:
 
@@ -34,6 +47,7 @@ Matthew Henry commentary is included for every book OpenChristianData publishes
 - Next.js (App Router)
 - Public-domain Bible text + Matthew Henry commentary (CC0)
 - STEPBible morphology (CC BY 4.0)
+- Optional licensed text through publisher APIs
 
 ## Commands
 

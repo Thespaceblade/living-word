@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getBibleBook, getCatalog, isValidVersion } from "./content";
+import { getBibleBook, getCatalog, isLocalVersion } from "./content";
 import type { SearchHit, SearchMode, SearchResponse } from "./search-shared";
 import { SEARCH_TOPICS } from "./search-shared";
 import type { WordToken } from "./types";
@@ -240,7 +240,7 @@ export function searchLibrary(options: {
 }): SearchResponse {
   const catalog = getCatalog();
   const version =
-    options.version && isValidVersion(options.version)
+    options.version && isLocalVersion(options.version)
       ? options.version
       : (catalog.versions[0]?.id ?? "kjv");
   const rawQuery = options.query.trim();

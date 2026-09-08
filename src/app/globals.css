@@ -853,6 +853,58 @@ a {
   letter-spacing: 0.04em;
 }
 
+.reader__copyright {
+  margin: 0.65rem auto 0;
+  max-width: 36rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.license-gate {
+  max-width: 34rem;
+  margin: 4rem auto 0;
+  text-align: left;
+}
+
+.license-gate h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+}
+
+.license-gate p {
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.license-gate__steps {
+  margin: 1rem 0 1.25rem;
+  padding-left: 1.2rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.license-gate__steps code {
+  font-size: 0.9em;
+}
+
+.license-gate__books {
+  margin-top: 1.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.reader-bar__pill select {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  max-width: 14rem;
+}
+
 .verse-stream {
   display: block;
   margin-top: 2rem;
