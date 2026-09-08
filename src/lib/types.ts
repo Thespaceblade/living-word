@@ -2,6 +2,11 @@ export type BibleVersion = {
   id: string;
   label: string;
   name: string;
+  /** Local public-domain pack, or licensed remote API text. */
+  source?: "local" | "licensed";
+  copyright?: string;
+  /** False when a licensed version is listed but API keys are missing. */
+  ready?: boolean;
 };
 
 export type CatalogBook = {
