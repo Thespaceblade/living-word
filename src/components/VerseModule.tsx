@@ -53,12 +53,16 @@ const TOP_SAFE = 72;
 const BOTTOM_SAFE = 24;
 const GAP = 18;
 
-function entryLabel(entry: CommentaryEntry) {
+function entryLabel(entry: CommentaryEntry, verse: number) {
   const isIntro = entry.verseRange === "intro";
   if (isIntro) {
     return entry.chapter === 0
       ? "Book introduction"
       : `Chapter ${entry.chapter} overview`;
+  }
+  if (entry.verses.length === 1) return `On v. ${entry.verses[0]}`;
+  if (entry.verses.includes(verse)) {
+    return `On v. ${verse} · from vv. ${entry.verseRange}`;
   }
   return `On vv. ${entry.verseRange}`;
 }
@@ -539,30 +543,18 @@ export function VerseModule({
               <>
                 {!intel && <p className="muted">Gathering commentary…</p>}
                 {intel?.error && <p className="error">{intel.error}</p>}
-                {intel?.data?.bookIntro ? (
-                  <article className="intel-entry intel-entry--intro">
-                    <header className="intel-entry__head">
-                      <span className="intel-entry__label">
-                        {entryLabel(intel.data.bookIntro)}
-                      </span>
-                    </header>
-                    <p className="intel-entry__body">
-                      {intel.data.bookIntro.text}
-                    </p>
-                  </article>
-                ) : null}
                 {intel?.data &&
-                  intel.data.entries.length === 0 &&
-                  !intel.data.bookIntro && (
-                    <p className="muted">
-                      No commentary tagged for this verse yet.
-                    </p>
-                  )}
+                !intel.error &&
+                intel.data.entries.length === 0 ? (
+                  <p className="muted">
+                    No commentary for this verse in the library yet.
+                  </p>
+                ) : null}
                 {intel?.data?.entries.map((entry) => (
                   <article key={entry.id} className="intel-entry">
                     <header className="intel-entry__head">
                       <span className="intel-entry__label">
-                        {entryLabel(entry)}
+                        {entryLabel(entry, selected.verse)}
                       </span>
                       <span className="intel-entry__meta">
                         {entry.author}

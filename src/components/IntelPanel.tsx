@@ -39,12 +39,16 @@ const TABS: { id: StudyTabId; label: string }[] = [
 const TAB_KEY = "lw-study-tab";
 const tabListeners = new Set<() => void>();
 
-function entryLabel(entry: CommentaryEntry) {
+function entryLabel(entry: CommentaryEntry, verse: number) {
   const isIntro = entry.verseRange === "intro";
   if (isIntro) {
     return entry.chapter === 0
       ? "Book introduction"
       : `Chapter ${entry.chapter} overview`;
+  }
+  if (entry.verses.length === 1) return `On v. ${entry.verses[0]}`;
+  if (entry.verses.includes(verse)) {
+    return `On v. ${verse} · from vv. ${entry.verseRange}`;
   }
   return `On vv. ${entry.verseRange}`;
 }
@@ -332,35 +336,19 @@ export function IntelPanel({
                     <p className="muted">Gathering commentary…</p>
                   )}
                   {intel?.error && <p className="error">{intel.error}</p>}
-                  {intel?.data?.bookIntro ? (
-                    <article className="intel-entry intel-entry--intro">
-                      <header className="intel-entry__head">
-                        <span className="intel-entry__label">
-                          {entryLabel(intel.data.bookIntro)}
-                        </span>
-                        <span className="intel-entry__meta">
-                          {intel.data.bookIntro.author}
-                        </span>
-                      </header>
-                      <p className="intel-entry__body">
-                        {intel.data.bookIntro.text}
-                      </p>
-                    </article>
-                  ) : null}
                   {!intelLoading &&
                     !intel?.error &&
                     intel?.data &&
-                    intel.data.entries.length === 0 &&
-                    !intel.data.bookIntro && (
+                    intel.data.entries.length === 0 && (
                       <p className="muted">
-                        No commentary tagged for this verse yet.
+                        No commentary for this verse in the library yet.
                       </p>
                     )}
                   {intel?.data?.entries.map((entry) => (
                     <article key={entry.id} className="intel-entry">
                       <header className="intel-entry__head">
                         <span className="intel-entry__label">
-                          {entryLabel(entry)}
+                          {entryLabel(entry, selected?.verse ?? 0)}
                         </span>
                         <span className="intel-entry__meta">
                           {entry.author}
