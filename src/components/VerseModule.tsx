@@ -43,11 +43,11 @@ const MODES: { id: NonNullable<StudyMode>; label: string }[] = [
   { id: "study", label: "Commentary" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
-  { id: "xrefs", label: "Cross-refs" },
+  { id: "xrefs", label: "Refs" },
   { id: "notes", label: "Note" },
 ];
 
-const MODULE_WIDTH = 320;
+const MODULE_WIDTH = 348;
 const LERP = 0.14;
 const TOP_SAFE = 72;
 const BOTTOM_SAFE = 24;
@@ -532,7 +532,7 @@ export function VerseModule({
               aria-pressed={mode === item.id}
               onClick={() => toggleMode(item.id)}
             >
-              {item.id === "xrefs" ? "Refs" : item.label}
+              {item.label}
             </button>
           ))}
         </div>
