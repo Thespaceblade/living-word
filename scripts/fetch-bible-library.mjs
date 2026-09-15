@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * Fetch the full Protestant canon for all Living Word free Bible packs
- * plus Matthew Henry commentary (where OpenChristianData has a book).
+ * plus Jamieson-Fausset-Brown verse commentary (OpenChristianData, CC0).
  *
  * Sources:
  * - kjv: aruljohn/Bible-kjv
  * - asv / web: midvash/bible-data
  * - bsb / bbe / nheb: scrollmapper/bible_databases
- * - commentary: OpenChristianData matthew-henry (CC0)
+ * - commentary: OpenChristianData jamieson-fausset-brown (CC0)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -17,7 +17,10 @@ import { CANON } from "./canon.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const RAW_BIBLE = path.join(ROOT, "data/raw/bible");
-const RAW_COMMENTARY = path.join(ROOT, "data/raw/commentary/matthew-henry");
+const RAW_COMMENTARY = path.join(
+  ROOT,
+  "data/raw/commentary/jamieson-fausset-brown",
+);
 
 const KJV_BASE =
   "https://raw.githubusercontent.com/aruljohn/Bible-kjv/master";
@@ -26,7 +29,7 @@ const MIDVASH_BASE =
 const SCROLL_BASE =
   "https://raw.githubusercontent.com/scrollmapper/bible_databases/master/formats/json";
 const COMMENTARY_BASE =
-  "https://raw.githubusercontent.com/OpenChristianData/open-christian-data/main/data/commentaries/matthew-henry";
+  "https://raw.githubusercontent.com/OpenChristianData/open-christian-data/main/data/commentaries/jamieson-fausset-brown";
 
 const FREE_PACKS = [
   { id: "bsb", file: "BSB.json" },
@@ -144,7 +147,7 @@ async function fetchScrollmapperPacks() {
 }
 
 async function fetchCommentary() {
-  console.log("Fetching Matthew Henry commentary…");
+  console.log("Fetching Jamieson-Fausset-Brown commentary…");
   for (const book of CANON) {
     if (!book.commentary) {
       console.log(`  skip ${book.slug} (no OpenChristianData pack)`);

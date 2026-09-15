@@ -7,7 +7,7 @@
  * - kjv: aruljohn/Bible-kjv
  * - asv / web: midvash/bible-data
  * - bsb / bbe / nheb: scrollmapper/bible_databases
- * Commentary: OpenChristianData matthew-henry (CC0); optional per book
+ * Commentary: OpenChristianData jamieson-fausset-brown (CC0); optional per book
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -17,7 +17,10 @@ import { BOOK_SLUGS, CANON, VERSIONS } from "./canon.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const RAW_BIBLE = path.join(ROOT, "data/raw/bible");
-const RAW_COMMENTARY = path.join(ROOT, "data/raw/commentary/matthew-henry");
+const RAW_COMMENTARY = path.join(
+  ROOT,
+  "data/raw/commentary/jamieson-fausset-brown",
+);
 const OUT = path.join(ROOT, "data/processed");
 
 /** Expand "1-3", "5", "1-2,5" into verse numbers. "intro" → []. */
@@ -38,6 +41,58 @@ export function expandVerseRange(range) {
     }
   }
   return [...verses].sort((a, b) => a - b);
+}
+
+/**
+ * OpenChristianData MH entries are often truncated (~32KB). Only tag verses
+ * the stored text still discusses, so later verses in a wide range are not
+ * falsely linked to early-verse commentary.
+ */
+export function versesCoveredByEntryText(
+  declaredVerses,
+  text,
+  crossReferences,
+  book,
+  chapter,
+) {
+  if (!declaredVerses.length) return [];
+  const cited = new Set();
+  const bookEsc = String(book).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const bookChapter = new RegExp(
+    `\\b(?:${bookEsc}|Joh|John|Jn|Gen|Exod|Matt|Rom|Ps|Act)\\.?\\s*${chapter}\\s*:\\s*(\\d+)(?:\\s*[-–—]\\s*(\\d+))?`,
+    "gi",
+  );
+  for (const match of String(text).matchAll(bookChapter)) {
+    const start = Number.parseInt(match[1], 10);
+    const end = match[2] ? Number.parseInt(match[2], 10) : start;
+    if (!Number.isFinite(start)) continue;
+    const [a, b] = start <= end ? [start, end] : [end, start];
+    for (let v = a; v <= b; v++) cited.add(v);
+  }
+  const bare = /\bvv?\.?\s*(\d+)(?:\s*[-–—]\s*(\d+))?/gi;
+  for (const match of String(text).matchAll(bare)) {
+    const start = Number.parseInt(match[1], 10);
+    const end = match[2] ? Number.parseInt(match[2], 10) : start;
+    if (!Number.isFinite(start)) continue;
+    const [a, b] = start <= end ? [start, end] : [end, start];
+    for (let v = a; v <= b; v++) cited.add(v);
+  }
+  const osisPrefix = `${book}.${chapter}.`;
+  for (const ref of crossReferences ?? []) {
+    if (!String(ref).startsWith(osisPrefix)) continue;
+    const verse = Number.parseInt(String(ref).slice(osisPrefix.length), 10);
+    if (Number.isFinite(verse)) cited.add(verse);
+  }
+  const declared = new Set(declaredVerses);
+  const citedInRange = [...cited].filter((v) => declared.has(v));
+  if (citedInRange.length === 0) {
+    if (declaredVerses.length <= 6 || String(text).length < 5000) {
+      return declaredVerses;
+    }
+    return declaredVerses.slice(0, Math.min(declaredVerses.length, 4));
+  }
+  const lastCited = Math.max(...citedInRange);
+  return declaredVerses.filter((v) => v <= lastCited);
 }
 
 function verseKey(book, chapter, verse) {
@@ -77,9 +132,9 @@ function loadBibleBook(versionId, book) {
 function emptyCommentary(bookName, slug) {
   return {
     meta: {
-      id: "matthew-henry-complete",
-      title: "Matthew Henry's Commentary",
-      author: "Matthew Henry",
+      id: "jamieson-fausset-brown",
+      title: "Jamieson-Fausset-Brown Bible Commentary",
+      author: "Jamieson, Fausset & Brown",
       license: "cc0-1.0",
       source: "OpenChristianData/open-christian-data",
     },
@@ -101,9 +156,10 @@ function loadCommentaryBook(slug, bookName, bible, commentaryFile) {
   }
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
   const meta = {
-    id: raw.meta?.id ?? "matthew-henry-complete",
-    title: raw.meta?.title ?? "Matthew Henry's Commentary",
-    author: raw.meta?.author ?? "Matthew Henry",
+    id: raw.meta?.id ?? "jamieson-fausset-brown",
+    title:
+      raw.meta?.title ?? "Jamieson-Fausset-Brown Bible Commentary",
+    author: "Jamieson, Fausset & Brown",
     license: raw.meta?.license ?? "cc0-1.0",
     source: "OpenChristianData/open-christian-data",
   };
@@ -112,9 +168,6 @@ function loadCommentaryBook(slug, bookName, bible, commentaryFile) {
   const byVerse = {};
   const byChapterIntro = {};
   let bookIntro = null;
-  const chapterVerseCounts = Object.fromEntries(
-    bible.chapters.map((ch) => [ch.chapter, ch.verses.map((v) => v.verse)]),
-  );
 
   for (const item of raw.data ?? []) {
     const chapter = Number(item.chapter ?? 0);
@@ -143,17 +196,21 @@ function loadCommentaryBook(slug, bookName, bible, commentaryFile) {
       continue;
     }
     if (range === "intro" && chapter > 0) {
+      // Keep chapter overviews separate; do not attach them to every verse.
       byChapterIntro[chapter] ??= [];
       byChapterIntro[chapter].push(entry.id);
-      for (const v of chapterVerseCounts[chapter] ?? []) {
-        const key = verseKey(bookName, chapter, v);
-        byVerse[key] ??= [];
-        if (!byVerse[key].includes(entry.id)) byVerse[key].push(entry.id);
-      }
       continue;
     }
 
-    for (const v of verses) {
+    const covered = versesCoveredByEntryText(
+      verses,
+      entry.text,
+      entry.crossReferences,
+      bookName,
+      chapter,
+    );
+    entry.verses = covered;
+    for (const v of covered) {
       const key = verseKey(bookName, chapter, v);
       byVerse[key] ??= [];
       byVerse[key].push(entry.id);

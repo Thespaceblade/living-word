@@ -13,6 +13,7 @@ import type {
   VerseWords,
 } from "@/lib/types";
 import type { XrefItem } from "@/lib/xrefs";
+import { commentaryExcerpt } from "@/lib/commentary-excerpt";
 
 export type StudyTabId =
   | "study"
@@ -29,7 +30,7 @@ type CompareRow = {
 };
 
 const TABS: { id: StudyTabId; label: string }[] = [
-  { id: "study", label: "Commentary" },
+  { id: "study", label: "Explainer" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
   { id: "xrefs", label: "Cross-refs" },
@@ -39,12 +40,16 @@ const TABS: { id: StudyTabId; label: string }[] = [
 const TAB_KEY = "lw-study-tab";
 const tabListeners = new Set<() => void>();
 
-function entryLabel(entry: CommentaryEntry) {
+function entryLabel(entry: CommentaryEntry, verse: number) {
   const isIntro = entry.verseRange === "intro";
   if (isIntro) {
     return entry.chapter === 0
       ? "Book introduction"
       : `Chapter ${entry.chapter} overview`;
+  }
+  if (entry.verses.length === 1) return `On v. ${entry.verses[0]}`;
+  if (entry.verses.includes(verse)) {
+    return `On v. ${verse} · from vv. ${entry.verseRange}`;
   }
   return `On vv. ${entry.verseRange}`;
 }
@@ -329,49 +334,41 @@ export function IntelPanel({
               {tab === "study" && (
                 <>
                   {intelLoading && (
-                    <p className="muted">Gathering commentary…</p>
+                    <p className="muted">Gathering explainer…</p>
                   )}
                   {intel?.error && <p className="error">{intel.error}</p>}
-                  {intel?.data?.bookIntro ? (
-                    <article className="intel-entry intel-entry--intro">
-                      <header className="intel-entry__head">
-                        <span className="intel-entry__label">
-                          {entryLabel(intel.data.bookIntro)}
-                        </span>
-                        <span className="intel-entry__meta">
-                          {intel.data.bookIntro.author}
-                        </span>
-                      </header>
-                      <p className="intel-entry__body">
-                        {intel.data.bookIntro.text}
-                      </p>
-                    </article>
-                  ) : null}
                   {!intelLoading &&
                     !intel?.error &&
                     intel?.data &&
-                    intel.data.entries.length === 0 &&
-                    !intel.data.bookIntro && (
+                    intel.data.entries.length === 0 && (
                       <p className="muted">
-                        No commentary tagged for this verse yet.
+                        No explainer for this verse in the library yet.
                       </p>
                     )}
-                  {intel?.data?.entries.map((entry) => (
-                    <article key={entry.id} className="intel-entry">
-                      <header className="intel-entry__head">
-                        <span className="intel-entry__label">
-                          {entryLabel(entry)}
-                        </span>
-                        <span className="intel-entry__meta">
-                          {entry.author}
-                          {entry.wordCount
-                            ? ` · ${entry.wordCount.toLocaleString()} words`
-                            : ""}
-                        </span>
-                      </header>
-                      <p className="intel-entry__body">{entry.text}</p>
-                    </article>
-                  ))}
+                  {intel?.data?.entries.map((entry) => {
+                    const excerpt = commentaryExcerpt(entry.text);
+                    return (
+                      <article
+                        key={entry.id}
+                        className="intel-entry intel-entry--explainer"
+                      >
+                        <header className="intel-entry__head">
+                          <span className="intel-entry__label">
+                            {entryLabel(entry, selected?.verse ?? 0)}
+                          </span>
+                          <span className="intel-entry__meta">
+                            {entry.author}
+                          </span>
+                        </header>
+                        <p className="intel-entry__body">{excerpt.preview}</p>
+                        {excerpt.needsExpand ? (
+                          <p className="intel-entry__meta">
+                            Open the verse card for the full note.
+                          </p>
+                        ) : null}
+                      </article>
+                    );
+                  })}
                 </>
               )}
 

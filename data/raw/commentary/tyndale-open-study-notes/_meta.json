@@ -1,0 +1,327 @@
+{
+  "fetchedAt": "2026-09-15T16:02:57.122Z",
+  "books": [
+    {
+      "id": "GEN",
+      "slug": "genesis",
+      "name": "Genesis"
+    },
+    {
+      "id": "EXO",
+      "slug": "exodus",
+      "name": "Exodus"
+    },
+    {
+      "id": "LEV",
+      "slug": "leviticus",
+      "name": "Leviticus"
+    },
+    {
+      "id": "NUM",
+      "slug": "numbers",
+      "name": "Numbers"
+    },
+    {
+      "id": "DEU",
+      "slug": "deuteronomy",
+      "name": "Deuteronomy"
+    },
+    {
+      "id": "JOS",
+      "slug": "joshua",
+      "name": "Joshua"
+    },
+    {
+      "id": "RUT",
+      "slug": "ruth",
+      "name": "Ruth"
+    },
+    {
+      "id": "1SA",
+      "slug": "1-samuel",
+      "name": "1 Samuel"
+    },
+    {
+      "id": "2SA",
+      "slug": "2-samuel",
+      "name": "2 Samuel"
+    },
+    {
+      "id": "1KI",
+      "slug": "1-kings",
+      "name": "1 Kings"
+    },
+    {
+      "id": "2KI",
+      "slug": "2-kings",
+      "name": "2 Kings"
+    },
+    {
+      "id": "1CH",
+      "slug": "1-chronicles",
+      "name": "1 Chronicles"
+    },
+    {
+      "id": "2CH",
+      "slug": "2-chronicles",
+      "name": "2 Chronicles"
+    },
+    {
+      "id": "EZR",
+      "slug": "ezra",
+      "name": "Ezra"
+    },
+    {
+      "id": "NEH",
+      "slug": "nehemiah",
+      "name": "Nehemiah"
+    },
+    {
+      "id": "EST",
+      "slug": "esther",
+      "name": "Esther"
+    },
+    {
+      "id": "JOB",
+      "slug": "job",
+      "name": "Job"
+    },
+    {
+      "id": "PSA",
+      "slug": "psalms",
+      "name": "Psalms"
+    },
+    {
+      "id": "PRO",
+      "slug": "proverbs",
+      "name": "Proverbs"
+    },
+    {
+      "id": "ECC",
+      "slug": "ecclesiastes",
+      "name": "Ecclesiastes"
+    },
+    {
+      "id": "ISA",
+      "slug": "isaiah",
+      "name": "Isaiah"
+    },
+    {
+      "id": "JER",
+      "slug": "jeremiah",
+      "name": "Jeremiah"
+    },
+    {
+      "id": "LAM",
+      "slug": "lamentations",
+      "name": "Lamentations"
+    },
+    {
+      "id": "EZK",
+      "slug": "ezekiel",
+      "name": "Ezekiel"
+    },
+    {
+      "id": "DAN",
+      "slug": "daniel",
+      "name": "Daniel"
+    },
+    {
+      "id": "HOS",
+      "slug": "hosea",
+      "name": "Hosea"
+    },
+    {
+      "id": "JOL",
+      "slug": "joel",
+      "name": "Joel"
+    },
+    {
+      "id": "AMO",
+      "slug": "amos",
+      "name": "Amos"
+    },
+    {
+      "id": "OBA",
+      "slug": "obadiah",
+      "name": "Obadiah"
+    },
+    {
+      "id": "JON",
+      "slug": "jonah",
+      "name": "Jonah"
+    },
+    {
+      "id": "MIC",
+      "slug": "micah",
+      "name": "Micah"
+    },
+    {
+      "id": "NAM",
+      "slug": "nahum",
+      "name": "Nahum"
+    },
+    {
+      "id": "HAB",
+      "slug": "habakkuk",
+      "name": "Habakkuk"
+    },
+    {
+      "id": "ZEP",
+      "slug": "zephaniah",
+      "name": "Zephaniah"
+    },
+    {
+      "id": "HAG",
+      "slug": "haggai",
+      "name": "Haggai"
+    },
+    {
+      "id": "ZEC",
+      "slug": "zechariah",
+      "name": "Zechariah"
+    },
+    {
+      "id": "MAL",
+      "slug": "malachi",
+      "name": "Malachi"
+    },
+    {
+      "id": "MAT",
+      "slug": "matthew",
+      "name": "Matthew"
+    },
+    {
+      "id": "MRK",
+      "slug": "mark",
+      "name": "Mark"
+    },
+    {
+      "id": "LUK",
+      "slug": "luke",
+      "name": "Luke"
+    },
+    {
+      "id": "JHN",
+      "slug": "john",
+      "name": "John"
+    },
+    {
+      "id": "ACT",
+      "slug": "acts",
+      "name": "Acts"
+    },
+    {
+      "id": "ROM",
+      "slug": "romans",
+      "name": "Romans"
+    },
+    {
+      "id": "1CO",
+      "slug": "1-corinthians",
+      "name": "1 Corinthians"
+    },
+    {
+      "id": "2CO",
+      "slug": "2-corinthians",
+      "name": "2 Corinthians"
+    },
+    {
+      "id": "GAL",
+      "slug": "galatians",
+      "name": "Galatians"
+    },
+    {
+      "id": "EPH",
+      "slug": "ephesians",
+      "name": "Ephesians"
+    },
+    {
+      "id": "PHP",
+      "slug": "philippians",
+      "name": "Philippians"
+    },
+    {
+      "id": "COL",
+      "slug": "colossians",
+      "name": "Colossians"
+    },
+    {
+      "id": "1TH",
+      "slug": "1-thessalonians",
+      "name": "1 Thessalonians"
+    },
+    {
+      "id": "2TH",
+      "slug": "2-thessalonians",
+      "name": "2 Thessalonians"
+    },
+    {
+      "id": "1TI",
+      "slug": "1-timothy",
+      "name": "1 Timothy"
+    },
+    {
+      "id": "2TI",
+      "slug": "2-timothy",
+      "name": "2 Timothy"
+    },
+    {
+      "id": "TIT",
+      "slug": "titus",
+      "name": "Titus"
+    },
+    {
+      "id": "PHM",
+      "slug": "philemon",
+      "name": "Philemon"
+    },
+    {
+      "id": "HEB",
+      "slug": "hebrews",
+      "name": "Hebrews"
+    },
+    {
+      "id": "JAS",
+      "slug": "james",
+      "name": "James"
+    },
+    {
+      "id": "1PE",
+      "slug": "1-peter",
+      "name": "1 Peter"
+    },
+    {
+      "id": "2PE",
+      "slug": "2-peter",
+      "name": "2 Peter"
+    },
+    {
+      "id": "1JN",
+      "slug": "1-john",
+      "name": "1 John"
+    },
+    {
+      "id": "2JN",
+      "slug": "2-john",
+      "name": "2 John"
+    },
+    {
+      "id": "3JN",
+      "slug": "3-john",
+      "name": "3 John"
+    },
+    {
+      "id": "JUD",
+      "slug": "jude",
+      "name": "Jude"
+    },
+    {
+      "id": "REV",
+      "slug": "revelation",
+      "name": "Revelation"
+    }
+  ],
+  "license": "cc-by-sa-4.0",
+  "attribution": "Tyndale Open Study Notes © Tyndale House Publishers. Licensed under CC BY-SA 4.0."
+}

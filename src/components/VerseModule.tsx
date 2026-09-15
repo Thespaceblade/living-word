@@ -23,6 +23,8 @@ import type {
   VerseWords,
 } from "@/lib/types";
 import type { XrefItem } from "@/lib/xrefs";
+import { commentaryExcerpt } from "@/lib/commentary-excerpt";
+import { pickPlainSense, type PlainSenseSource } from "@/lib/plain-sense";
 
 export type StudyMode =
   | "study"
@@ -39,28 +41,263 @@ type CompareRow = {
   text: string | null;
 };
 
-const MODES: { id: NonNullable<StudyMode>; label: string }[] = [
-  { id: "study", label: "Commentary" },
+const MODES: {
+  id: NonNullable<StudyMode>;
+  label: string;
+}[] = [
+  { id: "study", label: "Explainer" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
-  { id: "xrefs", label: "Cross-refs" },
+  { id: "xrefs", label: "Refs" },
   { id: "notes", label: "Note" },
 ];
 
 const MODULE_WIDTH = 320;
+
+function ModeIcon({ id }: { id: NonNullable<StudyMode> }) {
+  const common = {
+    className: "verse-module__icon",
+    viewBox: "0 0 16 16",
+    "aria-hidden": true as const,
+  };
+  switch (id) {
+    case "study":
+      return (
+        <svg {...common}>
+          <path
+            d="M2.5 3.2h5.2c.9 0 1.6.4 2.3 1 .7-.6 1.4-1 2.3-1H15v9.2h-2.7c-.9 0-1.6.3-2.3.8-.7-.5-1.4-.8-2.3-.8H2.5V3.2Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 4.4v7.8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "words":
+      return (
+        <svg {...common}>
+          <path
+            d="M2.8 12.2 5.8 3.8h1.6l3 8.4H8.9l-.65-1.85H4.9L4.25 12.2H2.8Zm2.5-3.3h2.5L6.6 5.6 5.3 8.9Z"
+            fill="currentColor"
+          />
+          <path
+            d="M10.6 12.2 12.2 7.4h1.35L15.2 12.2h-1.4l-.28-.95h-1.7l-.28.95H10.6Zm2.1-2.3.55-1.85.55 1.85h-1.1Z"
+            fill="currentColor"
+          />
+        </svg>
+      );
+    case "compare":
+      return (
+        <svg {...common}>
+          <rect
+            x="2.4"
+            y="3"
+            width="4.6"
+            height="10"
+            rx="1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+          />
+          <rect
+            x="9"
+            y="3"
+            width="4.6"
+            height="10"
+            rx="1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+          />
+        </svg>
+      );
+    case "xrefs":
+      return (
+        <svg {...common}>
+          <path
+            d="M6.4 9.6a3 3 0 0 1 0-4.2l1.5-1.5a3 3 0 0 1 4.2 4.2L11 9.2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+          />
+          <path
+            d="M9.6 6.4a3 3 0 0 1 0 4.2L8.1 12a3 3 0 1 1-4.2-4.2L5 6.8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "notes":
+      return (
+        <svg {...common}>
+          <path
+            d="M3.2 2.8h7.1L12.8 5.3v7.9a1 1 0 0 1-1 1H3.2a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M10.1 2.9v2.6h2.5M5 8h5.2M5 10.4h3.8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
 const LERP = 0.14;
 const TOP_SAFE = 72;
 const BOTTOM_SAFE = 24;
 const GAP = 18;
 
-function entryLabel(entry: CommentaryEntry) {
+function entryLabel(entry: CommentaryEntry, verse: number) {
   const isIntro = entry.verseRange === "intro";
   if (isIntro) {
     return entry.chapter === 0
       ? "Book introduction"
       : `Chapter ${entry.chapter} overview`;
   }
-  return `On vv. ${entry.verseRange}`;
+  if (entry.verses.length === 1) return `Verse ${entry.verses[0]}`;
+  if (entry.verses.includes(verse)) {
+    return `Verse ${verse} · from ${entry.verseRange}`;
+  }
+  return `Verses ${entry.verseRange}`;
+}
+
+function displayNoteText(text: string) {
+  return text
+    .replace(
+      /^\d+\s*:\s*\d+(?:\s*[–-]\s*(?:\d+\s*:\s*)?\d+)?\s*/,
+      "",
+    )
+    .trim();
+}
+
+function StudyNote({
+  entry,
+  verse,
+  meta,
+}: {
+  entry: CommentaryEntry;
+  verse: number;
+  meta?: { title?: string; license?: string; website?: string } | null;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const full = displayNoteText(entry.text);
+  const { preview, needsExpand } = commentaryExcerpt(full, 90);
+  const body = expanded || !needsExpand ? full : preview;
+
+  return (
+    <article className="intel-entry intel-entry--explainer">
+      <header className="intel-entry__head">
+        <span className="intel-entry__label">{entryLabel(entry, verse)}</span>
+        <span className="intel-entry__meta">
+          {meta?.title ?? entry.author}
+        </span>
+      </header>
+      <p className="intel-entry__body plain-sense__text">{body}</p>
+      {needsExpand ? (
+        <button
+          type="button"
+          className="intel-entry__more"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? "Show less" : "Read more"}
+        </button>
+      ) : null}
+    </article>
+  );
+}
+
+function StudyExplainer({
+  notes,
+  plain,
+  verse,
+  meta,
+  loadingNotes,
+  loadingPlain,
+  notesError,
+  plainError,
+}: {
+  notes: CommentaryEntry[];
+  plain: PlainSenseSource | null;
+  verse: number;
+  meta?: IntelPayload["meta"] | null;
+  loadingNotes: boolean;
+  loadingPlain: boolean;
+  notesError?: string;
+  plainError?: string;
+}) {
+  const [showPlain, setShowPlain] = useState(false);
+
+  return (
+    <div className="plain-sense">
+      {loadingNotes ? <p className="muted">Gathering study note…</p> : null}
+      {notesError ? <p className="error">{notesError}</p> : null}
+      {!loadingNotes && !notesError && notes.length === 0 ? (
+        <p className="muted">No study note for this verse yet.</p>
+      ) : null}
+      {notes.map((entry) => (
+        <StudyNote key={entry.id} entry={entry} verse={verse} meta={meta} />
+      ))}
+      {meta?.license ? (
+        <p className="study-attribution">
+          {meta.title ?? "Study notes"}
+          {meta.license === "cc-by-sa-4.0"
+            ? " · CC BY-SA 4.0"
+            : ` · ${meta.license}`}
+          {meta.website ? (
+            <>
+              {" · "}
+              <a href={meta.website} target="_blank" rel="noreferrer">
+                Source
+              </a>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+
+      {!loadingPlain && plain ? (
+        <div className="plain-sense__classic">
+          <button
+            type="button"
+            className="intel-entry__more"
+            aria-expanded={showPlain}
+            onClick={() => setShowPlain((value) => !value)}
+          >
+            {showPlain ? "Hide plain reading" : "Plain reading"}
+          </button>
+          {showPlain ? (
+            <article className="intel-entry">
+              <header className="intel-entry__head">
+                <span className="intel-entry__label">In plain words</span>
+                <span className="intel-entry__meta">{plain.label}</span>
+              </header>
+              <p className="intel-entry__body">{plain.text}</p>
+            </article>
+          ) : null}
+        </div>
+      ) : null}
+      {plainError ? <p className="error">{plainError}</p> : null}
+    </div>
+  );
 }
 
 function shortLiteral(gloss: string) {
@@ -100,6 +337,10 @@ export function VerseModule({
   const [placed, setPlaced] = useState(false);
 
   const intelKey = `${version}:${selected.slug}:${selected.chapter}:${selected.verse}`;
+  const plainKey =
+    mode === "study"
+      ? `${selected.slug}:${selected.chapter}:${selected.verse}`
+      : null;
   const compareKey =
     mode === "compare"
       ? `${selected.slug}:${selected.chapter}:${selected.verse}`
@@ -116,6 +357,11 @@ export function VerseModule({
   const [intelResult, setIntelResult] = useState<{
     key: string;
     data?: IntelPayload;
+    error?: string;
+  } | null>(null);
+  const [plainResult, setPlainResult] = useState<{
+    key: string;
+    plain?: PlainSenseSource | null;
     error?: string;
   } | null>(null);
   const [compareResult, setCompareResult] = useState<{
@@ -249,7 +495,37 @@ export function VerseModule({
       }, 280);
     }, 60);
     return () => window.clearTimeout(id);
-  }, [mode, intelResult, wordsResult, compareResult, xrefsResult, selected.verse]);
+  }, [mode, intelResult, plainResult, wordsResult, compareResult, xrefsResult, selected.verse]);
+
+  useEffect(() => {
+    if (!plainKey) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      slug: selected.slug,
+      chapter: String(selected.chapter),
+      verse: String(selected.verse),
+    });
+    fetch(`/api/compare?${params}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load plain sense");
+        return (await res.json()) as { parallels: CompareRow[] };
+      })
+      .then((json) => {
+        setPlainResult({
+          key: plainKey,
+          plain: pickPlainSense(json.parallels, version),
+        });
+      })
+      .catch((err: Error) => {
+        if (err.name === "AbortError") return;
+        setPlainResult({
+          key: plainKey,
+          plain: null,
+          error: "Could not load a plain English reading.",
+        });
+      });
+    return () => controller.abort();
+  }, [plainKey, selected, version]);
 
   useEffect(() => {
     if (mode !== "study") return;
@@ -271,7 +547,7 @@ export function VerseModule({
         if (err.name === "AbortError") return;
         setIntelResult({
           key: intelKey,
-          error: "Could not load commentary for this verse.",
+          error: "Could not load classic notes for this verse.",
         });
       });
     return () => controller.abort();
@@ -355,6 +631,10 @@ export function VerseModule({
 
   const intel =
     intelResult && intelResult.key === intelKey ? intelResult : null;
+  const plain =
+    plainResult && plainKey && plainResult.key === plainKey
+      ? plainResult
+      : null;
   const compare =
     compareResult && compareResult.key === compareKey ? compareResult : null;
   const words =
@@ -525,10 +805,12 @@ export function VerseModule({
               key={item.id}
               type="button"
               className={`verse-module__action ${mode === item.id ? "is-active" : ""}`}
+              aria-label={item.label}
               aria-pressed={mode === item.id}
+              data-label={item.label}
               onClick={() => toggleMode(item.id)}
             >
-              {item.id === "xrefs" ? "Refs" : item.label}
+              <ModeIcon id={item.id} />
             </button>
           ))}
         </div>
@@ -536,45 +818,16 @@ export function VerseModule({
         {mode ? (
           <div className="verse-module__body" key={`${mode}-${intelKey}`}>
             {mode === "study" && (
-              <>
-                {!intel && <p className="muted">Gathering commentary…</p>}
-                {intel?.error && <p className="error">{intel.error}</p>}
-                {intel?.data?.bookIntro ? (
-                  <article className="intel-entry intel-entry--intro">
-                    <header className="intel-entry__head">
-                      <span className="intel-entry__label">
-                        {entryLabel(intel.data.bookIntro)}
-                      </span>
-                    </header>
-                    <p className="intel-entry__body">
-                      {intel.data.bookIntro.text}
-                    </p>
-                  </article>
-                ) : null}
-                {intel?.data &&
-                  intel.data.entries.length === 0 &&
-                  !intel.data.bookIntro && (
-                    <p className="muted">
-                      No commentary tagged for this verse yet.
-                    </p>
-                  )}
-                {intel?.data?.entries.map((entry) => (
-                  <article key={entry.id} className="intel-entry">
-                    <header className="intel-entry__head">
-                      <span className="intel-entry__label">
-                        {entryLabel(entry)}
-                      </span>
-                      <span className="intel-entry__meta">
-                        {entry.author}
-                        {entry.wordCount
-                          ? ` · ${entry.wordCount.toLocaleString()} words`
-                          : ""}
-                      </span>
-                    </header>
-                    <p className="intel-entry__body">{entry.text}</p>
-                  </article>
-                ))}
-              </>
+              <StudyExplainer
+                notes={intel?.data?.entries ?? []}
+                plain={plain?.plain ?? null}
+                verse={selected.verse}
+                meta={intel?.data?.meta}
+                loadingNotes={!intel}
+                loadingPlain={!plain}
+                notesError={intel?.error}
+                plainError={plain?.error}
+              />
             )}
 
             {mode === "words" && (

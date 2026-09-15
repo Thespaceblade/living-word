@@ -40,14 +40,22 @@ npm run ingest:words
 npm run ingest:lexicon
 ```
 
-Matthew Henry commentary is included for every book OpenChristianData publishes
-(Song of Solomon has no MH pack yet). Original-language words come from STEPBible.
-Strong's lexicon entries come from Open Scriptures (CC BY-SA).
+Jamieson-Fausset-Brown raw data may still exist under `data/raw`, but the
+reader Explainer uses **Tyndale Open Study Notes** (CC BY-SA 4.0) for modern
+verse notes across the Protestant canon (Judges is not in that pack).
+
+```bash
+npm run fetch:tyndale
+npm run ingest:tyndale
+```
+
+Original-language words come from STEPBible. Strong's lexicon entries come from
+Open Scriptures (CC BY-SA).
 
 ## Stack
 
 - Next.js (App Router)
-- Public-domain Bible text + Matthew Henry commentary (CC0)
+- Public-domain Bible text + Tyndale Open Study Notes (CC BY-SA 4.0)
 - STEPBible morphology (CC BY 4.0)
 - Open Scriptures Strong's lexicon (CC BY-SA)
 - Optional licensed text through publisher APIs
@@ -56,12 +64,20 @@ Strong's lexicon entries come from Open Scriptures (CC BY-SA).
 
 ```bash
 npm install
-npm run ingest          # tag commentary → data/processed
+npm run fetch:tyndale   # Tyndale Open Study Notes → data/raw
+npm run ingest          # Bible packs → data/processed
+npm run ingest:tyndale  # tag Tyndale notes → data/processed/commentary
 npm run ingest:words    # STEPBible morphology → data/processed/words
 npm run ingest:lexicon  # Strong's lexicon → data/processed/lexicon
 npm run dev             # http://localhost:3000
 npm run fetch:bible-library
 ```
+
+## Attribution
+
+Tyndale Open Study Notes © Tyndale House Publishers. Licensed under
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+See [tyndaleopenresources.com](https://tyndaleopenresources.com/).
 
 ## How tagging works
 

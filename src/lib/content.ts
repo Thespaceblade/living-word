@@ -9,6 +9,7 @@ import type {
   IntelPayload,
   VerseRef,
 } from "./types";
+import { focusCommentaryEntries } from "./commentary-focus";
 import {
   getLicensedMeta,
   isLicensedVersionConfigured,
@@ -154,19 +155,14 @@ export function getIntel(
   const key = verseKey(bible.book, ref.chapter, ref.verse);
   const ids = commentary.byVerse[key] ?? [];
 
-  const entries = ids
+  const tagged = ids
     .map((id) => commentary.entries[id])
-    .filter(Boolean)
-    .sort((a, b) => {
-      const aIntro = a.verseRange === "intro" ? 1 : 0;
-      const bIntro = b.verseRange === "intro" ? 1 : 0;
-      if (aIntro !== bIntro) return aIntro - bIntro;
-      return (a.verses[0] ?? 0) - (b.verses[0] ?? 0);
-    }) as CommentaryEntry[];
-
-  const bookIntro = commentary.bookIntroId
-    ? commentary.entries[commentary.bookIntroId] ?? null
-    : null;
+    .filter(Boolean) as CommentaryEntry[];
+  const entries = focusCommentaryEntries(
+    tagged,
+    bible.book,
+    ref.verse,
+  );
 
   return {
     ref: {
@@ -178,7 +174,8 @@ export function getIntel(
     verseText: verse.text,
     meta: commentary.meta,
     entries,
-    bookIntro,
+    // Book/chapter intros are not verse commentary; omit them here.
+    bookIntro: null,
   };
 }
 
@@ -203,19 +200,10 @@ export async function getIntelAsync(
     getCatalog().books.find((b) => b.slug === ref.slug)?.book ?? ref.book;
   const key = verseKey(book, ref.chapter, ref.verse);
   const ids = commentary.byVerse[key] ?? [];
-  const entries = ids
+  const tagged = ids
     .map((id) => commentary.entries[id])
-    .filter(Boolean)
-    .sort((a, b) => {
-      const aIntro = a.verseRange === "intro" ? 1 : 0;
-      const bIntro = b.verseRange === "intro" ? 1 : 0;
-      if (aIntro !== bIntro) return aIntro - bIntro;
-      return (a.verses[0] ?? 0) - (b.verses[0] ?? 0);
-    }) as CommentaryEntry[];
-
-  const bookIntro = commentary.bookIntroId
-    ? commentary.entries[commentary.bookIntroId] ?? null
-    : null;
+    .filter(Boolean) as CommentaryEntry[];
+  const entries = focusCommentaryEntries(tagged, book, ref.verse);
 
   return {
     ref: {
@@ -227,7 +215,7 @@ export async function getIntelAsync(
     verseText,
     meta: commentary.meta,
     entries,
-    bookIntro,
+    bookIntro: null,
   };
 }
 

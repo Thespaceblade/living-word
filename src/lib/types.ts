@@ -64,6 +64,8 @@ export type CommentaryBundle = {
     author: string;
     license: string;
     source: string;
+    website?: string;
+    licenseUrl?: string;
   };
   bookIntroId: string | null;
   byChapterIntro: Record<string, string[]>;

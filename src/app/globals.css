@@ -1125,6 +1125,56 @@ a {
   font-family: var(--font-serif);
 }
 
+.intel-entry--explainer .intel-entry__body {
+  white-space: normal;
+}
+
+.plain-sense__text {
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.plain-sense__classic {
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+}
+
+.plain-sense__classic .intel-entry {
+  margin-top: 0.55rem;
+}
+
+.study-attribution {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.study-attribution a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.study-attribution a:hover {
+  text-decoration: underline;
+}
+
+.intel-entry__more {
+  margin-top: 0.65rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.intel-entry__more:hover {
+  text-decoration: underline;
+}
+
 .intel-xrefs {
   margin-top: 0.95rem;
 }
@@ -1432,7 +1482,7 @@ a.xref-card:hover {
   background: #fff;
   box-shadow: var(--shadow);
   animation: pop-down 320ms var(--ease-pop) both;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .verse-module.is-expanded .verse-module__shell {
@@ -1555,18 +1605,17 @@ a.xref-card:hover {
 .verse-module__actions {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.25rem;
+  gap: 0.3rem;
 }
 
 .verse-module__action {
+  position: relative;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--line);
   background: #fff;
-  color: var(--text);
-  font: inherit;
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  padding: 0.42rem 0.15rem;
+  color: var(--muted);
+  padding: 0.55rem 0.35rem;
   border-radius: 7px;
   cursor: pointer;
   min-width: 0;
@@ -1576,14 +1625,49 @@ a.xref-card:hover {
     color var(--dur-fast) ease;
 }
 
-.verse-module__action:hover {
+.verse-module__action:hover,
+.verse-module__action:focus-visible {
   background: var(--bg);
+  color: var(--text);
 }
 
 .verse-module__action.is-active {
   background: var(--accent-soft);
   border-color: rgba(47, 95, 143, 0.35);
   color: var(--accent);
+}
+
+.verse-module__action::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.55rem);
+  transform: translateX(-50%) translateY(0.2rem);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  background: #1c2026;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-fast) ease,
+    transform var(--dur-fast) ease,
+    visibility var(--dur-fast) ease;
+  z-index: 3;
+  box-shadow: 0 4px 12px rgba(28, 32, 38, 0.18);
+}
+
+.verse-module__action:hover::after,
+.verse-module__action:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 .verse-module__body {
