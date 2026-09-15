@@ -180,24 +180,38 @@ function entryLabel(entry: CommentaryEntry, verse: number) {
   return `Verses ${entry.verseRange}`;
 }
 
-function ClassicNote({
+function displayNoteText(text: string) {
+  return text
+    .replace(
+      /^\d+\s*:\s*\d+(?:\s*[–-]\s*(?:\d+\s*:\s*)?\d+)?\s*/,
+      "",
+    )
+    .trim();
+}
+
+function StudyNote({
   entry,
   verse,
+  meta,
 }: {
   entry: CommentaryEntry;
   verse: number;
+  meta?: { title?: string; license?: string; website?: string } | null;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const { preview, needsExpand } = commentaryExcerpt(entry.text);
-  const body = expanded || !needsExpand ? entry.text : preview;
+  const full = displayNoteText(entry.text);
+  const { preview, needsExpand } = commentaryExcerpt(full, 90);
+  const body = expanded || !needsExpand ? full : preview;
 
   return (
-    <article className="intel-entry intel-entry--classic">
+    <article className="intel-entry intel-entry--explainer">
       <header className="intel-entry__head">
         <span className="intel-entry__label">{entryLabel(entry, verse)}</span>
-        <span className="intel-entry__meta">{entry.author}</span>
+        <span className="intel-entry__meta">
+          {meta?.title ?? entry.author}
+        </span>
       </header>
-      <p className="intel-entry__body">{body}</p>
+      <p className="intel-entry__body plain-sense__text">{body}</p>
       {needsExpand ? (
         <button
           type="button"
@@ -205,72 +219,83 @@ function ClassicNote({
           aria-expanded={expanded}
           onClick={() => setExpanded((value) => !value)}
         >
-          {expanded ? "Show less" : "Read full note"}
+          {expanded ? "Show less" : "Read more"}
         </button>
       ) : null}
     </article>
   );
 }
 
-function PlainSenseExplainer({
+function StudyExplainer({
+  notes,
   plain,
-  classic,
   verse,
+  meta,
+  loadingNotes,
   loadingPlain,
-  loadingClassic,
+  notesError,
   plainError,
-  classicError,
 }: {
+  notes: CommentaryEntry[];
   plain: PlainSenseSource | null;
-  classic: CommentaryEntry[];
   verse: number;
+  meta?: IntelPayload["meta"] | null;
+  loadingNotes: boolean;
   loadingPlain: boolean;
-  loadingClassic: boolean;
+  notesError?: string;
   plainError?: string;
-  classicError?: string;
 }) {
-  const [showClassic, setShowClassic] = useState(false);
+  const [showPlain, setShowPlain] = useState(false);
 
   return (
     <div className="plain-sense">
-      {loadingPlain ? <p className="muted">Gathering plain sense…</p> : null}
-      {plainError ? <p className="error">{plainError}</p> : null}
-      {!loadingPlain && !plainError && !plain ? (
-        <p className="muted">No plain English reading for this verse yet.</p>
+      {loadingNotes ? <p className="muted">Gathering study note…</p> : null}
+      {notesError ? <p className="error">{notesError}</p> : null}
+      {!loadingNotes && !notesError && notes.length === 0 ? (
+        <p className="muted">No study note for this verse yet.</p>
       ) : null}
-      {plain ? (
-        <article className="intel-entry intel-entry--explainer">
-          <header className="intel-entry__head">
-            <span className="intel-entry__label">This verse means</span>
-            <span className="intel-entry__meta">
-              Plain English · {plain.label}
-            </span>
-          </header>
-          <p className="intel-entry__body plain-sense__text">{plain.text}</p>
-        </article>
+      {notes.map((entry) => (
+        <StudyNote key={entry.id} entry={entry} verse={verse} meta={meta} />
+      ))}
+      {meta?.license ? (
+        <p className="study-attribution">
+          {meta.title ?? "Study notes"}
+          {meta.license === "cc-by-sa-4.0"
+            ? " · CC BY-SA 4.0"
+            : ` · ${meta.license}`}
+          {meta.website ? (
+            <>
+              {" · "}
+              <a href={meta.website} target="_blank" rel="noreferrer">
+                Source
+              </a>
+            </>
+          ) : null}
+        </p>
       ) : null}
 
-      {classicError ? <p className="error">{classicError}</p> : null}
-      {!loadingClassic && classic.length > 0 ? (
+      {!loadingPlain && plain ? (
         <div className="plain-sense__classic">
           <button
             type="button"
             className="intel-entry__more"
-            aria-expanded={showClassic}
-            onClick={() => setShowClassic((value) => !value)}
+            aria-expanded={showPlain}
+            onClick={() => setShowPlain((value) => !value)}
           >
-            {showClassic ? "Hide classic note" : "Classic note"}
+            {showPlain ? "Hide plain reading" : "Plain reading"}
           </button>
-          {showClassic
-            ? classic.map((entry) => (
-                <ClassicNote key={entry.id} entry={entry} verse={verse} />
-              ))
-            : null}
+          {showPlain ? (
+            <article className="intel-entry">
+              <header className="intel-entry__head">
+                <span className="intel-entry__label">In plain words</span>
+                <span className="intel-entry__meta">{plain.label}</span>
+              </header>
+              <p className="intel-entry__body">{plain.text}</p>
+            </article>
+          ) : null}
         </div>
       ) : null}
-      {loadingClassic && !plain ? (
-        <p className="muted">Checking classic notes…</p>
-      ) : null}
+      {plainError ? <p className="error">{plainError}</p> : null}
     </div>
   );
 }
@@ -793,14 +818,15 @@ export function VerseModule({
         {mode ? (
           <div className="verse-module__body" key={`${mode}-${intelKey}`}>
             {mode === "study" && (
-              <PlainSenseExplainer
+              <StudyExplainer
+                notes={intel?.data?.entries ?? []}
                 plain={plain?.plain ?? null}
-                classic={intel?.data?.entries ?? []}
                 verse={selected.verse}
+                meta={intel?.data?.meta}
+                loadingNotes={!intel}
                 loadingPlain={!plain}
-                loadingClassic={!intel}
+                notesError={intel?.error}
                 plainError={plain?.error}
-                classicError={intel?.error}
               />
             )}
 

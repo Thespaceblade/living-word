@@ -1143,6 +1143,22 @@ a {
   margin-top: 0.55rem;
 }
 
+.study-attribution {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.study-attribution a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.study-attribution a:hover {
+  text-decoration: underline;
+}
+
 .intel-entry__more {
   margin-top: 0.65rem;
   padding: 0;

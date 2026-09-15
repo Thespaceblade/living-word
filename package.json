@@ -4,14 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run ingest && npm run ingest:words && npm run ingest:lexicon && next build",
+    "build": "npm run ingest && npm run ingest:tyndale && npm run ingest:words && npm run ingest:lexicon && next build",
     "start": "next start",
     "lint": "eslint",
     "ingest": "node scripts/ingest.mjs",
+    "ingest:tyndale": "node scripts/ingest-tyndale.mjs",
     "ingest:words": "node scripts/ingest-words.mjs",
     "ingest:lexicon": "node scripts/ingest-lexicon.mjs",
     "fetch:free-bibles": "node scripts/fetch-free-bibles.mjs",
-    "fetch:bible-library": "node scripts/fetch-bible-library.mjs"
+    "fetch:bible-library": "node scripts/fetch-bible-library.mjs",
+    "fetch:tyndale": "node scripts/fetch-tyndale.mjs"
   },
   "dependencies": {
     "next": "16.3.4",

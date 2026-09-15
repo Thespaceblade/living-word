@@ -1,0 +1,570 @@
+{
+  "meta": {
+    "id": "tyndale-open-study-notes",
+    "title": "Tyndale Open Study Notes",
+    "author": "Tyndale House Publishers",
+    "license": "cc-by-sa-4.0",
+    "source": "bible.helloao.org/api/c/tyndale",
+    "website": "https://tyndaleopenresources.com/",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  "book": "2 Peter",
+  "slug": "2-peter",
+  "introduction": "Many worldviews, religious perspectives, and cultural values clamor for attention. Second Peter urges growth in Christ’s grace and warns against compromising the Christian faith by mixing it with ideas that are foreign to Christianity.\n\nSetting\n\nSecond Peter was probably written to the same group of Christians as 1 Peter (1 Pet 1:1; see 2 Pet 3:1). We do not know if Peter ever visited Asia Minor—the New Testament tells us little about his movements after he departed from Jerusalem around AD 44 (Acts 12:16-17). We know that Peter was in Rome in the early 60s AD. Presumably, he wrote 2 Peter from Rome shortly after 1 Peter. Early Christian tradition indicates that Peter died under the emperor Nero in AD 64 or 65.\n\nSummary\n\nIn the letter opening (1:1-15), Peter identifies himself and his readers (1:1-2) and introduces his main concern, that his readers will grow in their knowledge of God and of Christ (1:3-11). He also tells them with a sense of urgency that he does not have long to live (1:12-15).\n\nChapter 2 is the central focus of this letter, where Peter profiles and condemns false teachers. Peter prepares for this denunciation by emphasizing the certainty of Christ’s return in glory (1:16-21). The false teachers were evidently skeptical about Christ’s return and final judgment.\n\nPeter denounces the false teachers in four stages: He predicts the coming of false teachers (2:1-3), he insists that God will judge them while rescuing the righteous (2:4-10), he declares the false teachers’ sins (2:10-16), and he pronounces their doom (2:17-22).\n\nAfter further insisting that Christ will, indeed, return in glory to transform the world (3:1-13), Peter concludes the letter as he began, by praying that his readers will “grow in the grace and knowledge of our Lord and Savior Jesus Christ” (3:18; see 1:3-11).\n\nAuthorship\n\nThe author identifies himself as Simon Peter (1:1), one of Jesus’ apostles. Peter claims that “this is my second letter to you” (3:1). The first letter was probably 1 Peter.\n\nIn many ways, however, 2 Peter is unlike 1 Peter, while containing striking similarities to the letter of Jude. Because of this, some interpreters think that someone else wrote 2 Peter. This conclusion is unnecessary because 2 Peter is dealing with a situation very different from 1 Peter; naturally, the language and concepts differ. Moreover, it is possible that Silas (Peter’s scribe mentionedalso called Silvanus in 1 Pet 5:12) was responsible for some of the wording of 1 Peter and that Peter used a different scribe in 2 Peter.\n\nRelationship to Jude\n\nIt is undeniable that 2 Peter and Jude have some kind of literary relationship. The two letters use too many of the same unusual expressions for the similarities to be coincidental or a matter of shared oral tradition (cp. 2 Pet 2:3 // Jude 1:4; 2 Pet 2:4 // Jude 1:6; 2 Pet 2:6 // Jude 1:7; 2 Pet 2:10 // Jude 1:8; 2 Pet 2:11 // Jude 1:9; 2 Pet 2:13, 17 // Jude 1:12; 2 Pet 3:3 // Jude 1:8). This relationship can be explained in one of three ways: (1) Jude borrowed from 2 Peter; (2) 2 Peter borrowed from Jude; or (3) both 2 Peter and Jude borrowed from a common literary source now lost. Option 2 is the most popular, although option 1 is equally possible. Option 3 is least likely, simply because it is more complicated and unnecessary. Whichever author did the borrowing was apparently faced with a very similar situation and found what the other had written to be appropriate to his own purposes. Such borrowing was not uncommon in the ancient world; rather than being considered plagiarism, it was considered a compliment.\n\nFalse Teachers\n\nThe false teachers that Peter denounces cannot be identified with any known heresy in the ancient church. With their immorality and skepticism, these false teachers assumed that God’s grace gave them the liberty to do anything they wanted to do (2 Pet 2:19-20). They had no use for authority (see 2:10-11). They engaged in illicit sex, excess drinking and eating, and greed (2:13-20). They might have been precursors to the later, second-century Gnostics.\n\nMeaning and Message\n\nSecond Peter is dominated by a concern over the presence of false teachers in the church. Although these profligates were claiming to be Christians (2:1, 21-22), Peter leaves no doubt that in reality they were destined for condemnation as rebels against the Lord (2:3, 10). Peter writes this letter to warn his readers to reject these false teachers and their teaching, and to remain faithful to the Good News. This letter is a vital reminder of how dangerous it is to deviate from the truth. The church must always be on guard against those who twist the truth of the Good News and whose lives sadly misrepresent it.",
+  "data": [
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.1.1",
+      "chapter": 1,
+      "verse_range": "1",
+      "verses": [
+        1
+      ],
+      "api_verse": 1,
+      "commentary_text": "1:1 Simon was one of the most common Jewish names in the first century. Jesus gave him the name Peter (Matt 16:17-18). Many people in the Greco-Roman world would use both their given name in their native language and also a Greek name, since Greek was the lingua franca (see study note on Acts 7:58). • a slave . . . of Jesus Christ: In the Old Testament, important leaders of God’s people are called servants of the Lord (Josh 14:7; 24:29; 2 Kgs 10:10). The title underscores Peter’s submission to Christ and suggests that he had an important role in God’s plan. • We probably refers to Jewish Christians; the recipients were mostly Gentile Christians. In the new covenant, Gentile and Jewish Christians share the same precious faith and are on an equal footing as God’s people (see Gal 3:26-29). • This is one of the few places in the New Testament where Jesus Christ is called God (see also John 1:1; 20:28; Rom 9:5; Titus 2:13; Heb 1:8; 1 Jn 5:20).",
+      "word_count": 173
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.3.1",
+      "chapter": 1,
+      "verse_range": "3-11",
+      "verses": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "api_verse": 3,
+      "commentary_text": "1:3-11 An explanation of all that God has given us in Christ (1:3-4) forms the basis for an urgent exhortation to grow in the knowledge of Christ (1:5-11).",
+      "word_count": 28
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.3.2",
+      "chapter": 1,
+      "verse_range": "3",
+      "verses": [
+        3
+      ],
+      "api_verse": 3,
+      "commentary_text": "1:3 By his divine power, God has (literally His divine power has): The name of God does not occur in the Greek text; Peter could be referring to the divine power of “Jesus our Lord” (1:2).",
+      "word_count": 36
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.4.1",
+      "chapter": 1,
+      "verse_range": "4",
+      "verses": [
+        4
+      ],
+      "api_verse": 4,
+      "commentary_text": "1:4 enable you to share his divine nature: Peter probably did not mean that our souls are merged with God but that believers share God’s qualities (cp. Lev 11:44; Matt 5:43-48; Eph 4:24; 5:1).",
+      "word_count": 34
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.5.1",
+      "chapter": 1,
+      "verse_range": "5-7",
+      "verses": [
+        5,
+        6,
+        7
+      ],
+      "api_verse": 5,
+      "commentary_text": "1:5-7 The stair-step structure of these verses, with each virtue leading to another, is a common literary device called a sorites. The sequence in such passages is not stressed—e.g., Peter does not imply that moral excellence must come before knowledge. Yet love is the pinnacle of the virtues (1:7).",
+      "word_count": 49
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.10.1",
+      "chapter": 1,
+      "verse_range": "10",
+      "verses": [
+        10
+      ],
+      "api_verse": 10,
+      "commentary_text": "1:10 dear brothers and sisters: This Greek term (adelphoi) refers to people, both male and female, who are members of the same family. • Work hard to prove (literally Be zealous to make certain): Peter did not mean that our being chosen by God for salvation depends on what we do, but that our zeal to grow in Christian virtue confirms that we have, indeed, been chosen by God.",
+      "word_count": 69
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.12.1",
+      "chapter": 1,
+      "verse_range": "12-15",
+      "verses": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "api_verse": 12,
+      "commentary_text": "1:12-15 Peter was writing at the end of his life, and 2 Peter is similar to works that belong to a popular Jewish genre called the testament, in which an old and respected leader gives final instructions to his children or others on his deathbed (cp. Deut 31–33; Josh 24). This genre is especially well known from a Jewish work called The Testaments of the Twelve Patriarchs.",
+      "word_count": 67
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.14.1",
+      "chapter": 1,
+      "verse_range": "14",
+      "verses": [
+        14
+      ],
+      "api_verse": 14,
+      "commentary_text": "1:14 This prophecy might have come in a vision, but it is more likely that Peter was recalling Jesus’ prophecy about his death (John 21:18-19).",
+      "word_count": 25
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.16.1",
+      "chapter": 1,
+      "verse_range": "16-21",
+      "verses": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "api_verse": 16,
+      "commentary_text": "1:16-21 Peter’s denunciation of the false teachers (ch 2) is framed by this teaching about the certainty of Jesus’ return (see also 3:1-13). The false teachers were probably denying the reality of Christ’s return and judgment. Peter’s eyewitness experience (1:16-18) and the intrinsic reliability of scriptural prophecy (1:19-21) make Christ’s return a certainty.",
+      "word_count": 53
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.16.2",
+      "chapter": 1,
+      "verse_range": "16-18",
+      "verses": [
+        16,
+        17,
+        18
+      ],
+      "api_verse": 16,
+      "commentary_text": "1:16-18 clever stories (literally cleverly invented myths): The false teachers were probably charging that the message of Christ’s return was just an edifying fable with no factual truth. • We saw his majestic splendor with our own eyes: At Jesus’ transfiguration (Matt 17:1-9; Mark 9:2-8; Luke 9:28-36), which prefigured Christ’s return by revealing Jesus as the glorious King. Peter’s confidence was not based on human speculation but on eyewitness experience.",
+      "word_count": 70
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.19.1",
+      "chapter": 1,
+      "verse_range": "19",
+      "verses": [
+        19
+      ],
+      "api_verse": 19,
+      "commentary_text": "1:19 The word Day is capitalized because it is shorthand for the day of the Lord, the time when God intervenes in history to save his people and judge his enemies (see Isa 13:4-12; Joel 2:1-32; Zeph 2:1-3). The first coming of Christ inaugurated the day of the Lord’s salvation for his people. A future day of the Lord’s judgment on his enemies is yet to come. • Christ the Morning Star: The planet Venus, known as the “morning star,” often appears above the eastern horizon just before dawn. Peter reverses the order of natural events: The dawning of the day of the Lord leads to the Morning Star’s shining in the hearts of believers.",
+      "word_count": 115
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.1.20.1",
+      "chapter": 1,
+      "verse_range": "20-21",
+      "verses": [
+        20,
+        21
+      ],
+      "api_verse": 20,
+      "commentary_text": "1:20-21 came from the prophet’s own understanding (or is a matter of one’s own interpretation): The point is probably that the prophets were not left on their own to interpret the visions that God gave them. God made the meaning clear to the prophets, so that they could prophesy clearly and reliably.",
+      "word_count": 52
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.1.1",
+      "chapter": 2,
+      "verse_range": "1-3",
+      "verses": [
+        1,
+        2,
+        3
+      ],
+      "api_verse": 1,
+      "commentary_text": "2:1-3 Alongside authentic prophets (1:20-21), there have always been false prophets who receive God’s judgment.",
+      "word_count": 15
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.1.2",
+      "chapter": 2,
+      "verse_range": "1",
+      "verses": [
+        1
+      ],
+      "api_verse": 1,
+      "commentary_text": "2:1 They will: Peter’s use of the future tense in 2:1-3 does not imply that false prophets had not yet come, but it alludes to Jesus’ prediction that false teachers would arise (Matt 24:11, 24; Mark 13:22; cp. Acts 20:29-31; 2 Tim 3:1-6). The false teachers who had arisen fulfilled that prediction. • deny the Master who bought them: The false teachers might have been overtly renouncing Christ, but it is more likely that their immoral conduct constituted a denial of Christ (cp. Titus 1:16).",
+      "word_count": 85
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.2.1",
+      "chapter": 2,
+      "verse_range": "2",
+      "verses": [
+        2
+      ],
+      "api_verse": 2,
+      "commentary_text": "2:2 One of the saddest effects of false teaching is that the way of truth will be slandered by a watching world. By their immoral and greedy conduct, false teachers bring shame on Christ.",
+      "word_count": 34
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.4.1",
+      "chapter": 2,
+      "verse_range": "4-10",
+      "verses": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "api_verse": 4,
+      "commentary_text": "2:4-10 Three Old Testament examples of judgment show that God will vindicate those who remain faithful to him and will condemn those who deny him, including the false teachers (see 2:3).",
+      "word_count": 31
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.4.2",
+      "chapter": 2,
+      "verse_range": "4",
+      "verses": [
+        4
+      ],
+      "api_verse": 4,
+      "commentary_text": "2:4 The first example of judgment is the angels who sinned: The widespread Jewish tradition was that “the sons of God” in Gen 6:1-5 (understood as angels) had intercourse with women and were therefore judged by God at that time (see 1 Enoch 6–10; cp. 1 Pet 3:19-20; Jude 1:6). • in gloomy pits of darkness: This description of the underworld was popular in the ancient world and is probably metaphorical.",
+      "word_count": 71
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.5.1",
+      "chapter": 2,
+      "verse_range": "5",
+      "verses": [
+        5
+      ],
+      "api_verse": 5,
+      "commentary_text": "2:5 The second example of judgment is that God did not spare the ancient world at the time of Noah. In the flood, God destroyed all human life apart from Noah and his family (see Gen 6–8).",
+      "word_count": 37
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.6.1",
+      "chapter": 2,
+      "verse_range": "6",
+      "verses": [
+        6
+      ],
+      "api_verse": 6,
+      "commentary_text": "2:6 The third example of judgment is that God condemned the cities of Sodom and Gomorrah. The people of these cities were so immoral that God rained down sulfur from heaven to destroy them (Gen 19:24). Peter focuses on the result of this action: The cities were turned into heaps of ashes.",
+      "word_count": 52
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.7.1",
+      "chapter": 2,
+      "verse_range": "7-8",
+      "verses": [
+        7,
+        8
+      ],
+      "api_verse": 7,
+      "commentary_text": "2:7-8 Even though the Old Testament does not portray Lot as a particularly righteous man (see “Lot” Profile), he remained basically faithful to the Lord; Jewish tradition also portrays him as righteous (see Wisdom of Solomon 10:6; 19:17).",
+      "word_count": 38
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.9.1",
+      "chapter": 2,
+      "verse_range": "9",
+      "verses": [
+        9
+      ],
+      "api_verse": 9,
+      "commentary_text": "2:9 the Lord knows how to rescue godly people from their trials: As illustrated by Noah’s family (2:5) and Lot (2:7), the Lord is faithful to his own people. Peter’s readers needed assurance that their struggles to live godly lives in the face of false teaching and the world’s scorn would be rewarded.",
+      "word_count": 53
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.10.1",
+      "chapter": 2,
+      "verse_range": "10",
+      "verses": [
+        10
+      ],
+      "api_verse": 10,
+      "commentary_text": "2:10a twisted sexual desire: The reference is to illicit sexual desire generally and possibly to homosexuality in particular (cp. reference to Sodom and Gomorrah, 2:6). • The false teachers were so arrogant that they refused to listen to any authority but their own.",
+      "word_count": 43
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.10.2",
+      "chapter": 2,
+      "verse_range": "10",
+      "verses": [
+        10
+      ],
+      "api_verse": 10,
+      "commentary_text": "2:10b-16 This profile of the false teachers focuses more on how they were living than on what they were teaching.",
+      "word_count": 20
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.10.3",
+      "chapter": 2,
+      "verse_range": "10",
+      "verses": [
+        10
+      ],
+      "api_verse": 10,
+      "commentary_text": "2:10b supernatural beings: Probably evil angels, in contrast to the angels of 2:11. It is wrong to scoff even at evil angels, because they bear the mark of their glorious origin—they have real power and pose a real threat to humans.",
+      "word_count": 41
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.11.1",
+      "chapter": 2,
+      "verse_range": "11",
+      "verses": [
+        11
+      ],
+      "api_verse": 11,
+      "commentary_text": "2:11 Even angels . . . do not dare to charge evil supernatural beings with blasphemy, but the false teachers were so arrogant that they did not hesitate to do so.",
+      "word_count": 31
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.13.1",
+      "chapter": 2,
+      "verse_range": "13",
+      "verses": [
+        13
+      ],
+      "api_verse": 13,
+      "commentary_text": "2:13 They delight in deception even as they eat with you in your fellowship meals: Cp. Jude 1:12. Christians often ate fellowship meals together in celebration of the Lord (see Acts 2:46; 6:1). The false teachers were using these mealtimes as opportunities to deceive true believers. Some manuscripts read They delight (or revel, or carouse) in their fellowship meals as they eat with you. If this reading is correct, they were using the fellowship meals for self-indulgence (cp. 1 Cor 11:20-22).",
+      "word_count": 81
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.15.1",
+      "chapter": 2,
+      "verse_range": "15",
+      "verses": [
+        15
+      ],
+      "api_verse": 15,
+      "commentary_text": "2:15 who loved to earn money by doing wrong: Despite consulting with God about what he should do, Balaam was determined to go his own way in hopes of receiving Balak’s money (see Num 22–24). The Old Testament account hints at Balaam’s greed, and Jewish tradition developed this theme (see Numbers Rabbah 20:10; Mishnah Avot 5:22; Philo, Moses 1:266-268).",
+      "word_count": 59
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.17.1",
+      "chapter": 2,
+      "verse_range": "17-22",
+      "verses": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "api_verse": 17,
+      "commentary_text": "2:17-22 Peter continues his description of the false teachers by explaining their effect on other people.",
+      "word_count": 16
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.18.1",
+      "chapter": 2,
+      "verse_range": "18",
+      "verses": [
+        18
+      ],
+      "api_verse": 18,
+      "commentary_text": "2:18 those who have barely escaped: The false teachers cleverly targeted new converts, people who had only recently committed themselves to Christ.",
+      "word_count": 22
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.19.1",
+      "chapter": 2,
+      "verse_range": "19",
+      "verses": [
+        19
+      ],
+      "api_verse": 19,
+      "commentary_text": "2:19 One of the great lures of false teaching through the centuries has been the promise of freedom from authority, but such freedom is illusory (Rom 6:16). The false teachers, while reveling in their freedom from authority (see 2 Pet 2:10), were in fact slaves to sin and corruption.",
+      "word_count": 49
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.20.1",
+      "chapter": 2,
+      "verse_range": "20",
+      "verses": [
+        20
+      ],
+      "api_verse": 20,
+      "commentary_text": "2:20 they are worse off than before: The false teachers or their followers had known the truth, but their deliberate rejection of that truth put them in a far worse situation than when they ignorantly lived in sin.",
+      "word_count": 38
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.2.22.1",
+      "chapter": 2,
+      "verse_range": "22",
+      "verses": [
+        22
+      ],
+      "api_verse": 22,
+      "commentary_text": "2:22 “A dog returns to its vomit”: Dogs were not seen as friendly family pets but as wild and filthy beasts. • “A washed pig returns to the mud”: This proverb might go back to a popular book of sayings called Ahiqar from around 500 BC, which reads, “My son, you have been to me like the pig who went into the hot bath with people of quality, and when it came out of the hot bath, it saw a filthy hole and went down and wallowed in it” (Ahiqar 8:18).",
+      "word_count": 91
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.1.1",
+      "chapter": 3,
+      "verse_range": "1-13",
+      "verses": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "api_verse": 1,
+      "commentary_text": "3:1-13 Peter shifts from denunciation of false teachers to exhortation of believers. The false teachers’ skepticism about Christ’s return required clear teaching. Christians need to hold onto the apostolic message about the day of judgment and live godly lives in anticipation of that day.",
+      "word_count": 44
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.1.2",
+      "chapter": 3,
+      "verse_range": "1",
+      "verses": [
+        1
+      ],
+      "api_verse": 1,
+      "commentary_text": "3:1 This is my second letter to you: The previous letter was probably 1 Peter.",
+      "word_count": 15
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.2.1",
+      "chapter": 3,
+      "verse_range": "2",
+      "verses": [
+        2
+      ],
+      "api_verse": 2,
+      "commentary_text": "3:2 The holy prophets of the Old Testament predicted the day of the Lord, when God would judge his enemies (see study note on 1:19). • what our Lord and Savior commanded: Jesus had taught the church through the apostles.",
+      "word_count": 40
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.3.1",
+      "chapter": 3,
+      "verse_range": "3",
+      "verses": [
+        3
+      ],
+      "api_verse": 3,
+      "commentary_text": "3:3 in the last days: Peter was not merely predicting an event in the future; he was speaking about his readers’ situation. In the New Testament, the last days refers to the period from Jesus’ first coming to his second coming (see Acts 2:17; Heb 1:2). It is the time when God’s promises are fulfilled. • scoffers will come: See Prov 1:22; 9:7-8; 13:1. Rather than using evidence and logic to argue, scoffers belittle and make fun of the truth.",
+      "word_count": 80
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.4.1",
+      "chapter": 3,
+      "verse_range": "4",
+      "verses": [
+        4
+      ],
+      "api_verse": 4,
+      "commentary_text": "3:4 From before the times of our ancestors: The false teachers were probably claiming that, for all of God’s promises to intervene in history, things had not really changed and never would.",
+      "word_count": 32
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.5.1",
+      "chapter": 3,
+      "verse_range": "5",
+      "verses": [
+        5
+      ],
+      "api_verse": 5,
+      "commentary_text": "3:5 Creation is the first evidence that the false teachers were wrong: Change does happen. If God made the world, he certainly can destroy it. • brought the earth out from the water: See Gen 1:2, 6-10.",
+      "word_count": 37
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.7.1",
+      "chapter": 3,
+      "verse_range": "7",
+      "verses": [
+        7
+      ],
+      "api_verse": 7,
+      "commentary_text": "3:7 The Old Testament associates fire with the day of the Lord (see Isa 30:30; 66:15-16).",
+      "word_count": 16
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.8.1",
+      "chapter": 3,
+      "verse_range": "8",
+      "verses": [
+        8
+      ],
+      "api_verse": 8,
+      "commentary_text": "3:8 Peter alludes to Ps 90:4. God operates according to his time scale. He will send his Son in his own good time.",
+      "word_count": 23
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.10.1",
+      "chapter": 3,
+      "verse_range": "10",
+      "verses": [
+        10
+      ],
+      "api_verse": 10,
+      "commentary_text": "3:10 The very elements themselves might refer to the basic components of the physical universe or to the sun, moon, and stars. • will be found to deserve judgment: The Greek text here is difficult; the reading followed by the NLT probably means that creation will appear before God at the time of judgment, and he will find it to deserve his judgment.",
+      "word_count": 63
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.12.1",
+      "chapter": 3,
+      "verse_range": "12",
+      "verses": [
+        12
+      ],
+      "api_verse": 12,
+      "commentary_text": "3:12 looking forward to the day of God and hurrying it along: God’s people can hasten the end by their repentance and godly living (cp. Acts 3:19-20). • the elements will melt away: Cp. Mic 1:3-4; see also Isa 63:19–64:1.",
+      "word_count": 40
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.13.1",
+      "chapter": 3,
+      "verse_range": "13",
+      "verses": [
+        13
+      ],
+      "api_verse": 13,
+      "commentary_text": "3:13 the new heavens and new earth: See Isa 65:17; 66:22; Rev 21.",
+      "word_count": 13
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.15.1",
+      "chapter": 3,
+      "verse_range": "15",
+      "verses": [
+        15
+      ],
+      "api_verse": 15,
+      "commentary_text": "3:15 our beloved brother Paul: The New Testament tells us little about the relationship between Peter and Paul. Because of the dispute in Antioch (Gal 2:11-14), it is sometimes thought that the two were hostile to one another, but the New Testament paints a different picture. Peter and Paul essentially agreed about the Good News for the Gentiles (Acts 11:2-18; 15:7-11). Silas and Mark were associates of both Paul and Peter (see 1 Pet 5:12-13). According to tradition, both apostles were martyred in Rome during the same persecution by Nero in the mid-60s AD.",
+      "word_count": 94
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.16.1",
+      "chapter": 3,
+      "verse_range": "16",
+      "verses": [
+        16
+      ],
+      "api_verse": 16,
+      "commentary_text": "3:16 Peter probably knew of all but one or two of Paul’s letters by this time. Peter’s language implies that he considered the letters of Paul to belong in the category of Scripture.",
+      "word_count": 33
+    },
+    {
+      "entry_id": "tyndale-open-study-notes.2 Peter.3.17.1",
+      "chapter": 3,
+      "verse_range": "17-18",
+      "verses": [
+        17,
+        18
+      ],
+      "api_verse": 17,
+      "commentary_text": "3:17-18 Peter restates his purpose: to protect his readers from false teachers so that they can grow in grace. He ends with a doxology to our Lord and Savior Jesus Christ.",
+      "word_count": 31
+    }
+  ]
+}
