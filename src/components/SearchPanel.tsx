@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { SearchHit, SearchResponse, TopicItem } from "@/lib/search-shared";
 import { SEARCH_TOPICS } from "@/lib/search-shared";
+import { apiSearch } from "@/lib/browser-api";
 
 type Props = {
   version: string;
@@ -43,21 +44,10 @@ export function SearchPanel({
       setLoading(true);
       setError(null);
       try {
-        const params = new URLSearchParams({
-          q,
-          version,
-          limit: "40",
-        });
-        const res = await fetch(`/api/search?${params}`, {
+        const json = await apiSearch(q, version, {
+          limit: 40,
           signal: controller.signal,
         });
-        if (!res.ok) {
-          const body = (await res.json().catch(() => null)) as {
-            error?: string;
-          } | null;
-          throw new Error(body?.error ?? "Search failed");
-        }
-        const json = (await res.json()) as SearchResponse;
         setData(json);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;

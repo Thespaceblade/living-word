@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useEffect,
   useMemo,
@@ -35,6 +35,7 @@ import type {
   VerseRef,
 } from "@/lib/types";
 import type { SearchHit } from "@/lib/search-shared";
+import { apiGetChapter } from "@/lib/browser-api";
 import { VerseModule } from "./VerseModule";
 
 type Props = {
@@ -46,9 +47,6 @@ type Props = {
   verses: BibleVerse[];
   chapterCount: number;
   books: { book: string; slug: string; chapters: number }[];
-  initialVerse?: number | null;
-  planId?: string | null;
-  planDay?: number | null;
   copyrightNotice?: string | null;
 };
 
@@ -133,12 +131,15 @@ export function BibleReader({
   verses,
   chapterCount,
   books,
-  initialVerse = null,
-  planId = null,
-  planDay = null,
   copyrightNotice = null,
 }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const verseFromUrl = Number.parseInt(searchParams.get("verse") ?? "", 10);
+  const initialVerse = Number.isFinite(verseFromUrl) ? verseFromUrl : null;
+  const planId = searchParams.get("plan");
+  const dayFromUrl = Number.parseInt(searchParams.get("day") ?? "", 10);
+  const planDay = Number.isFinite(dayFromUrl) ? dayFromUrl : null;
   const navRef = useRef<HTMLDivElement>(null);
   const layout = useSyncExternalStore(
     subscribeLayout,
@@ -166,12 +167,8 @@ export function BibleReader({
     getServerTrailSnapshot,
   );
   const trailTop = trail[trail.length - 1] ?? null;
-  const [focusVerse, setFocusVerse] = useState<number | null>(initialVerse);
-  const [selected, setSelected] = useState<VerseRef | null>(() =>
-    initialVerse
-      ? { book, slug, chapter, verse: initialVerse }
-      : null,
-  );
+  const [focusVerse, setFocusVerse] = useState<number | null>(null);
+  const [selected, setSelected] = useState<VerseRef | null>(null);
   const [navOpen, setNavOpen] = useState(false);
   const [navLayer, setNavLayer] = useState<NavLayer>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -182,6 +179,12 @@ export function BibleReader({
   const [parallelError, setParallelError] = useState<string | null>(null);
   const [audioOpen, setAudioOpen] = useState(false);
   const [listeningVerse, setListeningVerse] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (initialVerse == null) return;
+    setFocusVerse(initialVerse);
+    setSelected({ book, slug, chapter, verse: initialVerse });
+  }, [initialVerse, book, slug, chapter]);
 
   const chapters = useMemo(
     () => Array.from({ length: chapterCount }, (_, i) => i + 1),
@@ -230,16 +233,7 @@ export function BibleReader({
     const controller = new AbortController();
     setParallelVerses(null);
     setParallelError(null);
-    const params = new URLSearchParams({
-      version: parallelVersion,
-      slug,
-      chapter: String(chapter),
-    });
-    fetch(`/api/chapter?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Could not load parallel chapter");
-        return (await res.json()) as { verses: BibleVerse[] };
-      })
+    apiGetChapter(parallelVersion, slug, chapter, controller.signal)
       .then((json) => {
         setParallelVerses(json.verses);
       })

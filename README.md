@@ -79,6 +79,25 @@ Tyndale Open Study Notes © Tyndale House Publishers. Licensed under
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 See [tyndaleopenresources.com](https://tyndaleopenresources.com/).
 
+## GitHub Pages
+
+Living Word can ship as a static site on GitHub Pages (public-domain packs only;
+licensed NIV/ESV/NKJV need a Node host such as Vercel).
+
+1. In the repo: **Settings → Pages → Build and deployment → GitHub Actions**
+2. Push to `main` (or run the **Deploy GitHub Pages** workflow)
+3. Open `https://<user>.github.io/living-word/`
+
+Local static build:
+
+```bash
+npm run build:static
+npx serve out
+```
+
+The workflow sets `basePath` to `/living-word` and copies `data/processed` into
+`public/data` so commentary, words, lexicon, and search run in the browser.
+
 ## How tagging works
 
-Commentary entries ship with ranges like `1-3` or `intro`. `scripts/ingest.mjs` expands ranges into concrete keys (`John.3.16`) and builds an inverted index used by `/api/intel`.
+Commentary entries ship with ranges like `1-3` or `intro`. `scripts/ingest.mjs` expands ranges into concrete keys (`John.3.16`) and builds an inverted index used by study tooling.

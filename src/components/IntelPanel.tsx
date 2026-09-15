@@ -12,8 +12,14 @@ import type {
   VerseRef,
   VerseWords,
 } from "@/lib/types";
-import type { XrefItem } from "@/lib/xrefs";
+import type { XrefItem } from "@/lib/xref-shared";
 import { commentaryExcerpt } from "@/lib/commentary-excerpt";
+import {
+  apiGetCompare,
+  apiGetIntel,
+  apiGetWords,
+  apiGetXrefs,
+} from "@/lib/browser-api";
 
 export type StudyTabId =
   | "study"
@@ -143,19 +149,7 @@ export function IntelPanel({
     if (!selected || !intelKey) return;
 
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      version,
-      slug: selected.slug,
-      book: selected.book,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-
-    fetch(`/api/intel?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load study notes");
-        return (await res.json()) as IntelPayload;
-      })
+    apiGetIntel(selected, version, controller.signal)
       .then((data) => {
         setIntelResult({ key: intelKey, data });
       })
@@ -174,17 +168,12 @@ export function IntelPanel({
     if (!selected || !compareKey) return;
 
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      slug: selected.slug,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-
-    fetch(`/api/compare?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load parallels");
-        return (await res.json()) as { parallels: CompareRow[] };
-      })
+    apiGetCompare(
+      selected.slug,
+      selected.chapter,
+      selected.verse,
+      controller.signal,
+    )
       .then((json) => {
         setCompareResult({ key: compareKey, rows: json.parallels });
       })
@@ -204,17 +193,12 @@ export function IntelPanel({
     if (!selected || !wordsKey) return;
 
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      slug: selected.slug,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-
-    fetch(`/api/words?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load words");
-        return (await res.json()) as VerseWords;
-      })
+    apiGetWords(
+      selected.slug,
+      selected.chapter,
+      selected.verse,
+      controller.signal,
+    )
       .then((data) => {
         setWordsResult({ key: wordsKey, data });
       })
@@ -233,19 +217,7 @@ export function IntelPanel({
     if (!selected || !xrefsKey) return;
 
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      version,
-      slug: selected.slug,
-      book: selected.book,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-
-    fetch(`/api/xrefs?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load cross-refs");
-        return (await res.json()) as { items: XrefItem[] };
-      })
+    apiGetXrefs(version, selected, controller.signal)
       .then((json) => {
         setXrefsResult({ key: xrefsKey, items: json.items });
       })

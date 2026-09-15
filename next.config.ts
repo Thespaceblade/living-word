@@ -1,7 +1,22 @@
 import type { NextConfig } from "next";
 
+const isGithubPages = process.env.GITHUB_PAGES === "1";
+const basePath = isGithubPages ? "/living-word" : "";
+
 const nextConfig: NextConfig = {
+  output: isGithubPages ? "export" : undefined,
+  trailingSlash: isGithubPages ? true : undefined,
+  basePath: basePath || undefined,
+  assetPrefix: basePath || undefined,
+  images: {
+    unoptimized: true,
+  },
+  env: {
+    NEXT_PUBLIC_STATIC_EXPORT: isGithubPages ? "1" : "",
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  },
   async redirects() {
+    if (isGithubPages) return [];
     return [
       {
         source: "/read/:slug/:chapter",
