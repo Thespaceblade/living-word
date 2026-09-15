@@ -13,6 +13,7 @@ import type {
   VerseWords,
 } from "@/lib/types";
 import type { XrefItem } from "@/lib/xrefs";
+import { commentaryExcerpt } from "@/lib/commentary-excerpt";
 
 export type StudyTabId =
   | "study"
@@ -29,7 +30,7 @@ type CompareRow = {
 };
 
 const TABS: { id: StudyTabId; label: string }[] = [
-  { id: "study", label: "Commentary" },
+  { id: "study", label: "Explainer" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
   { id: "xrefs", label: "Cross-refs" },
@@ -333,7 +334,7 @@ export function IntelPanel({
               {tab === "study" && (
                 <>
                   {intelLoading && (
-                    <p className="muted">Gathering commentary…</p>
+                    <p className="muted">Gathering explainer…</p>
                   )}
                   {intel?.error && <p className="error">{intel.error}</p>}
                   {!intelLoading &&
@@ -341,25 +342,33 @@ export function IntelPanel({
                     intel?.data &&
                     intel.data.entries.length === 0 && (
                       <p className="muted">
-                        No commentary for this verse in the library yet.
+                        No explainer for this verse in the library yet.
                       </p>
                     )}
-                  {intel?.data?.entries.map((entry) => (
-                    <article key={entry.id} className="intel-entry">
-                      <header className="intel-entry__head">
-                        <span className="intel-entry__label">
-                          {entryLabel(entry, selected?.verse ?? 0)}
-                        </span>
-                        <span className="intel-entry__meta">
-                          {entry.author}
-                          {entry.wordCount
-                            ? ` · ${entry.wordCount.toLocaleString()} words`
-                            : ""}
-                        </span>
-                      </header>
-                      <p className="intel-entry__body">{entry.text}</p>
-                    </article>
-                  ))}
+                  {intel?.data?.entries.map((entry) => {
+                    const excerpt = commentaryExcerpt(entry.text);
+                    return (
+                      <article
+                        key={entry.id}
+                        className="intel-entry intel-entry--explainer"
+                      >
+                        <header className="intel-entry__head">
+                          <span className="intel-entry__label">
+                            {entryLabel(entry, selected?.verse ?? 0)}
+                          </span>
+                          <span className="intel-entry__meta">
+                            {entry.author}
+                          </span>
+                        </header>
+                        <p className="intel-entry__body">{excerpt.preview}</p>
+                        {excerpt.needsExpand ? (
+                          <p className="intel-entry__meta">
+                            Open the verse card for the full note.
+                          </p>
+                        ) : null}
+                      </article>
+                    );
+                  })}
                 </>
               )}
 

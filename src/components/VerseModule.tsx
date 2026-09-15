@@ -23,6 +23,7 @@ import type {
   VerseWords,
 } from "@/lib/types";
 import type { XrefItem } from "@/lib/xrefs";
+import { commentaryExcerpt } from "@/lib/commentary-excerpt";
 
 export type StudyMode =
   | "study"
@@ -43,7 +44,7 @@ const MODES: {
   id: NonNullable<StudyMode>;
   label: string;
 }[] = [
-  { id: "study", label: "Commentary" },
+  { id: "study", label: "Explainer" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
   { id: "xrefs", label: "Refs" },
@@ -171,11 +172,45 @@ function entryLabel(entry: CommentaryEntry, verse: number) {
       ? "Book introduction"
       : `Chapter ${entry.chapter} overview`;
   }
-  if (entry.verses.length === 1) return `On v. ${entry.verses[0]}`;
+  if (entry.verses.length === 1) return `Verse ${entry.verses[0]}`;
   if (entry.verses.includes(verse)) {
-    return `On v. ${verse} · from vv. ${entry.verseRange}`;
+    return `Verse ${verse} · from ${entry.verseRange}`;
   }
-  return `On vv. ${entry.verseRange}`;
+  return `Verses ${entry.verseRange}`;
+}
+
+function ExplainerEntry({
+  entry,
+  verse,
+}: {
+  entry: CommentaryEntry;
+  verse: number;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const { preview, needsExpand } = commentaryExcerpt(entry.text);
+  const body = expanded || !needsExpand ? entry.text : preview;
+
+  return (
+    <article className="intel-entry intel-entry--explainer">
+      <header className="intel-entry__head">
+        <span className="intel-entry__label">
+          {entryLabel(entry, verse)}
+        </span>
+        <span className="intel-entry__meta">{entry.author}</span>
+      </header>
+      <p className="intel-entry__body">{body}</p>
+      {needsExpand ? (
+        <button
+          type="button"
+          className="intel-entry__more"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? "Show less" : "Read full note"}
+        </button>
+      ) : null}
+    </article>
+  );
 }
 
 function shortLiteral(gloss: string) {
@@ -654,30 +689,21 @@ export function VerseModule({
           <div className="verse-module__body" key={`${mode}-${intelKey}`}>
             {mode === "study" && (
               <>
-                {!intel && <p className="muted">Gathering commentary…</p>}
+                {!intel && <p className="muted">Gathering explainer…</p>}
                 {intel?.error && <p className="error">{intel.error}</p>}
                 {intel?.data &&
                 !intel.error &&
                 intel.data.entries.length === 0 ? (
                   <p className="muted">
-                    No commentary for this verse in the library yet.
+                    No explainer for this verse in the library yet.
                   </p>
                 ) : null}
                 {intel?.data?.entries.map((entry) => (
-                  <article key={entry.id} className="intel-entry">
-                    <header className="intel-entry__head">
-                      <span className="intel-entry__label">
-                        {entryLabel(entry, selected.verse)}
-                      </span>
-                      <span className="intel-entry__meta">
-                        {entry.author}
-                        {entry.wordCount
-                          ? ` · ${entry.wordCount.toLocaleString()} words`
-                          : ""}
-                      </span>
-                    </header>
-                    <p className="intel-entry__body">{entry.text}</p>
-                  </article>
+                  <ExplainerEntry
+                    key={entry.id}
+                    entry={entry}
+                    verse={selected.verse}
+                  />
                 ))}
               </>
             )}
