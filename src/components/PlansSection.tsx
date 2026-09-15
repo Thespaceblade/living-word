@@ -15,6 +15,7 @@ import {
   PLAN_TOPICS,
   READING_PLANS,
 } from "@/lib/plans-data";
+import { withBase } from "@/lib/site";
 
 type Props = {
   version: string;
@@ -90,7 +91,7 @@ export function PlansSection({ version }: Props) {
             >
               <Link href={`/plans/${plan.id}`} className="plan-card__media">
                 <Image
-                  src={plan.image}
+                  src={withBase(plan.image)}
                   alt=""
                   fill
                   sizes="(max-width: 700px) 100vw, 420px"

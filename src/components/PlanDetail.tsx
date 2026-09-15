@@ -14,6 +14,7 @@ import {
 } from "@/lib/plans";
 import type { ReadingPlan } from "@/lib/plans-data";
 import { formatDayReadings } from "@/lib/plans-data";
+import { withBase } from "@/lib/site";
 
 type Props = {
   plan: ReadingPlan;
@@ -39,7 +40,7 @@ export function PlanDetail({ plan, version }: Props) {
     <div className="plan-detail">
       <div className="plan-detail__hero">
         <Image
-          src={plan.image}
+          src={withBase(plan.image)}
           alt=""
           fill
           priority

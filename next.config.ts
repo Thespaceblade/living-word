@@ -15,16 +15,19 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_STATIC_EXPORT: isGithubPages ? "1" : "",
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
-  async redirects() {
-    if (isGithubPages) return [];
-    return [
-      {
-        source: "/read/:slug/:chapter",
-        destination: "/read/kjv/:slug/:chapter",
-        permanent: false,
-      },
-    ];
-  },
+  ...(isGithubPages
+    ? {}
+    : {
+        async redirects() {
+          return [
+            {
+              source: "/read/:slug/:chapter",
+              destination: "/read/kjv/:slug/:chapter",
+              permanent: false,
+            },
+          ];
+        },
+      }),
 };
 
 export default nextConfig;
