@@ -40,14 +40,14 @@ npm run ingest:words
 npm run ingest:lexicon
 ```
 
-Matthew Henry commentary is included for every book OpenChristianData publishes
-(Song of Solomon has no MH pack yet). Original-language words come from STEPBible.
+Jamieson-Fausset-Brown verse commentary is included for the full Protestant
+canon (OpenChristianData, CC0). Original-language words come from STEPBible.
 Strong's lexicon entries come from Open Scriptures (CC BY-SA).
 
 ## Stack
 
 - Next.js (App Router)
-- Public-domain Bible text + Matthew Henry commentary (CC0)
+- Public-domain Bible text + Jamieson-Fausset-Brown commentary (CC0)
 - STEPBible morphology (CC BY 4.0)
 - Open Scriptures Strong's lexicon (CC BY-SA)
 - Optional licensed text through publisher APIs

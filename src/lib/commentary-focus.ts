@@ -1,9 +1,8 @@
 import type { CommentaryEntry } from "./types";
 
 /**
- * Matthew Henry (and similar) packs often tag wide ranges (e.g. 1-21) even when
- * the stored text was truncated and never reaches later verses. Match and focus
- * commentary to the verse the reader actually selected.
+ * Wide commentary packs sometimes tag ranges even when the stored text is
+ * truncated. Match and focus commentary to the verse the reader selected.
  */
 
 const ABBR: Record<string, string[]> = {

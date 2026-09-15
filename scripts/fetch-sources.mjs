@@ -12,9 +12,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
 const COMMENTARY_BASE =
-  "https://raw.githubusercontent.com/OpenChristianData/open-christian-data/main/data/commentaries/matthew-henry";
+  "https://raw.githubusercontent.com/OpenChristianData/open-christian-data/main/data/commentaries/jamieson-fausset-brown";
 const BIBLE_BASE =
   "https://raw.githubusercontent.com/aruljohn/Bible-kjv/master";
+const COMMENTARY_DIR = path.join(
+  ROOT,
+  "data/raw/commentary/jamieson-fausset-brown",
+);
 
 /** slug (OpenChristianData / filename) -> Bible JSON book name */
 const BOOK_MAP = {
@@ -110,7 +114,7 @@ async function main() {
     }
     await download(
       `${COMMENTARY_BASE}/${slug}.json`,
-      path.join(ROOT, "data/raw/commentary/matthew-henry", `${slug}.json`),
+      path.join(COMMENTARY_DIR, `${slug}.json`),
     );
     await download(
       `${BIBLE_BASE}/${bibleName}.json`,

@@ -7,7 +7,7 @@
  * - kjv: aruljohn/Bible-kjv
  * - asv / web: midvash/bible-data
  * - bsb / bbe / nheb: scrollmapper/bible_databases
- * Commentary: OpenChristianData matthew-henry (CC0); optional per book
+ * Commentary: OpenChristianData jamieson-fausset-brown (CC0); optional per book
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -17,7 +17,10 @@ import { BOOK_SLUGS, CANON, VERSIONS } from "./canon.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const RAW_BIBLE = path.join(ROOT, "data/raw/bible");
-const RAW_COMMENTARY = path.join(ROOT, "data/raw/commentary/matthew-henry");
+const RAW_COMMENTARY = path.join(
+  ROOT,
+  "data/raw/commentary/jamieson-fausset-brown",
+);
 const OUT = path.join(ROOT, "data/processed");
 
 /** Expand "1-3", "5", "1-2,5" into verse numbers. "intro" → []. */
@@ -129,9 +132,9 @@ function loadBibleBook(versionId, book) {
 function emptyCommentary(bookName, slug) {
   return {
     meta: {
-      id: "matthew-henry-complete",
-      title: "Matthew Henry's Commentary",
-      author: "Matthew Henry",
+      id: "jamieson-fausset-brown",
+      title: "Jamieson-Fausset-Brown Bible Commentary",
+      author: "Jamieson, Fausset & Brown",
       license: "cc0-1.0",
       source: "OpenChristianData/open-christian-data",
     },
@@ -153,9 +156,10 @@ function loadCommentaryBook(slug, bookName, bible, commentaryFile) {
   }
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
   const meta = {
-    id: raw.meta?.id ?? "matthew-henry-complete",
-    title: raw.meta?.title ?? "Matthew Henry's Commentary",
-    author: raw.meta?.author ?? "Matthew Henry",
+    id: raw.meta?.id ?? "jamieson-fausset-brown",
+    title:
+      raw.meta?.title ?? "Jamieson-Fausset-Brown Bible Commentary",
+    author: "Jamieson, Fausset & Brown",
     license: raw.meta?.license ?? "cc0-1.0",
     source: "OpenChristianData/open-christian-data",
   };
