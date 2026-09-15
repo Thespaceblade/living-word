@@ -1129,6 +1129,20 @@ a {
   white-space: normal;
 }
 
+.plain-sense__text {
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.plain-sense__classic {
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+}
+
+.plain-sense__classic .intel-entry {
+  margin-top: 0.55rem;
+}
+
 .intel-entry__more {
   margin-top: 0.65rem;
   padding: 0;

@@ -24,6 +24,7 @@ import type {
 } from "@/lib/types";
 import type { XrefItem } from "@/lib/xrefs";
 import { commentaryExcerpt } from "@/lib/commentary-excerpt";
+import { pickPlainSense, type PlainSenseSource } from "@/lib/plain-sense";
 
 export type StudyMode =
   | "study"
@@ -179,7 +180,7 @@ function entryLabel(entry: CommentaryEntry, verse: number) {
   return `Verses ${entry.verseRange}`;
 }
 
-function ExplainerEntry({
+function ClassicNote({
   entry,
   verse,
 }: {
@@ -191,11 +192,9 @@ function ExplainerEntry({
   const body = expanded || !needsExpand ? entry.text : preview;
 
   return (
-    <article className="intel-entry intel-entry--explainer">
+    <article className="intel-entry intel-entry--classic">
       <header className="intel-entry__head">
-        <span className="intel-entry__label">
-          {entryLabel(entry, verse)}
-        </span>
+        <span className="intel-entry__label">{entryLabel(entry, verse)}</span>
         <span className="intel-entry__meta">{entry.author}</span>
       </header>
       <p className="intel-entry__body">{body}</p>
@@ -210,6 +209,69 @@ function ExplainerEntry({
         </button>
       ) : null}
     </article>
+  );
+}
+
+function PlainSenseExplainer({
+  plain,
+  classic,
+  verse,
+  loadingPlain,
+  loadingClassic,
+  plainError,
+  classicError,
+}: {
+  plain: PlainSenseSource | null;
+  classic: CommentaryEntry[];
+  verse: number;
+  loadingPlain: boolean;
+  loadingClassic: boolean;
+  plainError?: string;
+  classicError?: string;
+}) {
+  const [showClassic, setShowClassic] = useState(false);
+
+  return (
+    <div className="plain-sense">
+      {loadingPlain ? <p className="muted">Gathering plain sense…</p> : null}
+      {plainError ? <p className="error">{plainError}</p> : null}
+      {!loadingPlain && !plainError && !plain ? (
+        <p className="muted">No plain English reading for this verse yet.</p>
+      ) : null}
+      {plain ? (
+        <article className="intel-entry intel-entry--explainer">
+          <header className="intel-entry__head">
+            <span className="intel-entry__label">This verse means</span>
+            <span className="intel-entry__meta">
+              Plain English · {plain.label}
+            </span>
+          </header>
+          <p className="intel-entry__body plain-sense__text">{plain.text}</p>
+        </article>
+      ) : null}
+
+      {classicError ? <p className="error">{classicError}</p> : null}
+      {!loadingClassic && classic.length > 0 ? (
+        <div className="plain-sense__classic">
+          <button
+            type="button"
+            className="intel-entry__more"
+            aria-expanded={showClassic}
+            onClick={() => setShowClassic((value) => !value)}
+          >
+            {showClassic ? "Hide classic note" : "Classic note"}
+          </button>
+          {showClassic
+            ? classic.map((entry) => (
+                <ClassicNote key={entry.id} entry={entry} verse={verse} />
+              ))
+            : null}
+        </div>
+      ) : null}
+      {loadingClassic && !plain ? (
+        <p className="muted">Checking classic notes…</p>
+      ) : null}
+    </div>
   );
 }
 
@@ -250,6 +312,10 @@ export function VerseModule({
   const [placed, setPlaced] = useState(false);
 
   const intelKey = `${version}:${selected.slug}:${selected.chapter}:${selected.verse}`;
+  const plainKey =
+    mode === "study"
+      ? `${selected.slug}:${selected.chapter}:${selected.verse}`
+      : null;
   const compareKey =
     mode === "compare"
       ? `${selected.slug}:${selected.chapter}:${selected.verse}`
@@ -266,6 +332,11 @@ export function VerseModule({
   const [intelResult, setIntelResult] = useState<{
     key: string;
     data?: IntelPayload;
+    error?: string;
+  } | null>(null);
+  const [plainResult, setPlainResult] = useState<{
+    key: string;
+    plain?: PlainSenseSource | null;
     error?: string;
   } | null>(null);
   const [compareResult, setCompareResult] = useState<{
@@ -399,7 +470,37 @@ export function VerseModule({
       }, 280);
     }, 60);
     return () => window.clearTimeout(id);
-  }, [mode, intelResult, wordsResult, compareResult, xrefsResult, selected.verse]);
+  }, [mode, intelResult, plainResult, wordsResult, compareResult, xrefsResult, selected.verse]);
+
+  useEffect(() => {
+    if (!plainKey) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      slug: selected.slug,
+      chapter: String(selected.chapter),
+      verse: String(selected.verse),
+    });
+    fetch(`/api/compare?${params}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load plain sense");
+        return (await res.json()) as { parallels: CompareRow[] };
+      })
+      .then((json) => {
+        setPlainResult({
+          key: plainKey,
+          plain: pickPlainSense(json.parallels, version),
+        });
+      })
+      .catch((err: Error) => {
+        if (err.name === "AbortError") return;
+        setPlainResult({
+          key: plainKey,
+          plain: null,
+          error: "Could not load a plain English reading.",
+        });
+      });
+    return () => controller.abort();
+  }, [plainKey, selected, version]);
 
   useEffect(() => {
     if (mode !== "study") return;
@@ -421,7 +522,7 @@ export function VerseModule({
         if (err.name === "AbortError") return;
         setIntelResult({
           key: intelKey,
-          error: "Could not load commentary for this verse.",
+          error: "Could not load classic notes for this verse.",
         });
       });
     return () => controller.abort();
@@ -505,6 +606,10 @@ export function VerseModule({
 
   const intel =
     intelResult && intelResult.key === intelKey ? intelResult : null;
+  const plain =
+    plainResult && plainKey && plainResult.key === plainKey
+      ? plainResult
+      : null;
   const compare =
     compareResult && compareResult.key === compareKey ? compareResult : null;
   const words =
@@ -688,24 +793,15 @@ export function VerseModule({
         {mode ? (
           <div className="verse-module__body" key={`${mode}-${intelKey}`}>
             {mode === "study" && (
-              <>
-                {!intel && <p className="muted">Gathering explainer…</p>}
-                {intel?.error && <p className="error">{intel.error}</p>}
-                {intel?.data &&
-                !intel.error &&
-                intel.data.entries.length === 0 ? (
-                  <p className="muted">
-                    No explainer for this verse in the library yet.
-                  </p>
-                ) : null}
-                {intel?.data?.entries.map((entry) => (
-                  <ExplainerEntry
-                    key={entry.id}
-                    entry={entry}
-                    verse={selected.verse}
-                  />
-                ))}
-              </>
+              <PlainSenseExplainer
+                plain={plain?.plain ?? null}
+                classic={intel?.data?.entries ?? []}
+                verse={selected.verse}
+                loadingPlain={!plain}
+                loadingClassic={!intel}
+                plainError={plain?.error}
+                classicError={intel?.error}
+              />
             )}
 
             {mode === "words" && (
