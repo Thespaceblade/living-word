@@ -196,10 +196,16 @@ export function focusCommentaryText(
   const covering = anchors.filter(
     (a) => verse >= a.start && verse <= a.end,
   );
-  const target =
-    covering[0] ??
-    anchors.find((a) => a.start === verse) ??
-    null;
+  covering.sort((a, b) => {
+    const spanA = a.end - a.start;
+    const spanB = b.end - b.start;
+    if (spanA !== spanB) return spanA - spanB;
+    const exactA = a.start === verse && a.end === verse ? 0 : 1;
+    const exactB = b.start === verse && b.end === verse ? 0 : 1;
+    if (exactA !== exactB) return exactA - exactB;
+    return a.index - b.index;
+  });
+  const target = covering[0] ?? null;
 
   if (target) {
     const next = anchors.find((a) => a.index > target.index && a.start > verse);
