@@ -39,7 +39,10 @@ type CompareRow = {
   text: string | null;
 };
 
-const MODES: { id: NonNullable<StudyMode>; label: string }[] = [
+const MODES: {
+  id: NonNullable<StudyMode>;
+  label: string;
+}[] = [
   { id: "study", label: "Commentary" },
   { id: "words", label: "Words" },
   { id: "compare", label: "Compare" },
@@ -47,7 +50,115 @@ const MODES: { id: NonNullable<StudyMode>; label: string }[] = [
   { id: "notes", label: "Note" },
 ];
 
-const MODULE_WIDTH = 360;
+const MODULE_WIDTH = 320;
+
+function ModeIcon({ id }: { id: NonNullable<StudyMode> }) {
+  const common = {
+    className: "verse-module__icon",
+    viewBox: "0 0 16 16",
+    "aria-hidden": true as const,
+  };
+  switch (id) {
+    case "study":
+      return (
+        <svg {...common}>
+          <path
+            d="M2.5 3.2h5.2c.9 0 1.6.4 2.3 1 .7-.6 1.4-1 2.3-1H15v9.2h-2.7c-.9 0-1.6.3-2.3.8-.7-.5-1.4-.8-2.3-.8H2.5V3.2Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 4.4v7.8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "words":
+      return (
+        <svg {...common}>
+          <path
+            d="M2.8 12.2 5.8 3.8h1.6l3 8.4H8.9l-.65-1.85H4.9L4.25 12.2H2.8Zm2.5-3.3h2.5L6.6 5.6 5.3 8.9Z"
+            fill="currentColor"
+          />
+          <path
+            d="M10.6 12.2 12.2 7.4h1.35L15.2 12.2h-1.4l-.28-.95h-1.7l-.28.95H10.6Zm2.1-2.3.55-1.85.55 1.85h-1.1Z"
+            fill="currentColor"
+          />
+        </svg>
+      );
+    case "compare":
+      return (
+        <svg {...common}>
+          <rect
+            x="2.4"
+            y="3"
+            width="4.6"
+            height="10"
+            rx="1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+          />
+          <rect
+            x="9"
+            y="3"
+            width="4.6"
+            height="10"
+            rx="1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+          />
+        </svg>
+      );
+    case "xrefs":
+      return (
+        <svg {...common}>
+          <path
+            d="M6.4 9.6a3 3 0 0 1 0-4.2l1.5-1.5a3 3 0 0 1 4.2 4.2L11 9.2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+          />
+          <path
+            d="M9.6 6.4a3 3 0 0 1 0 4.2L8.1 12a3 3 0 1 1-4.2-4.2L5 6.8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "notes":
+      return (
+        <svg {...common}>
+          <path
+            d="M3.2 2.8h7.1L12.8 5.3v7.9a1 1 0 0 1-1 1H3.2a1 1 0 0 1-1-1V3.8a1 1 0 0 1 1-1Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M10.1 2.9v2.6h2.5M5 8h5.2M5 10.4h3.8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.35"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
 const LERP = 0.14;
 const TOP_SAFE = 72;
 const BOTTOM_SAFE = 24;
@@ -529,10 +640,12 @@ export function VerseModule({
               key={item.id}
               type="button"
               className={`verse-module__action ${mode === item.id ? "is-active" : ""}`}
+              aria-label={item.label}
               aria-pressed={mode === item.id}
+              data-label={item.label}
               onClick={() => toggleMode(item.id)}
             >
-              {item.label}
+              <ModeIcon id={item.id} />
             </button>
           ))}
         </div>
