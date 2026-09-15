@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { BibleReader } from "@/components/BibleReader";
 import { LicensedVersionGate } from "@/components/LicensedVersionGate";
@@ -11,8 +12,9 @@ import { isLicensedVersionId } from "@/lib/licensed-versions";
 
 type Props = {
   params: Promise<{ version: string; slug: string; chapter: string }>;
-  searchParams: Promise<{ verse?: string; plan?: string; day?: string }>;
 };
+
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   const catalog = getCatalog();
@@ -27,13 +29,8 @@ export function generateStaticParams() {
   );
 }
 
-export default async function ReadPage({ params, searchParams }: Props) {
+export default async function ReadPage({ params }: Props) {
   const { version, slug, chapter: chapterParam } = await params;
-  const {
-    verse: verseParam,
-    plan: planParam,
-    day: dayParam,
-  } = await searchParams;
 
   if (!isValidVersion(version)) notFound();
 
@@ -46,8 +43,6 @@ export default async function ReadPage({ params, searchParams }: Props) {
 
   const loaded = await getChapterForRead(version, slug, chapterNum);
   const versions = getVersions();
-  const initialVerse = verseParam ? Number.parseInt(verseParam, 10) : null;
-  const planDay = dayParam ? Number.parseInt(dayParam, 10) : null;
 
   if (loaded.status === "needs_key" || loaded.status === "error") {
     return (
@@ -71,27 +66,24 @@ export default async function ReadPage({ params, searchParams }: Props) {
   if (loaded.status !== "ok") notFound();
 
   return (
-    <BibleReader
-      version={version}
-      versions={versions}
-      book={loaded.book}
-      slug={loaded.slug}
-      chapter={loaded.chapter.chapter}
-      verses={loaded.chapter.verses}
-      chapterCount={bookMeta.chapters}
-      books={catalog.books.map((b) => ({
-        book: b.book,
-        slug: b.slug,
-        chapters: b.chapters,
-      }))}
-      initialVerse={
-        Number.isFinite(initialVerse as number) ? initialVerse : null
-      }
-      planId={planParam || null}
-      planDay={Number.isFinite(planDay as number) ? planDay : null}
-      copyrightNotice={
-        isLicensedVersionId(version) ? loaded.copyright : null
-      }
-    />
+    <Suspense fallback={<main className="reader-shell" aria-busy="true" />}>
+      <BibleReader
+        version={version}
+        versions={versions}
+        book={loaded.book}
+        slug={loaded.slug}
+        chapter={loaded.chapter.chapter}
+        verses={loaded.chapter.verses}
+        chapterCount={bookMeta.chapters}
+        books={catalog.books.map((b) => ({
+          book: b.book,
+          slug: b.slug,
+          chapters: b.chapters,
+        }))}
+        copyrightNotice={
+          isLicensedVersionId(version) ? loaded.copyright : null
+        }
+      />
+    </Suspense>
   );
 }

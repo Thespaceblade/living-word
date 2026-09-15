@@ -37,6 +37,12 @@ export function getLocalVersions(): BibleVersion[] {
 }
 
 export function getVersions(): BibleVersion[] {
+  if (
+    process.env.GITHUB_PAGES === "1" ||
+    process.env.NEXT_PUBLIC_STATIC_EXPORT === "1"
+  ) {
+    return getLocalVersions();
+  }
   return [...getLocalVersions(), ...licensedVersionsForUi()];
 }
 

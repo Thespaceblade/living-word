@@ -22,9 +22,16 @@ import type {
   VerseRef,
   VerseWords,
 } from "@/lib/types";
-import type { XrefItem } from "@/lib/xrefs";
+import type { XrefItem } from "@/lib/xref-shared";
 import { commentaryExcerpt } from "@/lib/commentary-excerpt";
 import { pickPlainSense, type PlainSenseSource } from "@/lib/plain-sense";
+import {
+  apiGetCompare,
+  apiGetIntel,
+  apiGetLexicon,
+  apiGetWords,
+  apiGetXrefs,
+} from "@/lib/browser-api";
 
 export type StudyMode =
   | "study"
@@ -530,18 +537,7 @@ export function VerseModule({
   useEffect(() => {
     if (mode !== "study") return;
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      version,
-      slug: selected.slug,
-      book: selected.book,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-    fetch(`/api/intel?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load study notes");
-        return (await res.json()) as IntelPayload;
-      })
+    apiGetIntel(selected, version, controller.signal)
       .then((data) => setIntelResult({ key: intelKey, data }))
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
@@ -556,17 +552,15 @@ export function VerseModule({
   useEffect(() => {
     if (!compareKey) return;
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      slug: selected.slug,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-    fetch(`/api/compare?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load parallels");
-        return (await res.json()) as { parallels: CompareRow[] };
-      })
-      .then((json) => setCompareResult({ key: compareKey, rows: json.parallels }))
+    apiGetCompare(
+      selected.slug,
+      selected.chapter,
+      selected.verse,
+      controller.signal,
+    )
+      .then((json) =>
+        setCompareResult({ key: compareKey, rows: json.parallels }),
+      )
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
         setCompareResult({
@@ -581,16 +575,12 @@ export function VerseModule({
   useEffect(() => {
     if (!wordsKey) return;
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      slug: selected.slug,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-    fetch(`/api/words?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load words");
-        return (await res.json()) as VerseWords;
-      })
+    apiGetWords(
+      selected.slug,
+      selected.chapter,
+      selected.verse,
+      controller.signal,
+    )
       .then((data) => setWordsResult({ key: wordsKey, data }))
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
@@ -605,18 +595,7 @@ export function VerseModule({
   useEffect(() => {
     if (!xrefsKey) return;
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      version,
-      slug: selected.slug,
-      book: selected.book,
-      chapter: String(selected.chapter),
-      verse: String(selected.verse),
-    });
-    fetch(`/api/xrefs?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load cross-refs");
-        return (await res.json()) as { items: XrefItem[] };
-      })
+    apiGetXrefs(version, selected, controller.signal)
       .then((json) => setXrefsResult({ key: xrefsKey, items: json.items }))
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
@@ -1005,17 +984,11 @@ function WordsBody({
     const key = `${version}:${selectedToken.strongs}:${selected.slug}:${selected.chapter}:${selected.verse}`;
     const controller = new AbortController();
     setLexicon({ key });
-    const params = new URLSearchParams({
-      strongs: selectedToken.strongs,
-      version,
+    apiGetLexicon(selectedToken.strongs, version, {
       exclude: `${selected.slug}:${selected.chapter}:${selected.verse}`,
-      limit: "20",
-    });
-    fetch(`/api/lexicon?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Lexicon unavailable");
-        return (await res.json()) as LexiconPayload;
-      })
+      limit: 20,
+      signal: controller.signal,
+    })
       .then((payload) => setLexicon({ key, data: payload }))
       .catch((err: unknown) => {
         if (controller.signal.aborted) return;

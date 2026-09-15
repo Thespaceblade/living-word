@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
+import { withBase } from "@/lib/site";
 import "./globals.css";
 
 const sourceSerif = Source_Serif_4({
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   description:
     "A clean KJV Bible reader with verse-tagged public-domain commentary.",
   icons: {
-    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+    icon: [{ url: withBase("/logo.svg"), type: "image/svg+xml" }],
   },
 };
 

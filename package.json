@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "npm run ingest && npm run ingest:tyndale && npm run ingest:words && npm run ingest:lexicon && next build",
+    "build:static": "node scripts/prepare-static.mjs && GITHUB_PAGES=1 next build",
+    "prepare:static": "node scripts/prepare-static.mjs",
     "start": "next start",
     "lint": "eslint",
     "ingest": "node scripts/ingest.mjs",

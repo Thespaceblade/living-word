@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# generated static library copy for GitHub Pages
+/public/data/
+
 # production
 /build
 
