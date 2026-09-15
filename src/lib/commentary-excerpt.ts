@@ -7,7 +7,7 @@ const DEFAULT_MAX_WORDS = 55;
 
 function stripLeadingLemma(text: string): string {
   // JFB often opens with a quoted lemma then "--" before the note.
-  const match = text.match(/^(.{1,120}?)(?:--|—)\s*(.+)$/s);
+  const match = text.match(/^(.{1,120}?)(?:--|—)\s*(.+)$/);
   if (!match) return text;
   const rest = (match[2] ?? "").trim();
   return rest.length >= 24 ? rest : text;
