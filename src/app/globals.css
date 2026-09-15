@@ -1554,8 +1554,8 @@ a.xref-card:hover {
 
 .verse-module__actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
-  gap: 0.3rem;
+  grid-template-columns: repeat(auto-fit, minmax(7.25rem, 1fr));
+  gap: 0.35rem;
 }
 
 .verse-module__action {
@@ -1563,11 +1563,11 @@ a.xref-card:hover {
   background: #fff;
   color: var(--text);
   font: inherit;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 650;
   letter-spacing: -0.01em;
   line-height: 1.2;
-  padding: 0.45rem 0.55rem;
+  padding: 0.5rem 0.65rem;
   border-radius: 7px;
   cursor: pointer;
   white-space: nowrap;

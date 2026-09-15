@@ -47,7 +47,7 @@ const MODES: { id: NonNullable<StudyMode>; label: string }[] = [
   { id: "notes", label: "Note" },
 ];
 
-const MODULE_WIDTH = 348;
+const MODULE_WIDTH = 360;
 const LERP = 0.14;
 const TOP_SAFE = 72;
 const BOTTOM_SAFE = 24;
